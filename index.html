@@ -102,6 +102,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 
 /* Hero */
 .hero{background:linear-gradient(160deg,var(--navy-900),var(--navy-700));color:#fff;padding:36px 0 60px;position:relative;overflow:hidden}
+.hero-skyline{position:absolute;inset-inline-start:0;bottom:0;width:100%;height:140px;opacity:.06;pointer-events:none}
 .hero .container{max-width:980px}
 .hero-grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:28px}
 .hero-grid > *:first-child{flex:1 1 460px;min-width:280px}
@@ -109,7 +110,8 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .hero .sub-en{color:var(--gold-100);font-weight:700;margin:0 0 18px;font-size:clamp(17px,2vw,22px);letter-spacing:.3px}
 .eyebrow.hero-eyebrow{margin:0 0 10px}
 .hero p.desc{color:#dce8f2;max-width:520px;margin:0 0 26px}
-.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:34px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.license-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 14px;font-size:12.5px;color:#dce8f2;margin-bottom:22px}
 .stats-row{display:flex;gap:28px;flex-wrap:wrap}
 .stat b{display:block;font-size:26px;font-family:var(--font-display)}
 .stat span{font-size:13px;color:#c9d8e6}
@@ -117,6 +119,8 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .hero-panel img{max-width:220px;max-height:280px;width:auto;height:auto;display:block;margin:0 auto 16px;border-radius:14px;border:1px solid rgba(255,255,255,.25);object-fit:contain}
 .hero-panel h3{margin:0 0 6px;font-size:18px}
 .hero-panel p{color:#cfe0ee;font-size:14px;margin:0}
+.hero-panel-link{display:inline-block;margin-top:14px;color:var(--gold-100);font-weight:700;font-size:13.5px}
+.hero-panel-link:hover{color:#fff}
 
 /* Offers */
 .offer-card{overflow:hidden;position:relative}
@@ -148,12 +152,12 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .result-box .card span{font-size:13px;color:var(--text-600)}
 
 /* Assistant */
-.add-city-link{background:transparent;color:var(--navy-700);font-size:12px;font-weight:700;padding:2px 0;text-decoration:underline;margin-top:2px;align-self:flex-start}
-.modal-overlay{position:fixed;inset:0;background:rgba(7,20,33,.5);display:none;align-items:center;justify-content:center;z-index:100}
-.modal-overlay.open{display:flex}
-.modal-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:360px}
-.modal-box h4{margin:0 0 14px}
-.modal-close-row{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+/* Amenity toggles */
+.amenity-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.amenity-toggle{display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-size:13px;font-weight:700;color:var(--text-600);transition:all .15s ease}
+.amenity-toggle .ic{font-size:15px}
+.amenity-toggle:hover{border-color:var(--gold-500)}
+.amenity-toggle.active{background:var(--gold-500);border-color:var(--gold-500);color:var(--navy-900)}
 
 /* Social row */
 .social-row{display:flex;gap:14px;align-items:center;margin-top:14px;flex-wrap:wrap}
@@ -265,16 +269,27 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
      Hero
      ========================================================================== -->
 <section id="home" class="hero">
+  <svg class="hero-skyline" viewBox="0 0 800 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 220 L0 190 L40 190 L40 170 L60 170 L60 190 L100 190 L100 150 L120 150 L120 190
+             L170 190 L170 120 Q170 90 200 90 Q230 90 230 120 L230 190
+             L260 190 L260 160 L280 160 L280 190 L340 190 L340 100 L360 100 L360 80 L380 80 L380 100 L400 100 L400 190
+             L440 190 L440 140 Q440 100 480 100 Q520 100 520 140 L520 190
+             L560 190 L560 165 L580 165 L580 190 L640 190 L640 110 L660 110 L660 90 L680 90 L680 110 L700 110 L700 190
+             L740 190 L740 160 L760 160 L760 190 L800 190 L800 220 Z" fill="#fff"/>
+    <circle cx="480" cy="80" r="14" fill="#fff"/>
+    <circle cx="200" cy="72" r="10" fill="#fff"/>
+  </svg>
   <div class="container hero-grid">
     <div>
       <p class="eyebrow hero-eyebrow" style="color:var(--gold-100)" data-i18n="hero_eyebrow">🇸🇦 المدينة المنورة</p>
       <h1 data-i18n="hero_title">همة المدينة العقارية</h1>
       <p class="sub-en" data-i18n="hero_sub">Himmat Al Madinah Real Estate</p>
-      <p class="desc" data-i18n="hero_desc">نعمل في المدينة المنورة لنقدم خدمات عقارية مبنية على المعرفة بالسوق، ودقة المعلومة، ووضوح التعامل، لنساعد عملاءنا على اتخاذ القرار الأنسب؛ سواء كان الهدف السكن، الاستثمار، البيع أو إدارة الأملاك.</p>
+      <p class="desc" data-i18n="hero_desc">نعمل في المدينة المنورة لنقدم خدمات عقارية مبنية على المعرفة بالسوق، ودقة المعلومة، ووضوح التعامل.</p>
       <div class="hero-cta">
-        <a href="#valuation" class="btn btn-primary" data-i18n="hero_cta1">ابدأ التقييم الآن</a>
-        <a href="#about" class="btn btn-outline" data-i18n="hero_cta2">تعرف علينا</a>
+        <a href="#offers" class="btn btn-primary" data-i18n="hero_cta_browse">تصفح العقارات</a>
+        <a href="#add-property" class="btn btn-outline" data-i18n="hero_cta_list">أضف عقارك</a>
       </div>
+      <div class="license-badge">🛡️ <span data-i18n="license_badge">مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428</span></div>
       <div class="stats-row">
         <div class="stat"><b>4+</b><span data-i18n="stat1">مدن مدعومة</span></div>
         <div class="stat"><b id="stat-district-count">—</b><span data-i18n="stat4">حي مدعوم</span></div>
@@ -286,6 +301,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       <img src="Himmat-Almedina.png" alt="همة المدينة العقارية" onerror="this.remove()">
       <h3 data-i18n="hero_panel_title">قاعدة بيانات مشتركة وحقيقية</h3>
       <p data-i18n="hero_panel_desc">كل عقار وعقد تضيفه يُخزَّن مركزياً ويبقى محفوظاً — وليس فقط على متصفحك.</p>
+      <a href="#valuation" class="hero-panel-link" data-i18n="hero_cta1">ابدأ التقييم الآن ←</a>
     </div>
   </div>
 </section>
@@ -304,6 +320,19 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       <p class="eyebrow" data-i18n="offers_eyebrow">فرص لا تفوّت</p>
       <h2 data-i18n="offers_title">عروض وخصومات</h2>
       <p data-i18n="offers_desc">تُقرأ هذه العروض مباشرة من قاعدة البيانات، وتتحدث تلقائياً لكل الزوار عند أي تحديث من فريقنا.</p>
+    </div>
+    <div class="card" style="padding:18px;margin-bottom:24px">
+      <div class="grid grid-4">
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_city">المدينة</label><select id="filter-city" class="city-select-filter"></select></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_type">نوع العقار</label><select id="filter-type" class="type-select-filter"></select></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_price">أقل سعر (ر.س)</label><input id="filter-min-price" type="number" min="0"></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_max_price">أعلى سعر (ر.س)</label><input id="filter-max-price" type="number" min="0"></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_rooms">أقل عدد غرف</label><input id="filter-min-rooms" type="number" min="0"></div>
+        <div class="field" style="margin-bottom:0;grid-column:span 2;flex-direction:row;align-items:end;gap:8px">
+          <button class="btn btn-primary" id="btn-apply-filters" data-i18n="filter_apply">بحث</button>
+          <button class="btn btn-ghost" id="btn-reset-filters" data-i18n="filter_reset">إعادة تعيين</button>
+        </div>
+      </div>
     </div>
     <div id="offers-grid" class="grid grid-3"></div>
   </div>
@@ -348,7 +377,6 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
           <div class="field">
             <label data-i18n="f_city">المدينة</label>
             <select id="v-city" class="city-select"></select>
-            <button type="button" class="add-city-link" data-target="v-city" data-i18n="add_city_prompt">لا تجد مدينتك؟ أضف مدينة جديدة</button>
           </div>
           <div class="field">
             <label data-i18n="f_district">الحي</label>
@@ -386,6 +414,16 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
               <option value="استثماري" data-adj="0.15" data-i18n="opt_investment">حي استثماري (+15%)</option>
               <option value="متوسط" data-adj="0" data-i18n="opt_mid">حي متوسط</option>
             </select>
+          </div>
+        </div>
+        <div class="field">
+          <label data-i18n="f_amenities">إضافات تؤثر على السعر</label>
+          <div class="amenity-row" id="v-amenities">
+            <button type="button" class="amenity-toggle" data-amenity="maid_room" data-adj="0.05"><span class="ic">🧹</span><span data-i18n="am_maid_room">غرفة خادمة</span></button>
+            <button type="button" class="amenity-toggle" data-amenity="central_ac" data-adj="0.03"><span class="ic">❄️</span><span data-i18n="am_central_ac">تكييف مركزي</span></button>
+            <button type="button" class="amenity-toggle" data-amenity="furnished" data-adj="0.04"><span class="ic">🛋️</span><span data-i18n="am_furnished">مفروش</span></button>
+            <button type="button" class="amenity-toggle" data-amenity="driver_room" data-adj="0.05"><span class="ic">🚗</span><span data-i18n="am_driver_room">غرفة سائق</span></button>
+            <button type="button" class="amenity-toggle" data-amenity="elevator" data-adj="0.06"><span class="ic">🛗</span><span data-i18n="am_elevator">مصعد</span></button>
           </div>
         </div>
         <button class="btn btn-primary" id="btn-run-valuation" style="width:100%;justify-content:center;margin-top:6px" data-i18n="val_run">احسب التقدير</button>
@@ -439,7 +477,6 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       <div class="grid grid-2">
         <div class="field"><label data-i18n="f_city">المدينة</label>
           <select id="add-city" class="city-select"></select>
-          <button type="button" class="add-city-link" data-target="add-city" data-i18n="add_city_prompt">لا تجد مدينتك؟ أضف مدينة جديدة</button>
         </div>
         <div class="field"><label data-i18n="f_district">الحي</label><select id="add-district" class="district-select" data-city-of="add-city"></select></div>
         <div class="field"><label data-i18n="f_type">نوع العقار</label>
@@ -449,7 +486,17 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="field"><label data-i18n="f_area">المساحة (م²)</label><input id="add-area" type="number"></div>
         <div class="field"><label data-i18n="f_contact">وسيلة تواصل (اختياري)</label><input id="add-contact" type="text" placeholder="جوال أو بريد"></div>
       </div>
-      <button class="btn btn-primary" id="btn-add-property" style="margin-top:6px" data-i18n="add_submit">إدراج للمراجعة</button>
+      <div class="field">
+        <label data-i18n="f_amenities">إضافات تؤثر على السعر</label>
+        <div class="amenity-row" id="add-amenities">
+          <button type="button" class="amenity-toggle" data-amenity="maid_room" data-adj="0.05"><span class="ic">🧹</span><span data-i18n="am_maid_room">غرفة خادمة</span></button>
+          <button type="button" class="amenity-toggle" data-amenity="central_ac" data-adj="0.03"><span class="ic">❄️</span><span data-i18n="am_central_ac">تكييف مركزي</span></button>
+          <button type="button" class="amenity-toggle" data-amenity="furnished" data-adj="0.04"><span class="ic">🛋️</span><span data-i18n="am_furnished">مفروش</span></button>
+          <button type="button" class="amenity-toggle" data-amenity="driver_room" data-adj="0.05"><span class="ic">🚗</span><span data-i18n="am_driver_room">غرفة سائق</span></button>
+          <button type="button" class="amenity-toggle" data-amenity="elevator" data-adj="0.06"><span class="ic">🛗</span><span data-i18n="am_elevator">مصعد</span></button>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-add-property" style="margin-top:14px" data-i18n="add_submit">إدراج للمراجعة</button>
       <p id="add-property-msg" style="font-size:13px;margin-top:10px"></p>
     </div>
   </div>
@@ -508,7 +555,6 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="field"><label data-i18n="f_lessee_phone">جوال المستأجر</label><input id="c-lessee-phone" type="text"></div>
         <div class="field"><label data-i18n="f_city">المدينة</label>
           <select id="c-city" class="city-select"></select>
-          <button type="button" class="add-city-link" data-target="c-city" data-i18n="add_city_prompt">لا تجد مدينتك؟ أضف مدينة جديدة</button>
         </div>
         <div class="field"><label data-i18n="f_district">الحي</label><select id="c-district" class="district-select" data-city-of="c-city"></select></div>
         <div class="field"><label data-i18n="f_unit_type">نوع الوحدة</label>
@@ -565,6 +611,19 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <p style="color:var(--text-600);font-size:14px" data-i18n="goal_text">هدفنا ليس إتمام صفقة فحسب، بل بناء علاقة تبدأ بالثقة وتستمر بجودة الخدمة.</p>
       </div>
     </div>
+
+    <div class="card" style="padding:22px;margin-top:24px;border-color:var(--gold-500);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="font-size:32px">🛡️</div>
+      <div>
+        <h4 style="margin:0 0 4px" data-i18n="license_title">الترخيص والاعتماد</h4>
+        <p style="color:var(--text-600);font-size:14px;margin:0" data-i18n="license_text">همة المدينة العقارية مرخّصة رسمياً من الهيئة العامة للعقار بالمملكة العربية السعودية — رقم رخصة فال العقارية: 1200030428.</p>
+      </div>
+    </div>
+
+    <details style="margin-top:24px;max-width:640px">
+      <summary style="cursor:pointer;font-size:13px;color:var(--text-600);font-weight:700" data-i18n="tech_summary">للمهتمين بالتفاصيل التقنية</summary>
+      <p style="color:var(--text-600);font-size:13px;margin-top:8px" data-i18n="tech_detail">مبني على قاعدة بيانات Supabase مع صلاحيات وصول محكومة (RLS) — لا تُخزَّن أي بيانات في متصفحك فقط، بل مركزياً ومشتركة بين كل الزوار.</p>
+    </details>
   </div>
 </section>
 
@@ -582,6 +641,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <p><b data-i18n="contact_location_label">الموقع: </b><span data-i18n="contact_location">المدينة المنورة، المملكة العربية السعودية</span></p>
         <p><b>Email:</b> <a href="mailto:ffaaddhheell2323@gmail.com">ffaaddhheell2323@gmail.com</a></p>
         <p><b data-i18n="contact_phone_label">الهاتف: </b><a href="tel:+966530500906">+966 530 500 906</a></p>
+        <p><b data-i18n="hours_label">ساعات العمل: </b><span data-i18n="hours_value">الأحد – الخميس: 9ص – 6م · الجمعة والسبت: مغلق</span></p>
         <p><a href="https://wa.me/966530500906" class="btn btn-primary" style="margin-top:8px" target="_blank" rel="noopener" data-i18n="whatsapp_word">واتساب</a></p>
         <p style="margin-top:22px;font-weight:700" data-i18n="social_title">تابعنا عبر منصات التواصل</p>
         <div class="social-row" id="social-row">
@@ -613,9 +673,13 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
             </svg>
           </a>
         </div>
+        <div style="margin-top:20px;border-radius:12px;overflow:hidden">
+          <iframe src="https://www.google.com/maps?q=24.4672,39.6111&output=embed" width="100%" height="220" style="border:0" loading="lazy"></iframe>
+        </div>
       </div>
       <div class="card" style="padding:22px">
         <div class="field"><label data-i18n="f_name">الاسم</label><input id="ct-name" type="text"></div>
+        <div class="field"><label data-i18n="f_reach">جوالك أو بريدك الإلكتروني</label><input id="ct-reach" type="text" placeholder="05xxxxxxxx / name@email.com"></div>
         <div class="field"><label data-i18n="f_inquiry_type">نوع الاستفسار</label>
           <select id="ct-type">
             <option data-i18n="opt_buy">شراء عقار</option>
@@ -626,7 +690,9 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
           </select>
         </div>
         <div class="field"><label data-i18n="f_message">الرسالة</label><textarea id="ct-message" rows="3"></textarea></div>
-        <button class="btn btn-primary" id="btn-send-whatsapp" data-i18n="contact_send">إرسال عبر واتساب</button>
+        <button class="btn btn-primary" id="btn-send-contact" data-i18n="contact_send_form">إرسال الطلب</button>
+        <p id="contact-form-msg" style="font-size:13px;margin-top:8px"></p>
+        <p style="font-size:12px;color:var(--text-600);margin-top:10px" data-i18n="contact_send_note">يُحفظ طلبك في نظامنا ويفتح واتساب أيضاً لتواصل أسرع.</p>
       </div>
     </div>
   </div>
@@ -640,7 +706,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
     <div class="grid grid-3">
       <div>
         <h4 data-i18n="brand">همة المدينة العقارية</h4>
-        <p style="font-size:13px" data-i18n="footer_tag">🕌 شريكك العقاري الموثوق في المدينة المنورة — رخصة فال العقارية: 1200030428</p>
+        <p style="font-size:13px" data-i18n="footer_tag">🕌 شريكك العقاري الموثوق في المدينة المنورة</p>
       </div>
       <div>
         <h4 data-i18n="footer_legal">قانوني</h4>
@@ -648,35 +714,37 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <p style="font-size:13px"><a href="#terms" data-i18n="footer_terms">شروط الاستخدام</a></p>
       </div>
       <div>
-        <h4 data-i18n="footer_tech">البنية التقنية</h4>
-        <p style="font-size:13px" data-i18n="footer_tech_text">مبني على قاعدة بيانات Supabase مع صلاحيات وصول محكومة (RLS) — لا تُخزَّن أي بيانات في متصفحك فقط.</p>
+        <h4 data-i18n="footer_contact_title">تواصل سريع</h4>
+        <p style="font-size:13px"><a href="tel:+966530500906">+966 530 500 906</a></p>
+        <p style="font-size:13px"><a href="mailto:ffaaddhheell2323@gmail.com">ffaaddhheell2323@gmail.com</a></p>
       </div>
     </div>
     <div class="bottom">
-      <span>© 2026 SaudiAqarAI — همة المدينة العقارية</span>
+      <span>© 2026 SaudiAqarAI — همة المدينة العقارية · <span data-i18n="footer_license">رخصة فال العقارية: 1200030428</span></span>
       <span id="lang-credit">Built with an honest AI-labeling policy</span>
     </div>
   </div>
 </footer>
 
-<div id="privacy" class="hide"></div>
-<div id="terms" class="hide"></div>
-
-<!-- ==========================================================================
-     Add-city modal (shared by valuation / add-property / contracts forms)
-     ========================================================================== -->
-<div class="modal-overlay" id="add-city-modal">
-  <div class="modal-box">
-    <h4 data-i18n="add_city_modal_title">أضف مدينة جديدة</h4>
-    <div class="field"><label data-i18n="add_city_name">اسم المدينة</label><input id="new-city-name" type="text"></div>
-    <div class="field"><label data-i18n="add_city_district">اسم أول حي فيها</label><input id="new-city-district" type="text"></div>
-    <p id="add-city-msg" style="font-size:12px;color:var(--text-600)"></p>
-    <div class="modal-close-row">
-      <button class="btn btn-ghost" id="add-city-cancel" data-i18n="add_city_cancel">إلغاء</button>
-      <button class="btn btn-primary" id="add-city-save" data-i18n="add_city_save">حفظ المدينة</button>
+<section id="privacy" style="display:none">
+  <div class="container" style="max-width:760px">
+    <div class="section-head">
+      <h2 data-i18n="privacy_title">سياسة الخصوصية</h2>
+      <p data-i18n="legal_disclaimer">محتوى عام كنقطة انطلاق وليس استشارة قانونية متخصصة؛ يُنصح بمراجعة مستشار قانوني مرخّص لتخصيصه لنشاطكم.</p>
     </div>
+    <div id="privacy-content"></div>
   </div>
-</div>
+</section>
+
+<section id="terms" style="display:none">
+  <div class="container" style="max-width:760px">
+    <div class="section-head">
+      <h2 data-i18n="terms_title">شروط الاستخدام</h2>
+      <p data-i18n="legal_disclaimer">محتوى عام كنقطة انطلاق وليس استشارة قانونية متخصصة؛ يُنصح بمراجعة مستشار قانوني مرخّص لتخصيصه لنشاطكم.</p>
+    </div>
+    <div id="terms-content"></div>
+  </div>
+</section>
 
 <!-- ==========================================================================
      WhatsApp — floating & fixed on every page. Same icon used in the
@@ -770,7 +838,8 @@ const I18N = {
     nav_faq:"الأسئلة", nav_about:"عنّا", nav_contact:"تواصل",
     hero_eyebrow:"🇸🇦 المدينة المنورة", hero_title:"همة المدينة العقارية", hero_sub:"Himmat Al Madinah Real Estate",
     hero_desc:"نعمل في المدينة المنورة لنقدم خدمات عقارية مبنية على المعرفة بالسوق، ودقة المعلومة، ووضوح التعامل.",
-    hero_cta1:"ابدأ التقييم الآن", hero_cta2:"تعرف علينا",
+    hero_cta1:"ابدأ التقييم الآن", hero_cta_browse:"تصفح العقارات", hero_cta_list:"أضف عقارك",
+    license_badge:"مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428",
     stat1:"مدن مدعومة", stat2:"عامل تقييم", stat3:"عقار مسجَّل فعلياً", stat4:"حي مدعوم",
     hero_panel_title:"قاعدة بيانات مشتركة وحقيقية",
     hero_panel_desc:"كل عقار وعقد تضيفه يُخزَّن مركزياً ويبقى محفوظاً — وليس فقط على متصفحك.",
@@ -788,6 +857,10 @@ const I18N = {
     f_city:"المدينة", f_district:"الحي", f_type:"نوع العقار", f_area:"المساحة (م²)", f_rooms:"عدد الغرف",
     f_age:"عمر العقار (سنوات)", f_facade:"الواجهة", f_grade:"تصنيف الحي", f_price:"قيمة العقار (ر.س)",
     f_down:"الدفعة المقدمة (ر.س)", f_rate:"النسبة السنوية %", f_years:"المدة (سنوات)", f_contact:"وسيلة تواصل (اختياري)",
+    f_amenities:"إضافات تؤثر على السعر", am_maid_room:"غرفة خادمة", am_central_ac:"تكييف مركزي",
+    am_furnished:"مفروش", am_driver_room:"غرفة سائق", am_elevator:"مصعد",
+    f_min_price:"أقل سعر (ر.س)", f_max_price:"أعلى سعر (ر.س)", f_min_rooms:"أقل عدد غرف",
+    filter_apply:"بحث", filter_reset:"إعادة تعيين", filter_all:"الكل", offers_no_match:"لا توجد نتائج مطابقة لبحثك.",
     add_eyebrow:"إضافة عقار جديد", add_title:"أضف عقارك لقاعدة البيانات",
     add_desc:"يُخزَّن عقارك مركزياً فور الإرسال، ويظهر للجميع بعد مراجعة سريعة من فريقنا.",
     add_submit:"إدراج للمراجعة",
@@ -807,19 +880,22 @@ const I18N = {
     mission_text:"أن نجعل التعامل العقاري أوضح وأسهل وأكثر ثقة.",
     vision_title:"رؤيتنا", vision_text:"أن نكون مرجعاً عقارياً موثوقاً في المدينة المنورة.",
     goal_title:"هدفنا", goal_text:"هدفنا ليس إتمام صفقة فحسب، بل بناء علاقة تبدأ بالثقة.",
+    license_title:"الترخيص والاعتماد", license_text:"همة المدينة العقارية مرخّصة رسمياً من الهيئة العامة للعقار بالمملكة العربية السعودية — رقم رخصة فال العقارية: 1200030428.",
+    tech_summary:"للمهتمين بالتفاصيل التقنية", tech_detail:"مبني على قاعدة بيانات Supabase مع صلاحيات وصول محكومة (RLS) — لا تُخزَّن أي بيانات في متصفحك فقط، بل مركزياً ومشتركة بين كل الزوار.",
     contact_title:"تواصل معنا", contact_desc:"فريقنا في انتظارك.",
     contact_location_label:"الموقع: ", contact_location:"المدينة المنورة، المملكة العربية السعودية",
     contact_phone_label:"الهاتف: ", f_name:"الاسم", f_inquiry_type:"نوع الاستفسار", f_message:"الرسالة",
-    contact_send:"إرسال عبر واتساب", whatsapp_word:"واتساب",
+    contact_send_form:"إرسال الطلب", contact_send_note:"يُحفظ طلبك في نظامنا ويفتح واتساب أيضاً لتواصل أسرع.",
+    f_reach:"جوالك أو بريدك الإلكتروني", hours_label:"ساعات العمل: ", hours_value:"الأحد – الخميس: 9ص – 6م · الجمعة والسبت: مغلق",
+    whatsapp_word:"واتساب",
     footer_legal:"قانوني", footer_privacy:"سياسة الخصوصية", footer_terms:"شروط الاستخدام",
-    footer_tech:"البنية التقنية", footer_tech_text:"مبني على قاعدة بيانات Supabase مع صلاحيات وصول محكومة (RLS).",
+    privacy_title:"سياسة الخصوصية", terms_title:"شروط الاستخدام",
+    legal_disclaimer:"محتوى عام كنقطة انطلاق وليس استشارة قانونية متخصصة؛ يُنصح بمراجعة مستشار قانوني مرخّص لتخصيصه لنشاطكم.",
+    footer_contact_title:"تواصل سريع", footer_license:"رخصة فال العقارية: 1200030428",
     footer_tag:"🕌 شريكك العقاري الموثوق في المدينة المنورة",
     assist_title:"المساعد الإرشادي", assist_sub:"قواعد مبرمجة، وليس نموذج ذكاء اصطناعي خارجي",
     assist_placeholder:"اكتب سؤالك...", assist_send:"إرسال", assist_online:"متصل الآن",
     social_title:"تابعنا عبر منصات التواصل",
-    add_city_prompt:"لا تجد مدينتك؟ أضف مدينة جديدة", add_city_modal_title:"أضف مدينة جديدة",
-    add_city_name:"اسم المدينة", add_city_district:"اسم أول حي فيها",
-    add_city_cancel:"إلغاء", add_city_save:"حفظ المدينة",
     price_on_request:"السعر عند التواصل", rooms_suffix:"غرف",
     contract_header:"عقد إيجار", contract_number_label:"رقم العقد",
     contract_lessor_label:"المؤجر", contract_lessee_label:"المستأجر",
@@ -839,7 +915,8 @@ const I18N = {
     nav_faq:"FAQ", nav_about:"About", nav_contact:"Contact",
     hero_eyebrow:"🇸🇦 Madinah", hero_title:"Himmat Al Madinah Real Estate", hero_sub:"همة المدينة العقارية",
     hero_desc:"We operate in Madinah, offering real estate services grounded in market knowledge and transparency.",
-    hero_cta1:"Start Valuation", hero_cta2:"About Us",
+    hero_cta1:"Start Valuation", hero_cta_browse:"Browse Properties", hero_cta_list:"List Your Property",
+    license_badge:"Licensed by the General Real Estate Authority — Fal License: 1200030428",
     stat1:"Cities covered", stat2:"Valuation factors", stat3:"Properties actually listed", stat4:"Districts covered",
     hero_panel_title:"A real, shared database",
     hero_panel_desc:"Every property and contract you add is stored centrally — not just in your browser.",
@@ -857,6 +934,10 @@ const I18N = {
     f_city:"City", f_district:"District", f_type:"Property type", f_area:"Area (sqm)", f_rooms:"Rooms",
     f_age:"Property age (yrs)", f_facade:"Facade", f_grade:"District grade", f_price:"Property value (SAR)",
     f_down:"Down payment (SAR)", f_rate:"Annual rate %", f_years:"Term (years)", f_contact:"Contact (optional)",
+    f_amenities:"Amenities that affect the price", am_maid_room:"Maid's room", am_central_ac:"Central A/C",
+    am_furnished:"Furnished", am_driver_room:"Driver's room", am_elevator:"Elevator",
+    f_min_price:"Min price (SAR)", f_max_price:"Max price (SAR)", f_min_rooms:"Min rooms",
+    filter_apply:"Search", filter_reset:"Reset", filter_all:"All", offers_no_match:"No results match your search.",
     add_eyebrow:"List a new property", add_title:"Add your property to the database",
     add_desc:"Your listing is stored centrally on submission and goes live after a quick review.",
     add_submit:"Submit for review",
@@ -876,19 +957,22 @@ const I18N = {
     mission_text:"To make real estate dealings clearer, easier, and more trustworthy.",
     vision_title:"Our Vision", vision_text:"To be the trusted real estate reference in Madinah.",
     goal_title:"Our Goal", goal_text:"Not just closing a deal, but building trust that lasts.",
+    license_title:"License & Accreditation", license_text:"Himmat Al Madinah Real Estate is officially licensed by Saudi Arabia's General Real Estate Authority — Fal Real Estate License No. 1200030428.",
+    tech_summary:"For those curious about the technical details", tech_detail:"Built on a Supabase database with row-level security policies (RLS) — data isn't just stored in your browser, it's centralized and shared across all visitors.",
     contact_title:"Contact Us", contact_desc:"Our team is ready to help.",
     contact_location_label:"Location: ", contact_location:"Madinah, Saudi Arabia",
     contact_phone_label:"Phone: ", f_name:"Name", f_inquiry_type:"Inquiry type", f_message:"Message",
-    contact_send:"Send via WhatsApp", whatsapp_word:"WhatsApp",
+    contact_send_form:"Send Request", contact_send_note:"Your request is saved in our system and WhatsApp also opens for faster contact.",
+    f_reach:"Your phone or email", hours_label:"Working hours: ", hours_value:"Sun – Thu: 9am – 6pm · Fri & Sat: Closed",
+    whatsapp_word:"WhatsApp",
     footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Use",
-    footer_tech:"Technology", footer_tech_text:"Built on Supabase with row-level security policies.",
+    privacy_title:"Privacy Policy", terms_title:"Terms of Use",
+    legal_disclaimer:"General starting-point content, not specialized legal advice; consult a licensed legal advisor to tailor it to your business.",
+    footer_contact_title:"Quick Contact", footer_license:"Fal Real Estate License: 1200030428",
     footer_tag:"🕌 Your trusted real estate partner in Madinah",
     assist_title:"Guided Assistant", assist_sub:"Rule-based logic, not an external AI model",
     assist_placeholder:"Type your question...", assist_send:"Send", assist_online:"Online now",
     social_title:"Follow us on social media",
-    add_city_prompt:"Can't find your city? Add a new one", add_city_modal_title:"Add a new city",
-    add_city_name:"City name", add_city_district:"Name of its first district",
-    add_city_cancel:"Cancel", add_city_save:"Save city",
     price_on_request:"Price on request", rooms_suffix:"rooms",
     contract_header:"Lease contract", contract_number_label:"Contract No.",
     contract_lessor_label:"Lessor", contract_lessee_label:"Lessee",
@@ -908,7 +992,8 @@ const I18N = {
     nav_faq:"FAQ", nav_about:"À propos", nav_contact:"Contact",
     hero_eyebrow:"🇸🇦 Médine", hero_title:"Himmat Al Madinah Immobilier", hero_sub:"همة المدينة العقارية",
     hero_desc:"Nous opérons à Médine, avec des services immobiliers fondés sur la connaissance du marché.",
-    hero_cta1:"Commencer l'évaluation", hero_cta2:"À propos",
+    hero_cta1:"Commencer l'évaluation", hero_cta_browse:"Parcourir les biens", hero_cta_list:"Ajouter votre bien",
+    license_badge:"Agréé par l'Autorité générale de l'immobilier — Licence Fal : 1200030428",
     stat1:"Villes couvertes", stat2:"Facteurs d'évaluation", stat3:"Biens réellement enregistrés", stat4:"Quartiers couverts",
     hero_panel_title:"Une base de données réelle et partagée",
     hero_panel_desc:"Chaque bien et contrat ajouté est stocké de façon centralisée.",
@@ -926,6 +1011,10 @@ const I18N = {
     f_city:"Ville", f_district:"Quartier", f_type:"Type de bien", f_area:"Surface (m²)", f_rooms:"Pièces",
     f_age:"Âge du bien (ans)", f_facade:"Façade", f_grade:"Standing du quartier", f_price:"Valeur du bien (SAR)",
     f_down:"Apport initial (SAR)", f_rate:"Taux annuel %", f_years:"Durée (ans)", f_contact:"Contact (optionnel)",
+    f_amenities:"Équipements qui influencent le prix", am_maid_room:"Chambre de bonne", am_central_ac:"Climatisation centrale",
+    am_furnished:"Meublé", am_driver_room:"Chambre chauffeur", am_elevator:"Ascenseur",
+    f_min_price:"Prix min (SAR)", f_max_price:"Prix max (SAR)", f_min_rooms:"Pièces min",
+    filter_apply:"Rechercher", filter_reset:"Réinitialiser", filter_all:"Tous", offers_no_match:"Aucun résultat ne correspond à votre recherche.",
     add_eyebrow:"Ajouter un bien", add_title:"Ajoutez votre bien à la base de données",
     add_desc:"Votre bien est stocké centralement puis publié après vérification rapide.",
     add_submit:"Soumettre pour examen",
@@ -945,19 +1034,22 @@ const I18N = {
     mission_text:"Rendre les transactions immobilières plus claires et fiables.",
     vision_title:"Notre vision", vision_text:"Être la référence immobilière de confiance à Médine.",
     goal_title:"Notre objectif", goal_text:"Pas seulement conclure une affaire, mais bâtir la confiance.",
+    license_title:"Licence et accréditation", license_text:"Himmat Al Madinah Immobilier est officiellement agréée par l'Autorité générale de l'immobilier d'Arabie Saoudite — Licence immobilière Fal n° 1200030428.",
+    tech_summary:"Pour les curieux des détails techniques", tech_detail:"Basé sur une base de données Supabase avec des politiques de sécurité (RLS) — les données ne sont pas stockées seulement dans votre navigateur, mais centralisées et partagées entre tous les visiteurs.",
     contact_title:"Contactez-nous", contact_desc:"Notre équipe est à votre écoute.",
     contact_location_label:"Emplacement : ", contact_location:"Médine, Arabie Saoudite",
     contact_phone_label:"Téléphone : ", f_name:"Nom", f_inquiry_type:"Type de demande", f_message:"Message",
-    contact_send:"Envoyer via WhatsApp", whatsapp_word:"WhatsApp",
+    contact_send_form:"Envoyer la demande", contact_send_note:"Votre demande est enregistrée dans notre système, et WhatsApp s'ouvre aussi pour un contact plus rapide.",
+    f_reach:"Votre téléphone ou e-mail", hours_label:"Horaires : ", hours_value:"Dim – Jeu : 9h – 18h · Ven et Sam : Fermé",
+    whatsapp_word:"WhatsApp",
     footer_legal:"Mentions légales", footer_privacy:"Politique de confidentialité", footer_terms:"Conditions d'utilisation",
-    footer_tech:"Technologie", footer_tech_text:"Basé sur Supabase avec des politiques RLS.",
+    privacy_title:"Politique de confidentialité", terms_title:"Conditions d'utilisation",
+    legal_disclaimer:"Contenu général de base, pas un conseil juridique spécialisé ; consultez un conseiller juridique agréé pour l'adapter à votre activité.",
+    footer_contact_title:"Contact rapide", footer_license:"Licence immobilière Fal : 1200030428",
     footer_tag:"🕌 Votre partenaire immobilier de confiance à Médine",
     assist_title:"Assistant guidé", assist_sub:"Logique programmée, pas un modèle d'IA externe",
     assist_placeholder:"Écrivez votre question...", assist_send:"Envoyer", assist_online:"En ligne",
     social_title:"Suivez-nous sur les réseaux sociaux",
-    add_city_prompt:"Votre ville n'est pas listée ? Ajoutez-la", add_city_modal_title:"Ajouter une nouvelle ville",
-    add_city_name:"Nom de la ville", add_city_district:"Nom de son premier quartier",
-    add_city_cancel:"Annuler", add_city_save:"Enregistrer la ville",
     price_on_request:"Prix sur demande", rooms_suffix:"pièces",
     contract_header:"Contrat de location", contract_number_label:"N° du contrat",
     contract_lessor_label:"Bailleur", contract_lessee_label:"Locataire",
@@ -994,9 +1086,11 @@ function applyLang(lang){
   // previously these stayed in Arabic regardless of the selected language.
   renderServices();
   renderFaq();
-  renderOffers();
+  renderLegalPages();
   populateTypeSelects();
   populateCitySelects();
+  populateFilterSelects();
+  renderOffers();
   renderQuickChips();
 }
 document.getElementById('lang-switch').addEventListener('click', e=>{
@@ -1091,7 +1185,78 @@ const FAQ_I18N = {
   ],
 };
 
-function money(n){ return Math.round(n).toLocaleString('en-US'); }
+const PRIVACY_I18N = {
+  ar: [
+    {h:"مقدمة", p:"نحترم خصوصيتك. توضح هذه السياسة كيف نجمع بياناتك ونستخدمها ونحميها عند استخدامك موقع همة المدينة العقارية."},
+    {h:"البيانات التي نجمعها", p:"بيانات التواصل (الاسم، الجوال أو البريد الإلكتروني) عند تعبئة نموذج التواصل أو التقييم أو إضافة عقار أو صياغة عقد، بالإضافة لبيانات العقار أو العقد التي تُدخلها بنفسك."},
+    {h:"كيف نستخدم بياناتك", p:"للرد على استفساراتك، لمراجعة واعتماد العقارات المُضافة قبل نشرها، لإصدار جدول دفعات العقود، ولتحسين جودة خدماتنا."},
+    {h:"أين تُخزَّن بياناتك", p:"في قاعدة بيانات Supabase مركزية محمية بصلاحيات وصول محكومة (Row Level Security)، وليست في متصفحك فقط — تبقى محفوظة ومرئية لفريقنا حتى لو غيّرت جهازك."},
+    {h:"مشاركة البيانات", p:"لا نبيع بياناتك لأي طرف ثالث. قد نستخدم واتساب للتواصل المباشر بناءً على اختيارك أنت عند الضغط على زر واتساب."},
+    {h:"حقوقك", p:"يحق لك طلب الاطلاع على بياناتك أو تعديلها أو حذفها بالتواصل معنا عبر البريد الإلكتروني الموضّح في صفحة «تواصل»."},
+    {h:"الاحتفاظ بالبيانات", p:"نحتفظ ببياناتك طالما لزم لتقديم الخدمة أو للالتزام بالمتطلبات النظامية المعمول بها في المملكة العربية السعودية."},
+    {h:"تحديثات على هذه السياسة", p:"قد نحدّث هذه السياسة من وقت لآخر، وسيُنشر أي تحديث على هذه الصفحة مباشرة."},
+  ],
+  en: [
+    {h:"Introduction", p:"We respect your privacy. This policy explains how we collect, use, and protect your data when you use the Himmat Al Madinah Real Estate website."},
+    {h:"Data we collect", p:"Contact details (name, phone, or email) when you fill in the contact, valuation, list-property, or contract forms, plus the property or contract details you enter yourself."},
+    {h:"How we use your data", p:"To respond to your inquiries, review and approve listed properties before they go live, generate contract payment schedules, and improve our services."},
+    {h:"Where your data is stored", p:"In a central Supabase database protected by row-level security policies — not just in your browser. It stays saved and visible to our team even if you switch devices."},
+    {h:"Data sharing", p:"We do not sell your data to any third party. WhatsApp may be used for direct contact only when you choose to click the WhatsApp button."},
+    {h:"Your rights", p:"You may request access to, correction of, or deletion of your data by contacting us via the email listed on the Contact page."},
+    {h:"Data retention", p:"We keep your data as long as needed to provide the service or to comply with applicable regulations in Saudi Arabia."},
+    {h:"Updates to this policy", p:"We may update this policy from time to time; any update will be published directly on this page."},
+  ],
+  fr: [
+    {h:"Introduction", p:"Nous respectons votre vie privée. Cette politique explique comment nous collectons, utilisons et protégeons vos données sur le site Himmat Al Madinah Immobilier."},
+    {h:"Données collectées", p:"Coordonnées (nom, téléphone ou e-mail) lorsque vous remplissez les formulaires de contact, d'évaluation, d'ajout de bien ou de contrat, ainsi que les détails du bien ou du contrat que vous saisissez."},
+    {h:"Utilisation des données", p:"Pour répondre à vos demandes, examiner et approuver les biens avant publication, générer les échéanciers de contrats, et améliorer nos services."},
+    {h:"Stockage des données", p:"Dans une base de données Supabase centrale protégée par des politiques de sécurité au niveau des lignes — pas seulement dans votre navigateur."},
+    {h:"Partage des données", p:"Nous ne vendons vos données à aucun tiers. WhatsApp peut être utilisé pour un contact direct uniquement si vous cliquez sur le bouton WhatsApp."},
+    {h:"Vos droits", p:"Vous pouvez demander l'accès, la correction ou la suppression de vos données en nous contactant via l'e-mail indiqué sur la page Contact."},
+    {h:"Conservation des données", p:"Nous conservons vos données aussi longtemps que nécessaire pour fournir le service ou respecter la réglementation saoudienne applicable."},
+    {h:"Mises à jour", p:"Cette politique peut être mise à jour ponctuellement ; toute mise à jour sera publiée directement sur cette page."},
+  ],
+};
+
+const TERMS_I18N = {
+  ar: [
+    {h:"قبول الشروط", p:"باستخدامك هذا الموقع فإنك توافق على هذه الشروط بالكامل. إن لم توافق، يرجى عدم استخدام الموقع."},
+    {h:"طبيعة الخدمة", p:"يقدّم الموقع تقديراً عقارياً استرشادياً (معادلة حسابية شفافة، وليس تقييماً معتمداً رسمياً)، ونماذج توليد عقود (نقطة انطلاق وليست بديلاً عن استشارة قانونية متخصصة)."},
+    {h:"مسؤولية المستخدم", p:"أنت مسؤول عن دقة أي بيانات تُدخلها (بيانات العقار، أطراف العقد، معلومات التواصل)، وعن التحقق منها قبل الاعتماد عليها في أي قرار."},
+    {h:"الملكية الفكرية", p:"جميع حقوق المحتوى والتصميم والعلامة التجارية محفوظة لهمة المدينة العقارية، ولا يجوز نسخها أو إعادة استخدامها دون إذن كتابي."},
+    {h:"حدود المسؤولية", p:"لا تتحمل همة المدينة العقارية مسؤولية أي قرار مالي أو قانوني يُتخذ استناداً فقط إلى التقديرات الاسترشادية أو نماذج العقود دون مراجعة مختص عقاري أو قانوني مرخّص."},
+    {h:"التعديلات على الشروط", p:"نحتفظ بحق تعديل هذه الشروط في أي وقت، ويُعدّ استمرارك في استخدام الموقع بعد التعديل موافقة عليه."},
+    {h:"القانون الحاكم", p:"تخضع هذه الشروط وتُفسَّر وفقاً لأنظمة المملكة العربية السعودية."},
+    {h:"التواصل", p:"لأي استفسار بخصوص هذه الشروط، يرجى التواصل معنا عبر صفحة «تواصل»."},
+  ],
+  en: [
+    {h:"Acceptance of terms", p:"By using this site, you agree to these terms in full. If you don't agree, please don't use the site."},
+    {h:"Nature of the service", p:"The site provides a guided property estimate (a transparent formula, not a certified official valuation) and contract-drafting templates (a starting point, not a substitute for specialized legal advice)."},
+    {h:"User responsibility", p:"You're responsible for the accuracy of any data you enter (property details, contract parties, contact information), and for verifying it before relying on it for any decision."},
+    {h:"Intellectual property", p:"All content, design, and brand rights belong to Himmat Al Madinah Real Estate and may not be copied or reused without written permission."},
+    {h:"Limitation of liability", p:"Himmat Al Madinah Real Estate is not liable for any financial or legal decision made based solely on the guided estimates or contract templates without review by a licensed real estate or legal professional."},
+    {h:"Changes to these terms", p:"We reserve the right to modify these terms at any time; continued use of the site after changes constitutes acceptance."},
+    {h:"Governing law", p:"These terms are governed by and construed in accordance with the laws of Saudi Arabia."},
+    {h:"Contact", p:"For any question about these terms, please reach us via the Contact page."},
+  ],
+  fr: [
+    {h:"Acceptation des conditions", p:"En utilisant ce site, vous acceptez pleinement ces conditions. Si vous n'êtes pas d'accord, veuillez ne pas utiliser le site."},
+    {h:"Nature du service", p:"Le site propose une estimation immobilière indicative (formule transparente, pas une évaluation certifiée) et des modèles de contrats (point de départ, pas un substitut à un conseil juridique spécialisé)."},
+    {h:"Responsabilité de l'utilisateur", p:"Vous êtes responsable de l'exactitude des données saisies (détails du bien, parties au contrat, coordonnées), et de leur vérification avant toute décision."},
+    {h:"Propriété intellectuelle", p:"Tous les droits de contenu, de design et de marque appartiennent à Himmat Al Madinah Immobilier et ne peuvent être copiés sans autorisation écrite."},
+    {h:"Limitation de responsabilité", p:"Himmat Al Madinah Immobilier n'est pas responsable des décisions financières ou juridiques prises uniquement sur la base des estimations indicatives ou des modèles de contrats sans l'avis d'un professionnel agréé."},
+    {h:"Modifications", p:"Nous nous réservons le droit de modifier ces conditions à tout moment ; la poursuite de l'utilisation du site après modification vaut acceptation."},
+    {h:"Droit applicable", p:"Ces conditions sont régies par le droit d'Arabie Saoudite."},
+    {h:"Contact", p:"Pour toute question, veuillez nous contacter via la page Contact."},
+  ],
+};
+
+function renderLegalPages(){
+  const priv = PRIVACY_I18N[currentLang] || PRIVACY_I18N.ar;
+  const terms = TERMS_I18N[currentLang] || TERMS_I18N.ar;
+  document.getElementById('privacy-content').innerHTML = priv.map(s=>`<div class="card" style="padding:18px;margin-bottom:12px"><h4 style="margin:0 0 6px">${s.h}</h4><p style="color:var(--text-600);font-size:14px;margin:0">${s.p}</p></div>`).join('');
+  document.getElementById('terms-content').innerHTML = terms.map(s=>`<div class="card" style="padding:18px;margin-bottom:12px"><h4 style="margin:0 0 6px">${s.h}</h4><p style="color:var(--text-600);font-size:14px;margin:0">${s.p}</p></div>`).join('');
+}
 
 /* ============================================================================
    3) Cities / districts / property types — shared reference data.
@@ -1254,22 +1419,82 @@ function offerCardHtml(o){
   </div>`;
 }
 
-async function renderOffers(){
+function readOfferFilters(){
+  return {
+    city: document.getElementById('filter-city').value || null,
+    type: document.getElementById('filter-type').value || null,
+    minPrice: parseFloat(document.getElementById('filter-min-price').value) || null,
+    maxPrice: parseFloat(document.getElementById('filter-max-price').value) || null,
+    minRooms: parseFloat(document.getElementById('filter-min-rooms').value) || null,
+  };
+}
+
+function matchesFilters(o, f){
+  const price = o.price_final ?? o.price ?? o.price_original;
+  if (f.city && o.city !== cityLabel(f.city) && o.city !== f.city) return false;
+  if (f.type && o.property_type !== f.type) return false;
+  if (f.minPrice && price && price < f.minPrice) return false;
+  if (f.maxPrice && price && price > f.maxPrice) return false;
+  if (f.minRooms && o.rooms && o.rooms < f.minRooms) return false;
+  return true;
+}
+
+async function renderOffers(filters){
+  const f = filters || readOfferFilters();
   const grid = document.getElementById('offers-grid');
   if (dbReady){
-    const { data, error } = await supa.from('offers').select('*').eq('is_published', true).limit(9);
+    let query = supa.from('offers').select('*').eq('is_published', true).limit(18);
+    if (f.city) query = query.eq('city', f.city);
+    if (f.type) query = query.eq('property_type', f.type);
+    if (f.minPrice) query = query.gte('price_final', f.minPrice);
+    if (f.maxPrice) query = query.lte('price_final', f.maxPrice);
+    if (f.minRooms) query = query.gte('rooms', f.minRooms);
+    const { data, error } = await query;
     if (!error && data && data.length){
       grid.innerHTML = data.map(offerCardHtml).join('');
       return;
     }
+    if (!error && data && !data.length){
+      grid.innerHTML = `<div class="notice notice-info" style="grid-column:1/-1">${I18N[currentLang].offers_no_match}</div>`;
+      return;
+    }
   }
-  const demo = DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar;
+  const demo = (DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar).filter(o => matchesFilters(o, f));
   const demoLabel = { ar:"عروض توضيحية — اربط قاعدة البيانات لعرض العروض الفعلية.",
                        en:"Demo offers — connect the database to show real offers.",
                        fr:"Offres de démonstration — connectez la base de données." }[currentLang];
+  if (!demo.length){
+    grid.innerHTML = `<div class="notice notice-info" style="grid-column:1/-1">${I18N[currentLang].offers_no_match}</div>`;
+    return;
+  }
   grid.innerHTML = demo.map(offerCardHtml).join('') +
     `<div class="notice notice-warn" style="grid-column:1/-1">${demoLabel}</div>`;
 }
+
+function populateFilterSelects(){
+  const t = I18N[currentLang];
+  const citySel = document.getElementById('filter-city');
+  const prevCity = citySel.value;
+  citySel.innerHTML = `<option value="">${t.filter_all}</option>` +
+    Object.keys(CITY_DISTRICTS).map(c=>`<option value="${c}">${cityLabel(c)}</option>`).join('');
+  citySel.value = prevCity;
+
+  const typeSel = document.getElementById('filter-type');
+  const prevType = typeSel.value;
+  typeSel.innerHTML = `<option value="">${t.filter_all}</option>` +
+    PROPERTY_TYPES.map(pt=>`<option value="${pt.v}">${pt[currentLang] || pt.ar}</option>`).join('');
+  typeSel.value = prevType;
+}
+
+document.getElementById('btn-apply-filters').addEventListener('click', ()=> renderOffers());
+document.getElementById('btn-reset-filters').addEventListener('click', ()=>{
+  document.getElementById('filter-city').value = '';
+  document.getElementById('filter-type').value = '';
+  document.getElementById('filter-min-price').value = '';
+  document.getElementById('filter-max-price').value = '';
+  document.getElementById('filter-min-rooms').value = '';
+  renderOffers({});
+});
 
 function renderFaq(){
   const list = FAQ_I18N[currentLang] || FAQ_I18N.ar;
@@ -1341,64 +1566,26 @@ function populateTypeSelects(){
 }
 
 /* Add-city modal — shared by all three forms */
-let addCityTargetSelectId = null;
-function openAddCityModal(targetSelectId){
-  addCityTargetSelectId = targetSelectId;
-  document.getElementById('new-city-name').value = '';
-  document.getElementById('new-city-district').value = '';
-  document.getElementById('add-city-msg').textContent = '';
-  document.getElementById('add-city-modal').classList.add('open');
-}
-function closeAddCityModal(){
-  document.getElementById('add-city-modal').classList.remove('open');
-}
-document.querySelectorAll('.add-city-link').forEach(btn=>{
-  btn.addEventListener('click', ()=> openAddCityModal(btn.dataset.target));
-});
-document.getElementById('add-city-cancel').addEventListener('click', closeAddCityModal);
-document.getElementById('add-city-modal').addEventListener('click', e=>{
-  if (e.target.id === 'add-city-modal') closeAddCityModal();
-});
-document.getElementById('add-city-save').addEventListener('click', async ()=>{
-  const name = document.getElementById('new-city-name').value.trim();
-  const district = document.getElementById('new-city-district').value.trim();
-  const msg = document.getElementById('add-city-msg');
-  if (!name || !district){
-    msg.style.color = 'var(--danger)';
-    msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'عبّئ اسم المدينة والحي.' : 'Fill in both the city and district name.');
-    return;
-  }
-  CITY_DISTRICTS[name] = CITY_DISTRICTS[name] || [];
-  if (!CITY_DISTRICTS[name].includes(district)) CITY_DISTRICTS[name].push(district);
-
-  if (dbReady){
-    const { data: cityRow, error: cErr } = await supa.from('cities').insert({ name }).select().maybeSingle();
-    let cityId = cityRow?.id;
-    if (cErr){
-      // قد تكون موجودة مسبقاً — نجلبها بدل الفشل
-      const { data: existing } = await supa.from('cities').select('id').eq('name', name).maybeSingle();
-      cityId = existing?.id;
-    }
-    if (cityId) await supa.from('districts').insert({ city_id: cityId, name: district });
-    msg.style.color = 'var(--ok)';
-    msg.textContent = '✅ ' + (currentLang==='ar' ? 'تم الحفظ، وستظهر المدينة للجميع.' : 'Saved — this city will now be visible to everyone.');
-  } else {
-    msg.style.color = 'var(--warn)';
-    msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'أُضيفت لهذه الجلسة فقط — اربط قاعدة البيانات لحفظها بشكل دائم.' : 'Added for this session only — connect the database to save it permanently.');
-  }
-
-  populateCitySelects();
-  if (addCityTargetSelectId){
-    document.getElementById(addCityTargetSelectId).value = name;
-    populateDistrictSelectFor(addCityTargetSelectId);
-    document.querySelector(`select.district-select[data-city-of="${addCityTargetSelectId}"]`).value = district;
-  }
-  setTimeout(closeAddCityModal, 900);
+document.querySelectorAll('.amenity-row').forEach(row=>{
+  row.addEventListener('click', e=>{
+    const btn = e.target.closest('.amenity-toggle');
+    if (btn) btn.classList.toggle('active');
+  });
 });
 
 /* ============================================================================
    4) Valuation (transparent formula — honestly labeled, not an AI model)
    ========================================================================== */
+function getAmenityAdj(containerId){
+  let adj = 0;
+  const active = [];
+  document.querySelectorAll(`#${containerId} .amenity-toggle.active`).forEach(btn=>{
+    adj += parseFloat(btn.dataset.adj) || 0;
+    active.push(btn.dataset.amenity);
+  });
+  return { adj, active };
+}
+
 function runValuation(){
   const citySel = document.getElementById('v-city');
   const pricePerSqm = parseFloat(citySel.selectedOptions[0].dataset.price);
@@ -1410,10 +1597,11 @@ function runValuation(){
   const gradeAdj = parseFloat(gradeSel.selectedOptions[0].dataset.adj);
   const area = parseFloat(document.getElementById('v-area').value) || 0;
   const age = parseFloat(document.getElementById('v-age').value) || 0;
+  const { adj: amenityAdj } = getAmenityAdj('v-amenities');
 
   const base = pricePerSqm * area * typeMult;
   const ageAdj = age > 15 ? -0.1 : age > 7 ? -0.05 : 0;
-  const totalAdj = 1 + facadeAdj + gradeAdj + ageAdj;
+  const totalAdj = 1 + facadeAdj + gradeAdj + ageAdj + amenityAdj;
   const estimate = base * totalAdj;
 
   const low = estimate * 0.93;
@@ -1423,13 +1611,13 @@ function runValuation(){
   document.getElementById('res-high').textContent = money(high);
   const bd = {
     ar: `السعر الأساسي = ${pricePerSqm} ر.س/م² × ${area} م² × معامل النوع ${typeMult} = ${money(base)} ر.س<br>
-         التعديلات: الواجهة ${(facadeAdj*100).toFixed(0)}% + الحي ${(gradeAdj*100).toFixed(0)}% + العمر ${(ageAdj*100).toFixed(0)}%<br>
+         التعديلات: الواجهة ${(facadeAdj*100).toFixed(0)}% + الحي ${(gradeAdj*100).toFixed(0)}% + العمر ${(ageAdj*100).toFixed(0)}% + الإضافات ${(amenityAdj*100).toFixed(0)}%<br>
          <b>هذه معادلة حسابية شفافة بالكامل، وليست تنبؤاً من نموذج تعلّم آلي.</b>`,
     en: `Base price = ${pricePerSqm} SAR/sqm × ${area} sqm × type factor ${typeMult} = ${money(base)} SAR<br>
-         Adjustments: facade ${(facadeAdj*100).toFixed(0)}% + district ${(gradeAdj*100).toFixed(0)}% + age ${(ageAdj*100).toFixed(0)}%<br>
+         Adjustments: facade ${(facadeAdj*100).toFixed(0)}% + district ${(gradeAdj*100).toFixed(0)}% + age ${(ageAdj*100).toFixed(0)}% + amenities ${(amenityAdj*100).toFixed(0)}%<br>
          <b>This is a fully transparent formula, not a machine-learning prediction.</b>`,
     fr: `Prix de base = ${pricePerSqm} SAR/m² × ${area} m² × facteur de type ${typeMult} = ${money(base)} SAR<br>
-         Ajustements : façade ${(facadeAdj*100).toFixed(0)}% + quartier ${(gradeAdj*100).toFixed(0)}% + âge ${(ageAdj*100).toFixed(0)}%<br>
+         Ajustements : façade ${(facadeAdj*100).toFixed(0)}% + quartier ${(gradeAdj*100).toFixed(0)}% + âge ${(ageAdj*100).toFixed(0)}% + équipements ${(amenityAdj*100).toFixed(0)}%<br>
          <b>Formule de calcul entièrement transparente, pas une prédiction d'un modèle d'apprentissage automatique.</b>`,
   };
   document.getElementById('val-breakdown').innerHTML = bd[currentLang] || bd.ar;
@@ -1457,6 +1645,7 @@ function runFinance(){
    ========================================================================== */
 document.getElementById('btn-add-property').addEventListener('click', async ()=>{
   const msg = document.getElementById('add-property-msg');
+  const { active: amenities } = getAmenityAdj('add-amenities');
   const payload = {
     city: document.getElementById('add-city').value,
     district: document.getElementById('add-district').value,
@@ -1464,6 +1653,11 @@ document.getElementById('btn-add-property').addEventListener('click', async ()=>
     price: parseFloat(document.getElementById('add-price').value) || 0,
     area_sqm: parseFloat(document.getElementById('add-area').value) || 0,
     submitted_by_contact: document.getElementById('add-contact').value || null,
+    has_elevator: amenities.includes('elevator'),
+    has_maid_room: amenities.includes('maid_room'),
+    has_driver_room: amenities.includes('driver_room'),
+    has_central_ac: amenities.includes('central_ac'),
+    is_furnished: amenities.includes('furnished'),
   };
   if (!payload.district || !payload.price || !payload.area_sqm){
     msg.textContent = '⚠️ عبّئ الحي والسعر والمساحة على الأقل.';
@@ -1581,14 +1775,45 @@ ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_la
 });
 
 /* ============================================================================
-   8) Contact → WhatsApp deep link (unchanged behaviour, kept honest & simple)
+   8) Contact form → saves to the `inquiries` table (real record the team can
+      follow up on) and also opens WhatsApp for immediate contact.
    ========================================================================== */
-document.getElementById('btn-send-whatsapp').addEventListener('click', ()=>{
-  const name = document.getElementById('ct-name').value;
+document.getElementById('btn-send-contact').addEventListener('click', async ()=>{
+  const name = document.getElementById('ct-name').value.trim();
+  const reach = document.getElementById('ct-reach').value.trim();
   const type = document.getElementById('ct-type').value;
-  const message = document.getElementById('ct-message').value;
+  const message = document.getElementById('ct-message').value.trim();
   const t = I18N[currentLang];
-  const text = encodeURIComponent(`${t.f_name}: ${name}\n${t.f_inquiry_type}: ${type}\n${t.f_message}: ${message}`);
+  const msg = document.getElementById('contact-form-msg');
+
+  if (!name || !reach || !message){
+    msg.style.color = 'var(--danger)';
+    msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'عبّئ الاسم ووسيلة التواصل والرسالة.' : 'Please fill in your name, contact info, and message.');
+    return;
+  }
+
+  if (dbReady){
+    const isEmail = reach.includes('@');
+    const { error } = await supa.from('inquiries').insert({
+      full_name: name,
+      email: isEmail ? reach : null,
+      phone: isEmail ? null : reach,
+      inquiry_type: type,
+      message: message,
+    });
+    if (error){
+      msg.style.color = 'var(--danger)';
+      msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'تعذّر الحفظ: ' : 'Could not save: ') + error.message;
+    } else {
+      msg.style.color = 'var(--ok)';
+      msg.textContent = '✅ ' + (currentLang==='ar' ? 'تم استلام طلبك، سنتواصل معك قريباً.' : 'Your request was received — we\'ll be in touch soon.');
+    }
+  } else {
+    msg.style.color = 'var(--warn)';
+    msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'قاعدة البيانات غير مربوطة — سيُفتح واتساب فقط.' : 'Database not connected — opening WhatsApp only.');
+  }
+
+  const text = encodeURIComponent(`${t.f_name}: ${name}\n${t.f_reach}: ${reach}\n${t.f_inquiry_type}: ${type}\n${t.f_message}: ${message}`);
   window.open(`https://wa.me/966530500906?text=${text}`, '_blank');
 });
 
@@ -1598,7 +1823,7 @@ document.getElementById('btn-send-whatsapp').addEventListener('click', ()=>{
       every other section and shows only the target, scrolls to top, and
       keeps the URL hash + active nav link in sync with browser back/forward.
    ========================================================================== */
-const PAGES = ['home','offers','services','valuation','add-property','analytics','contracts','faq','about','contact'];
+const PAGES = ['home','offers','services','valuation','add-property','analytics','contracts','faq','about','contact','privacy','terms'];
 
 function showPage(id){
   if (!PAGES.includes(id)) id = 'home';
@@ -1883,9 +2108,11 @@ window.addEventListener('load', async ()=>{
   await loadCitiesFromDb();
   populateCitySelects();
   populateTypeSelects();
+  populateFilterSelects();
   renderServices();
   renderOffers();
   renderFaq();
+  renderLegalPages();
   renderAnalytics();
   runFinance();
   const totalDistricts = Object.values(CITY_DISTRICTS).reduce((sum, list) => sum + list.length, 0);
