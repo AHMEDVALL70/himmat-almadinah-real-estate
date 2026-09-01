@@ -101,7 +101,9 @@ nav.links a:hover{color:var(--navy-900)}
 .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
 @media(max-width:900px){.hero-grid{grid-template-columns:1fr}}
 .hero h1{font-size:clamp(30px,4.4vw,46px);margin:0 0 8px}
-.hero .sub-en{color:var(--gold-100);font-weight:700;margin:0 0 18px}
+.hero .sub-en{color:var(--gold-100);font-weight:700;margin:0 0 18px;font-size:clamp(17px,2vw,22px);letter-spacing:.3px}
+.hero-grid{margin-top:0}
+.eyebrow.hero-eyebrow{margin:0 0 10px}
 .hero p.desc{color:#dce8f2;max-width:520px;margin:0 0 26px}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:34px}
 .stats-row{display:flex;gap:28px;flex-wrap:wrap}
@@ -142,6 +144,23 @@ nav.links a:hover{color:var(--navy-900)}
 .result-box .card span{font-size:13px;color:var(--text-600)}
 
 /* Assistant */
+.add-city-link{background:transparent;color:var(--navy-700);font-size:12px;font-weight:700;padding:2px 0;text-decoration:underline;margin-top:2px;align-self:flex-start}
+.modal-overlay{position:fixed;inset:0;background:rgba(7,20,33,.5);display:none;align-items:center;justify-content:center;z-index:100}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:360px}
+.modal-box h4{margin:0 0 14px}
+.modal-close-row{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+
+/* Social row */
+.social-row{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+.social-badge{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;transition:transform .15s ease}
+.social-badge:hover{transform:translateY(-3px)}
+
+/* Assistant */
+.assist-close{background:transparent;color:#fff;font-size:16px;padding:2px 6px;border-radius:6px;position:absolute;inset-inline-end:10px;top:10px}
+.assist-close:hover{background:rgba(255,255,255,.15)}
+.assist-head{position:relative}
+
 #assistant-toggle{position:fixed;inset-inline-end:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:var(--navy-900);color:#fff;font-size:22px;box-shadow:0 10px 25px rgba(7,42,71,.35);z-index:80}
 #assistant-panel{position:fixed;inset-inline-end:22px;bottom:88px;width:320px;max-height:420px;background:#fff;border-radius:16px;box-shadow:0 20px 45px rgba(0,0,0,.2);display:none;flex-direction:column;overflow:hidden;z-index:80;border:1px solid var(--line)}
 #assistant-panel.open{display:flex}
@@ -176,7 +195,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <header class="site">
   <div class="container nav-row">
     <div class="brand">
-      <img src="https://raw.githubusercontent.com/AHMEDVALL70/SaudiHimmah/main/Himmat-Almedina.png" alt="شعار همة المدينة العقارية">
+      <img src="Himmat-Almedina.png" alt="شعار همة المدينة العقارية" onerror="this.style.display='none'">
       <span data-i18n="brand">همة المدينة العقارية</span>
     </div>
     <nav class="links">
@@ -207,7 +226,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <section id="home" class="hero" style="padding-top:56px">
   <div class="container hero-grid">
     <div>
-      <p class="eyebrow" style="color:var(--gold-100)" data-i18n="hero_eyebrow">🇸🇦 المدينة المنورة</p>
+      <p class="eyebrow hero-eyebrow" style="color:var(--gold-100)" data-i18n="hero_eyebrow">🇸🇦 المدينة المنورة</p>
       <h1 data-i18n="hero_title">همة المدينة العقارية</h1>
       <p class="sub-en" data-i18n="hero_sub">Himmat Al Madinah Real Estate</p>
       <p class="desc" data-i18n="hero_desc">نعمل في المدينة المنورة لنقدم خدمات عقارية مبنية على المعرفة بالسوق، ودقة المعلومة، ووضوح التعامل، لنساعد عملاءنا على اتخاذ القرار الأنسب؛ سواء كان الهدف السكن، الاستثمار، البيع أو إدارة الأملاك.</p>
@@ -216,13 +235,13 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <a href="#about" class="btn btn-outline" data-i18n="hero_cta2">تعرف علينا</a>
       </div>
       <div class="stats-row">
-        <div class="stat"><b>5+</b><span data-i18n="stat1">مدن مدعومة</span></div>
+        <div class="stat"><b>4+</b><span data-i18n="stat1">مدن مدعومة</span></div>
         <div class="stat"><b>10+</b><span data-i18n="stat2">عامل تقييم</span></div>
         <div class="stat"><b id="stat-live-count">—</b><span data-i18n="stat3">عقار مسجَّل فعلياً</span></div>
       </div>
     </div>
     <div class="hero-panel">
-      <img src="https://raw.githubusercontent.com/AHMEDVALL70/SaudiHimmah/main/Himmat-Almedina.png" alt="همة المدينة العقارية">
+      <img src="Himmat-Almedina.png" alt="همة المدينة العقارية" onerror="this.remove()">
       <h3 data-i18n="hero_panel_title">قاعدة بيانات مشتركة وحقيقية</h3>
       <p data-i18n="hero_panel_desc">كل عقار وعقد تضيفه يُخزَّن مركزياً ويبقى محفوظاً — وليس فقط على متصفحك.</p>
     </div>
@@ -286,28 +305,16 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="grid grid-2">
           <div class="field">
             <label data-i18n="f_city">المدينة</label>
-            <select id="v-city">
-              <option value="المدينة المنورة" data-price="4200">المدينة المنورة</option>
-              <option value="الرياض" data-price="6500">الرياض</option>
-              <option value="جدة" data-price="5800">جدة</option>
-              <option value="مكة المكرمة" data-price="6100">مكة المكرمة</option>
-              <option value="الدمام" data-price="4600">الدمام</option>
-            </select>
+            <select id="v-city" class="city-select"></select>
+            <button type="button" class="add-city-link" data-target="v-city" data-i18n="add_city_prompt">لا تجد مدينتك؟ أضف مدينة جديدة</button>
           </div>
           <div class="field">
             <label data-i18n="f_district">الحي</label>
-            <input id="v-district" type="text" placeholder="مثال: قباء">
+            <select id="v-district" class="district-select" data-city-of="v-city"></select>
           </div>
           <div class="field">
             <label data-i18n="f_type">نوع العقار</label>
-            <select id="v-type">
-              <option value="شقة" data-mult="1">شقة</option>
-              <option value="فيلا" data-mult="1.18">فيلا</option>
-              <option value="دبلكس" data-mult="1.1">دبلكس</option>
-              <option value="أرض" data-mult="0.85">أرض</option>
-              <option value="عمارة" data-mult="1.3">عمارة</option>
-              <option value="مكتب" data-mult="1.05">مكتب</option>
-            </select>
+            <select id="v-type" class="type-select"></select>
           </div>
           <div class="field">
             <label data-i18n="f_area">المساحة (م²)</label>
@@ -324,18 +331,18 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
           <div class="field">
             <label data-i18n="f_facade">الواجهة</label>
             <select id="v-facade">
-              <option value="شرقية" data-adj="0.05">شرقية (+5%)</option>
-              <option value="شمالية" data-adj="0.04">شمالية (+4%)</option>
-              <option value="جنوبية" data-adj="0">جنوبية</option>
-              <option value="غربية" data-adj="-0.02">غربية (-2%)</option>
+              <option value="شرقية" data-adj="0.05" data-i18n="opt_east">شرقية (+5%)</option>
+              <option value="شمالية" data-adj="0.04" data-i18n="opt_north">شمالية (+4%)</option>
+              <option value="جنوبية" data-adj="0" data-i18n="opt_south">جنوبية</option>
+              <option value="غربية" data-adj="-0.02" data-i18n="opt_west">غربية (-2%)</option>
             </select>
           </div>
           <div class="field">
             <label data-i18n="f_grade">تصنيف الحي</label>
             <select id="v-grade">
-              <option value="راقي" data-adj="0.25">حي راقي (+25%)</option>
-              <option value="استثماري" data-adj="0.15">حي استثماري (+15%)</option>
-              <option value="متوسط" data-adj="0">حي متوسط</option>
+              <option value="راقي" data-adj="0.25" data-i18n="opt_upscale">حي راقي (+25%)</option>
+              <option value="استثماري" data-adj="0.15" data-i18n="opt_investment">حي استثماري (+15%)</option>
+              <option value="متوسط" data-adj="0" data-i18n="opt_mid">حي متوسط</option>
             </select>
           </div>
         </div>
@@ -389,13 +396,12 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
     <div class="card" style="padding:24px;max-width:760px">
       <div class="grid grid-2">
         <div class="field"><label data-i18n="f_city">المدينة</label>
-          <select id="add-city">
-            <option>المدينة المنورة</option><option>الرياض</option><option>جدة</option><option>مكة المكرمة</option><option>الدمام</option>
-          </select>
+          <select id="add-city" class="city-select"></select>
+          <button type="button" class="add-city-link" data-target="add-city" data-i18n="add_city_prompt">لا تجد مدينتك؟ أضف مدينة جديدة</button>
         </div>
-        <div class="field"><label data-i18n="f_district">الحي</label><input id="add-district" type="text"></div>
+        <div class="field"><label data-i18n="f_district">الحي</label><select id="add-district" class="district-select" data-city-of="add-city"></select></div>
         <div class="field"><label data-i18n="f_type">نوع العقار</label>
-          <select id="add-type"><option>شقة</option><option>فيلا</option><option>دبلكس</option><option>أرض</option><option>عمارة</option><option>مكتب</option></select>
+          <select id="add-type" class="type-select"></select>
         </div>
         <div class="field"><label data-i18n="f_price">السعر (ر.س)</label><input id="add-price" type="number"></div>
         <div class="field"><label data-i18n="f_area">المساحة (م²)</label><input id="add-area" type="number"></div>
@@ -459,11 +465,12 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="field"><label data-i18n="f_lessee_id">هوية المستأجر</label><input id="c-lessee-id" type="text"></div>
         <div class="field"><label data-i18n="f_lessee_phone">جوال المستأجر</label><input id="c-lessee-phone" type="text"></div>
         <div class="field"><label data-i18n="f_city">المدينة</label>
-          <select id="c-city"><option>المدينة المنورة</option><option>الرياض</option><option>جدة</option><option>مكة المكرمة</option><option>الدمام</option></select>
+          <select id="c-city" class="city-select"></select>
+          <button type="button" class="add-city-link" data-target="c-city" data-i18n="add_city_prompt">لا تجد مدينتك؟ أضف مدينة جديدة</button>
         </div>
-        <div class="field"><label data-i18n="f_district">الحي</label><input id="c-district" type="text"></div>
+        <div class="field"><label data-i18n="f_district">الحي</label><select id="c-district" class="district-select" data-city-of="c-city"></select></div>
         <div class="field"><label data-i18n="f_unit_type">نوع الوحدة</label>
-          <select id="c-unit-type"><option>شقة</option><option>فيلا</option><option>وحدة تجارية</option><option>محل تجاري</option><option>أرض</option></select>
+          <select id="c-unit-type" class="type-select"></select>
         </div>
         <div class="field"><label data-i18n="f_area">المساحة (م²)</label><input id="c-area" type="number"></div>
         <div class="field"><label data-i18n="f_deposit">الضمان (ر.س)</label><input id="c-deposit" type="number" value="0"></div>
@@ -534,11 +541,19 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <p><b>Email:</b> <a href="mailto:ffaaddhheell2323@gmail.com">ffaaddhheell2323@gmail.com</a></p>
         <p><b data-i18n="contact_phone_label">الهاتف: </b><a href="tel:+966530500906">+966 530 500 906</a></p>
         <p><a href="https://wa.me/966530500906" class="btn btn-primary" style="margin-top:8px" target="_blank" rel="noopener">واتساب</a></p>
+        <p style="margin-top:22px;font-weight:700" data-i18n="social_title">تابعنا عبر منصات التواصل</p>
+        <div class="social-row" id="social-row"></div>
       </div>
       <div class="card" style="padding:22px">
         <div class="field"><label data-i18n="f_name">الاسم</label><input id="ct-name" type="text"></div>
         <div class="field"><label data-i18n="f_inquiry_type">نوع الاستفسار</label>
-          <select id="ct-type"><option>شراء عقار</option><option>بيع عقار</option><option>تقييم عقاري</option><option>صياغة عقد</option><option>استفسار عام</option></select>
+          <select id="ct-type">
+            <option data-i18n="opt_buy">شراء عقار</option>
+            <option data-i18n="opt_sell">بيع عقار</option>
+            <option data-i18n="opt_valuation_inq">تقييم عقاري</option>
+            <option data-i18n="opt_contract_inq">صياغة عقد</option>
+            <option data-i18n="opt_general">استفسار عام</option>
+          </select>
         </div>
         <div class="field"><label data-i18n="f_message">الرسالة</label><textarea id="ct-message" rows="3"></textarea></div>
         <button class="btn btn-primary" id="btn-send-whatsapp" data-i18n="contact_send">إرسال عبر واتساب</button>
@@ -578,29 +593,42 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <div id="terms" class="hide"></div>
 
 <!-- ==========================================================================
+     Add-city modal (shared by valuation / add-property / contracts forms)
+     ========================================================================== -->
+<div class="modal-overlay" id="add-city-modal">
+  <div class="modal-box">
+    <h4 data-i18n="add_city_modal_title">أضف مدينة جديدة</h4>
+    <div class="field"><label data-i18n="add_city_name">اسم المدينة</label><input id="new-city-name" type="text"></div>
+    <div class="field"><label data-i18n="add_city_district">اسم أول حي فيها</label><input id="new-city-district" type="text"></div>
+    <p id="add-city-msg" style="font-size:12px;color:var(--text-600)"></p>
+    <div class="modal-close-row">
+      <button class="btn btn-ghost" id="add-city-cancel" data-i18n="add_city_cancel">إلغاء</button>
+      <button class="btn btn-primary" id="add-city-save" data-i18n="add_city_save">حفظ المدينة</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
      Assistant (rule-based — labeled honestly, no external LLM call by default)
      ========================================================================== -->
 <button id="assistant-toggle">💬</button>
 <div id="assistant-panel">
   <div class="assist-head">
+    <button class="assist-close" id="assist-close" aria-label="close">✕</button>
     <b data-i18n="assist_title">المساعد الإرشادي</b>
     <span data-i18n="assist_sub">قواعد مبرمجة داخل الموقع، وليس نموذج ذكاء اصطناعي خارجي</span>
   </div>
   <div class="assist-body" id="assist-body"></div>
   <div class="assist-input">
-    <input id="assist-input" type="text" placeholder="اكتب سؤالك...">
-    <button id="assist-send">إرسال</button>
+    <input id="assist-input" type="text" data-i18n-placeholder="assist_placeholder" placeholder="اكتب سؤالك...">
+    <button id="assist-send" data-i18n="assist_send">إرسال</button>
   </div>
 </div>
 
 <script>
 /* ============================================================================
    0) Supabase connection
-   ============================================================================
-   استبدل القيمتين التاليتين بمشروعك الفعلي من لوحة Supabase (Project Settings
-   → API). anon key آمن للعرض في كود المتصفح بشرط وجود سياسات RLS صحيحة —
-   وهي مطبّقة بالكامل في supabase/schema.sql المرفق مع هذا المشروع.
-   ========================================================================== */
+     ========================================================================== */
 const SUPABASE_URL = "https://wlebcvwsleoleodjtrcf.supabase.co";       // مثال: https://xxxxx.supabase.co
 const SUPABASE_ANON_KEY = "sb_publishable_KhUpsOF0OxVQWyWLakXx2g_yDsUlnxV";
 
@@ -677,7 +705,24 @@ const I18N = {
     footer_legal:"قانوني", footer_privacy:"سياسة الخصوصية", footer_terms:"شروط الاستخدام",
     footer_tech:"البنية التقنية", footer_tech_text:"مبني على قاعدة بيانات Supabase مع صلاحيات وصول محكومة (RLS).",
     footer_tag:"🕌 شريكك العقاري الموثوق في المدينة المنورة",
-    assist_title:"المساعد الإرشادي", assist_sub:"قواعد مبرمجة، وليس نموذج ذكاء اصطناعي خارجي"
+    assist_title:"المساعد الإرشادي", assist_sub:"قواعد مبرمجة، وليس نموذج ذكاء اصطناعي خارجي",
+    assist_placeholder:"اكتب سؤالك...", assist_send:"إرسال",
+    social_title:"تابعنا عبر منصات التواصل",
+    add_city_prompt:"لا تجد مدينتك؟ أضف مدينة جديدة", add_city_modal_title:"أضف مدينة جديدة",
+    add_city_name:"اسم المدينة", add_city_district:"اسم أول حي فيها",
+    add_city_cancel:"إلغاء", add_city_save:"حفظ المدينة",
+    price_on_request:"السعر عند التواصل", rooms_suffix:"غرف",
+    contract_header:"عقد إيجار", contract_number_label:"رقم العقد",
+    contract_lessor_label:"المؤجر", contract_lessee_label:"المستأجر",
+    contract_id_label:"هوية", contract_phone_label2:"جوال",
+    contract_property_label:"العقار", contract_term_label:"مدة العقد",
+    contract_term_from:"من", contract_term_to:"إلى",
+    contract_rent_label:"الإيجار السنوي", contract_deposit_label:"الضمان",
+    type_residential:"سكني", type_commercial:"تجاري",
+    opt_east:"شرقية (+5%)", opt_north:"شمالية (+4%)", opt_south:"جنوبية", opt_west:"غربية (-2%)",
+    opt_upscale:"حي راقي (+25%)", opt_investment:"حي استثماري (+15%)", opt_mid:"حي متوسط",
+    opt_buy:"شراء عقار", opt_sell:"بيع عقار", opt_valuation_inq:"تقييم عقاري",
+    opt_contract_inq:"صياغة عقد", opt_general:"استفسار عام"
   },
   en: {
     brand:"Himmat Al Madinah Real Estate", nav_home:"Home", nav_valuation:"Valuation", nav_offers:"Offers",
@@ -729,7 +774,24 @@ const I18N = {
     footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Use",
     footer_tech:"Technology", footer_tech_text:"Built on Supabase with row-level security policies.",
     footer_tag:"🕌 Your trusted real estate partner in Madinah",
-    assist_title:"Guided Assistant", assist_sub:"Rule-based logic, not an external AI model"
+    assist_title:"Guided Assistant", assist_sub:"Rule-based logic, not an external AI model",
+    assist_placeholder:"Type your question...", assist_send:"Send",
+    social_title:"Follow us on social media",
+    add_city_prompt:"Can't find your city? Add a new one", add_city_modal_title:"Add a new city",
+    add_city_name:"City name", add_city_district:"Name of its first district",
+    add_city_cancel:"Cancel", add_city_save:"Save city",
+    price_on_request:"Price on request", rooms_suffix:"rooms",
+    contract_header:"Lease contract", contract_number_label:"Contract No.",
+    contract_lessor_label:"Lessor", contract_lessee_label:"Lessee",
+    contract_id_label:"ID", contract_phone_label2:"Phone",
+    contract_property_label:"Property", contract_term_label:"Term",
+    contract_term_from:"from", contract_term_to:"to",
+    contract_rent_label:"Annual rent", contract_deposit_label:"Deposit",
+    type_residential:"Residential", type_commercial:"Commercial",
+    opt_east:"East (+5%)", opt_north:"North (+4%)", opt_south:"South", opt_west:"West (-2%)",
+    opt_upscale:"Upscale district (+25%)", opt_investment:"Investment district (+15%)", opt_mid:"Mid-range district",
+    opt_buy:"Buy property", opt_sell:"Sell property", opt_valuation_inq:"Property valuation",
+    opt_contract_inq:"Contract drafting", opt_general:"General inquiry"
   },
   fr: {
     brand:"Himmat Al Madinah Immobilier", nav_home:"Accueil", nav_valuation:"Évaluation", nav_offers:"Offres",
@@ -781,18 +843,52 @@ const I18N = {
     footer_legal:"Mentions légales", footer_privacy:"Politique de confidentialité", footer_terms:"Conditions d'utilisation",
     footer_tech:"Technologie", footer_tech_text:"Basé sur Supabase avec des politiques RLS.",
     footer_tag:"🕌 Votre partenaire immobilier de confiance à Médine",
-    assist_title:"Assistant guidé", assist_sub:"Logique programmée, pas un modèle d'IA externe"
+    assist_title:"Assistant guidé", assist_sub:"Logique programmée, pas un modèle d'IA externe",
+    assist_placeholder:"Écrivez votre question...", assist_send:"Envoyer",
+    social_title:"Suivez-nous sur les réseaux sociaux",
+    add_city_prompt:"Votre ville n'est pas listée ? Ajoutez-la", add_city_modal_title:"Ajouter une nouvelle ville",
+    add_city_name:"Nom de la ville", add_city_district:"Nom de son premier quartier",
+    add_city_cancel:"Annuler", add_city_save:"Enregistrer la ville",
+    price_on_request:"Prix sur demande", rooms_suffix:"pièces",
+    contract_header:"Contrat de location", contract_number_label:"N° du contrat",
+    contract_lessor_label:"Bailleur", contract_lessee_label:"Locataire",
+    contract_id_label:"ID", contract_phone_label2:"Téléphone",
+    contract_property_label:"Bien", contract_term_label:"Durée",
+    contract_term_from:"du", contract_term_to:"au",
+    contract_rent_label:"Loyer annuel", contract_deposit_label:"Dépôt",
+    type_residential:"Résidentiel", type_commercial:"Commercial",
+    opt_east:"Est (+5%)", opt_north:"Nord (+4%)", opt_south:"Sud", opt_west:"Ouest (-2%)",
+    opt_upscale:"Quartier haut de gamme (+25%)", opt_investment:"Quartier d'investissement (+15%)", opt_mid:"Quartier intermédiaire",
+    opt_buy:"Acheter un bien", opt_sell:"Vendre un bien", opt_valuation_inq:"Évaluation immobilière",
+    opt_contract_inq:"Rédaction de contrat", opt_general:"Demande générale"
   }
 };
 
+let currentLang = 'ar';
+
 function applyLang(lang){
+  currentLang = lang;
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const key = el.getAttribute('data-i18n');
     if (I18N[lang][key]) el.textContent = I18N[lang][key];
   });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (I18N[lang][key]) el.placeholder = I18N[lang][key];
+  });
   document.querySelectorAll('#lang-switch button').forEach(b=>b.classList.toggle('active', b.dataset.lang===lang));
+
+  // Re-render everything that isn't a static data-i18n element, so the
+  // language switch actually reaches services / FAQ / offers / dropdowns —
+  // previously these stayed in Arabic regardless of the selected language.
+  renderServices();
+  renderFaq();
+  renderOffers();
+  renderSocialRow();
+  populateTypeSelects();
+  populateCitySelects();
 }
 document.getElementById('lang-switch').addEventListener('click', e=>{
   const btn = e.target.closest('button[data-lang]');
@@ -800,59 +896,171 @@ document.getElementById('lang-switch').addEventListener('click', e=>{
 });
 
 /* ============================================================================
-   2) Static demo content (used only as a fallback / preview when the
-      database isn't connected yet — clearly not a substitute for real data)
+   2) Per-language content. Demo/reference content translates fully; district
+      names (real Saudi neighbourhoods) are kept in Arabic across languages —
+      translating ~250 proper nouns isn't attempted, since the values must
+      stay consistent with what's actually stored in the database.
    ========================================================================== */
-const SERVICES = [
-  {ic:"🏠", key_h:"بيع وشراء العقارات", key_p:"نساعدك على البيع والشراء بثقة، من دراسة الاحتياج حتى إتمام الصفقة."},
-  {ic:"📊", key_h:"دراسة وتحليل السوق", key_p:"نحلل معطيات السوق ونقارن الفرص لتتخذ قرارك على معرفة."},
-  {ic:"📄", key_h:"كتابة عقود الإيجار", key_p:"عقد يضمن حق الطرفين المؤجر والمستأجر ويقلل مساحة الخلاف."},
-  {ic:"🏢", key_h:"إدارة الأملاك", key_p:"نهتم بتفاصيل عقارك لتبقى مطمئناً على استثمارك."},
-  {ic:"💬", key_h:"الاستشارات العقارية", key_p:"قبل أن تقرر، نضع أمامك صورة أوضح للخيارات والفرص."},
-  {ic:"📢", key_h:"التسويق العقاري", key_p:"نبرز قيمة عقارك ونوصله إلى الباحث الجاد بأسلوب احترافي."},
-];
+const SERVICES_I18N = {
+  ar: [
+    {ic:"🏠", h:"بيع وشراء العقارات", p:"نساعدك على البيع والشراء بثقة، من دراسة الاحتياج حتى إتمام الصفقة."},
+    {ic:"📊", h:"دراسة وتحليل السوق", p:"نحلل معطيات السوق ونقارن الفرص لتتخذ قرارك على معرفة."},
+    {ic:"📄", h:"كتابة عقود الإيجار", p:"عقد يضمن حق الطرفين المؤجر والمستأجر ويقلل مساحة الخلاف."},
+    {ic:"🏢", h:"إدارة الأملاك", p:"نهتم بتفاصيل عقارك لتبقى مطمئناً على استثمارك."},
+    {ic:"💬", h:"الاستشارات العقارية", p:"قبل أن تقرر، نضع أمامك صورة أوضح للخيارات والفرص."},
+    {ic:"📢", h:"التسويق العقاري", p:"نبرز قيمة عقارك ونوصله إلى الباحث الجاد بأسلوب احترافي."},
+  ],
+  en: [
+    {ic:"🏠", h:"Buying & Selling", p:"We help you buy and sell with confidence, from needs assessment to closing."},
+    {ic:"📊", h:"Market Analysis", p:"We analyse market data and compare opportunities so you decide with knowledge."},
+    {ic:"📄", h:"Lease Drafting", p:"A contract that protects both lessor and lessee and reduces disputes."},
+    {ic:"🏢", h:"Property Management", p:"We handle the details so you stay confident about your investment."},
+    {ic:"💬", h:"Real Estate Consulting", p:"Before you decide, we lay out a clearer picture of your options."},
+    {ic:"📢", h:"Real Estate Marketing", p:"We highlight your property's value and reach serious buyers professionally."},
+  ],
+  fr: [
+    {ic:"🏠", h:"Achat et vente", p:"Nous vous aidons à acheter et vendre en toute confiance, de l'étude du besoin à la conclusion."},
+    {ic:"📊", h:"Analyse du marché", p:"Nous analysons le marché et comparons les opportunités pour une décision éclairée."},
+    {ic:"📄", h:"Rédaction de baux", p:"Un contrat qui protège bailleur et locataire et réduit les litiges."},
+    {ic:"🏢", h:"Gestion locative", p:"Nous gérons les détails pour que vous soyez serein sur votre investissement."},
+    {ic:"💬", h:"Conseil immobilier", p:"Avant de décider, nous clarifions vos options."},
+    {ic:"📢", h:"Marketing immobilier", p:"Nous valorisons votre bien et le présentons à des acheteurs sérieux."},
+  ],
+};
 
-const DEMO_OFFERS = [
-  {title:"شقة مع سطح خاص", city:"الرياض", district:"الندى", property_type:"شقة", area_sqm:257, rooms:3, price_original:null, discount_pct:10, price_final:null},
-  {title:"شقة", city:"جدة", district:"الشاطئ", property_type:"شقة", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400},
-  {title:"فيلا", city:"الرياض", district:"النرجس", property_type:"فيلا", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000},
-];
+const DEMO_OFFERS_I18N = {
+  ar: [
+    {title:"شقة مع سطح خاص", city:"الرياض", district:"الندى", property_type:"شقة في عمارة", area_sqm:257, rooms:3, price_original:null, discount_pct:10, price_final:null},
+    {title:"شقة", city:"جدة", district:"الشاطئ", property_type:"شقة في برج", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400},
+    {title:"فيلا", city:"الرياض", district:"النرجس", property_type:"فيلا", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000},
+  ],
+  en: [
+    {title:"Apartment with private roof", city:"Riyadh", district:"Al Nada", property_type:"Apartment in a building", area_sqm:257, rooms:3, price_original:null, discount_pct:10, price_final:null},
+    {title:"Apartment", city:"Jeddah", district:"Al Shati", property_type:"Apartment in a tower", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400},
+    {title:"Villa", city:"Riyadh", district:"Al Narjis", property_type:"Villa", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000},
+  ],
+  fr: [
+    {title:"Appartement avec toit privé", city:"Riyad", district:"Al Nada", property_type:"Appartement en immeuble", area_sqm:257, rooms:3, price_original:null, discount_pct:10, price_final:null},
+    {title:"Appartement", city:"Djeddah", district:"Al Shati", property_type:"Appartement en tour", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400},
+    {title:"Villa", city:"Riyad", district:"Al Narjis", property_type:"Villa", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000},
+  ],
+};
 
-const FAQ = [
-  {q:"كيف أضيف عقاري؟", a:"من قسم «إضافة»، أدخل بيانات العقار ثم اضغط «إدراج للمراجعة». يظهر عقارك في «التحليلات» بعد مراجعة قصيرة من فريقنا لضمان جودة البيانات."},
-  {q:"هل التقييم معتمد رسمياً؟", a:"لا. التقييم تقدير استرشادي ناتج معادلة حسابية شفافة (سعر المتر × المساحة مع معاملات تعديل)، وليس تقييماً معتمداً من هيئة رسمية ولا نموذج ذكاء اصطناعي مُدرَّب."},
-  {q:"هل يمكنني توقيع العقد مباشرة؟", a:"من قسم «العقود» يمكنك تعبئة بيانات العقد وتوليده وحفظه في قاعدة بياناتنا، ثم طباعته للتوقيع. الحفظ يشمل جدول الدفعات كاملاً تلقائياً."},
-  {q:"هل تغطون مدناً أخرى؟", a:"حالياً نغطي المدينة المنورة والرياض وجدة ومكة المكرمة والدمام، ونعمل على إضافة مدن جديدة بشكل دوري."},
-  {q:"هل الأدوات مجانية؟", a:"نعم، أداة التقييم الاسترشادي ومولّد العقود متاحة مجاناً."},
-  {q:"كيف أتواصل مع فريق الدعم؟", a:"عبر قسم «تواصل» يمكنك مراسلتنا واتساب أو بريد إلكتروني أو الاتصال المباشر."},
-  {q:"هل العروض المعروضة مخزون كامل؟", a:"العروض نماذج قابلة للتحديث وليست بالضرورة مخزوناً كاملاً؛ تواصل معنا للتأكد من توفر عقار محدد."},
-  {q:"كيف يعمل المساعد الإرشادي؟", a:"مساعد داخل الصفحة يعتمد على قواعد مبرمجة (كلمات مفتاحية) لتوجيهك للقسم المناسب — وليس نموذج ذكاء اصطناعي خارجي، للحفاظ على خصوصيتك وعدم كشف أي مفاتيح API."},
-  {q:"أين تُخزَّن بياناتي؟", a:"في قاعدة بيانات Supabase مركزية محمية بصلاحيات وصول (RLS)، وليس في متصفحك فقط — فهي تبقى محفوظة ومرئية لفريقنا حتى لو غيّرت جهازك."},
-];
+const FAQ_I18N = {
+  ar: [
+    {q:"كيف أضيف عقاري؟", a:"من قسم «إضافة»، أدخل بيانات العقار ثم اضغط «إدراج للمراجعة». يظهر عقارك في «التحليلات» بعد مراجعة قصيرة من فريقنا لضمان جودة البيانات."},
+    {q:"هل التقييم معتمد رسمياً؟", a:"لا. التقييم تقدير استرشادي ناتج معادلة حسابية شفافة (سعر المتر × المساحة مع معاملات تعديل)، وليس تقييماً معتمداً من هيئة رسمية ولا نموذج ذكاء اصطناعي مُدرَّب."},
+    {q:"هل يمكنني توقيع العقد مباشرة؟", a:"من قسم «العقود» يمكنك تعبئة بيانات العقد وتوليده وحفظه في قاعدة بياناتنا، ثم طباعته للتوقيع. الحفظ يشمل جدول الدفعات كاملاً تلقائياً."},
+    {q:"هل تغطون مدناً أخرى؟", a:"حالياً نغطي المدينة المنورة ومكة المكرمة وجدة والرياض، ويمكنك إضافة مدينة غير مدرجة مباشرة من نماذج التقييم أو إضافة عقار."},
+    {q:"هل الأدوات مجانية؟", a:"نعم، أداة التقييم الاسترشادي ومولّد العقود متاحة مجاناً."},
+    {q:"كيف أتواصل مع فريق الدعم؟", a:"عبر قسم «تواصل» يمكنك مراسلتنا واتساب أو بريد إلكتروني أو الاتصال المباشر."},
+    {q:"هل العروض المعروضة مخزون كامل؟", a:"العروض نماذج قابلة للتحديث وليست بالضرورة مخزوناً كاملاً؛ تواصل معنا للتأكد من توفر عقار محدد."},
+    {q:"كيف يعمل المساعد الإرشادي؟", a:"مساعد داخل الصفحة يعتمد على قواعد مبرمجة (كلمات مفتاحية) لتوجيهك للقسم المناسب — وليس نموذج ذكاء اصطناعي خارجي، للحفاظ على خصوصيتك وعدم كشف أي مفاتيح API."},
+    {q:"أين تُخزَّن بياناتي؟", a:"في قاعدة بيانات Supabase مركزية محمية بصلاحيات وصول (RLS)، وليس في متصفحك فقط — فهي تبقى محفوظة ومرئية لفريقنا حتى لو غيّرت جهازك."},
+  ],
+  en: [
+    {q:"How do I list my property?", a:"From the “List Property” section, enter the details and click “Submit for review”. It appears in Analytics after a quick review by our team to keep data quality high."},
+    {q:"Is the valuation officially certified?", a:"No. It's a guided estimate from a transparent formula (price per sqm × area with adjustment factors) — not a certified valuation and not a trained AI model."},
+    {q:"Can I sign a contract directly?", a:"From the Contracts section you can fill in the details, generate the contract, and save it to our database, then print it for signing. The full payment schedule is saved automatically."},
+    {q:"Do you cover other cities?", a:"We currently cover Madinah, Makkah, Jeddah and Riyadh, and you can add a city that isn't listed directly from the valuation or add-property forms."},
+    {q:"Are the tools free?", a:"Yes, the guided valuation tool and the contract generator are both free."},
+    {q:"How do I reach support?", a:"Via the Contact section you can reach us on WhatsApp, email, or by phone."},
+    {q:"Are the listed offers full inventory?", a:"Offers are updatable samples, not necessarily full inventory; contact us to confirm availability of a specific property."},
+    {q:"How does the guided assistant work?", a:"An in-page assistant driven by programmed rules (keyword matching) that directs you to the right section — not an external AI model, to protect your privacy and avoid exposing any API keys."},
+    {q:"Where is my data stored?", a:"In a central Supabase database protected by access policies (RLS), not just in your browser — it stays saved and visible to our team even if you switch devices."},
+  ],
+  fr: [
+    {q:"Comment ajouter mon bien ?", a:"Depuis la section « Ajouter », saisissez les détails puis cliquez sur « Soumettre pour examen ». Le bien apparaît dans les analyses après une vérification rapide de notre équipe."},
+    {q:"L'évaluation est-elle officielle ?", a:"Non. C'est une estimation indicative issue d'une formule transparente (prix au m² × surface avec facteurs d'ajustement) — pas une évaluation certifiée ni un modèle d'IA entraîné."},
+    {q:"Puis-je signer un contrat directement ?", a:"Depuis la section Contrats, remplissez les informations, générez le contrat et enregistrez-le dans notre base, puis imprimez-le pour signature. L'échéancier complet est enregistré automatiquement."},
+    {q:"Couvrez-vous d'autres villes ?", a:"Nous couvrons actuellement Médine, La Mecque, Djeddah et Riyad, et vous pouvez ajouter une ville non listée directement depuis les formulaires d'évaluation ou d'ajout de bien."},
+    {q:"Les outils sont-ils gratuits ?", a:"Oui, l'outil d'évaluation indicative et le générateur de contrats sont gratuits."},
+    {q:"Comment contacter le support ?", a:"Depuis la section Contact, vous pouvez nous joindre par WhatsApp, e-mail ou téléphone."},
+    {q:"Les offres affichées sont-elles tout le stock ?", a:"Les offres sont des exemples actualisables, pas nécessairement tout le stock ; contactez-nous pour confirmer la disponibilité d'un bien précis."},
+    {q:"Comment fonctionne l'assistant guidé ?", a:"Un assistant intégré basé sur des règles programmées (mots-clés) qui vous oriente vers la bonne section — pas un modèle d'IA externe, pour protéger votre vie privée et n'exposer aucune clé API."},
+    {q:"Où sont stockées mes données ?", a:"Dans une base de données Supabase centrale protégée par des politiques d'accès (RLS), pas seulement dans votre navigateur — elles restent visibles pour notre équipe même si vous changez d'appareil."},
+  ],
+};
 
 function money(n){ return Math.round(n).toLocaleString('en-US'); }
 
 /* ============================================================================
-   3) Render services / offers / FAQ
+   3) Cities / districts / property types — shared reference data.
+      Loaded from Supabase when connected (so new cities added by any visitor
+      become available to everyone); falls back to this seed list otherwise.
+      Dammam has been removed per the current scope (Western region only).
+   ========================================================================== */
+const CITY_LABELS = {
+  "المدينة المنورة": { en:"Madinah",       fr:"Médine" },
+  "مكة المكرمة":     { en:"Makkah",        fr:"La Mecque" },
+  "جدة":             { en:"Jeddah",        fr:"Djeddah" },
+  "الرياض":          { en:"Riyadh",        fr:"Riyad" },
+};
+function cityLabel(name){
+  if (currentLang === 'ar') return name;
+  return (CITY_LABELS[name] && CITY_LABELS[name][currentLang]) || name;
+}
+
+const CITY_DISTRICTS = {
+  "المدينة المنورة": ["العزيزية","العاقول","العريض","الخالدية","الزهرة","شظاة","الملك فهد","المبعوث","الروابي","الربوة","الإسكان","الدويمة","قربان","العوالي","الهجرة","العصبة","قباء","القصواء","الرانوناء","شوران","مهزور","مذينب","بني حارثة","بني معاوية","بني ظفر","بني خدرة","بني بياضة","السيح","الفتح","القبلتين","الجامعة","أبو كبير","الجرف","البركة","السلام","الدفاع","طيبة","أحد","سيد الشهداء","المصانع","العيون","النصر","الراية","المناخة","المغيسلة","الوبرة","السكب","الخاتم","أبو بريقاء","وادي البطان","الحرة الشرقية"],
+  "مكة المكرمة": ["العوالي","الشوقية","الشرائع","النسيم","الزاهر","العتيبية","العمرة","النوارية","التنعيم","الراشدية","بطحاء قريش","الكعكية","ولي العهد","الحمراء وأم الجود","الزهراء","الضيافة","النزهة","الرصيفة","المسفلة","الهجرة","كدي","جرهم","الروابي","الخالدية","الهنداوية","المنصور","الشبيكة","الشامية","جرول","ريع ذاخر","الحجون","المعابدة","العزيزية الشمالية","الملاوي","العدل","العسيلة","وادي جليل","العمرة الجديدة","البحيرات","الشرائع الشمالية","الشرائع الجنوبية","الصفوة","الملك فهد","الحسينية","العكيشية","الليث الجديد"],
+  "جدة": ["الروضة","الزهراء","السلامة","النهضة","الشاطئ","المحمدية","الخالدية","النعيم","النزهة","البوادي","الربوة","الصفا","الفيصلية","الرحاب","مشرفة","العزيزية","الورود","بني مالك","النسيم","الواحة","السامر","المنار","الأجواد","الريان","مريخ","بريمان","المنطقة الصناعية","الجامعة","الفيحاء","السليمانية","الثغر","الروابي","الوزيرية","غليل","مدائن الفهد","البلد","الهنداوية","البغدادية الشرقية","البغدادية الغربية","الكندرة","الصحيفة","السبيل","النزلة الشرقية","النزلة اليمانية","الثعالبة","المحجر","الكرنتينا","الأمير فواز الشمالي","الأمير فواز الجنوبي","السنابل","الهدى","الأجاويد","الفضيلة","الخمرة","القرينية","الحمدانية","الصالحية","الفلاح","الرحمانية","طيبة","الرياض","الكوثر","الياقوت","الزمرد","اللؤلؤ","الأمواج","الشراع","الفردوس","الأصالة","البساتين","أبحر الجنوبية","أبحر الشمالية","المرجان","الشفا","المنتزهات","أم السلم","الحرازات"],
+  "الرياض": ["العليا","السليمانية","الملز","الوزارات","الضباط","الورود","الرحمانية","المحمدية","الرائد","النخيل","أم الحمام الشرقي","أم الحمام الغربي","المعذر","المعذر الشمالي","الهدا","الشفا","بدر","المروة","عكاظ","الحزم","ديراب","نمار","ظهرة نمار","العريجاء","العريجاء الغربية","العريجاء الوسطى","ظهرة البديعة","البديعة","السويدي","السويدي الغربي","شبرا","سلطانة","الجرادية","منفوحة","منفوحة الجديدة","الديرة","الشميسي","الفاخرية","العود","المرقب","الصالحية","الخالدية","غبيراء","اليمامة","الربوة","الريان","الروابي","النسيم الشرقي","النسيم الغربي","السلام","المنار","النهضة","الخليج","القدس","الحمراء","غرناطة","الشهداء","قرطبة","اليرموك","المونسية","الرمال","الجنادرية","القادسية","اشبيلية","الملك فيصل","الروضة","الملقا","حطين","العقيق","الصحافة","الياسمين","النرجس","العارض","القيروان","الربيع","الغدير","النفل","الوادي","التعاون","الازدهار","المصيف","المرسلات","الفلاح","الندى","الواحة","صلاح الدين","الملك فهد","الملك عبدالله","الملك عبدالعزيز","المغرزات","النور"],
+};
+const CITY_PRICE_PER_SQM = { "المدينة المنورة":4200, "مكة المكرمة":6100, "جدة":5800, "الرياض":6500 };
+
+const PROPERTY_TYPES = [
+  { v:"فيلا",          mult:1.18, ar:"فيلا",              en:"Villa",                     fr:"Villa" },
+  { v:"شقة في برج",     mult:1.05, ar:"شقة في برج",         en:"Apartment in a tower",       fr:"Appartement en tour" },
+  { v:"شقة في عمارة",   mult:1.00, ar:"شقة في عمارة",       en:"Apartment in a building",    fr:"Appartement en immeuble" },
+  { v:"أرض",           mult:0.85, ar:"أرض",               en:"Land",                       fr:"Terrain" },
+  { v:"دبلكس",         mult:1.10, ar:"دبلكس",             en:"Duplex",                     fr:"Duplex" },
+  { v:"قصر",           mult:1.50, ar:"قصر",               en:"Palace",                     fr:"Palais" },
+  { v:"مزرعة",         mult:0.90, ar:"مزرعة",             en:"Farm",                       fr:"Ferme" },
+  { v:"استراحة",       mult:1.05, ar:"استراحة",           en:"Chalet / Resthouse",         fr:"Chalet" },
+  { v:"محل تجاري",     mult:1.20, ar:"محل تجاري",         en:"Retail shop",                fr:"Local commercial" },
+  { v:"مكتب",          mult:1.05, ar:"مكتب",              en:"Office",                     fr:"Bureau" },
+  { v:"مخزن",          mult:0.75, ar:"مخزن",              en:"Warehouse",                  fr:"Entrepôt" },
+  { v:"منتجع",         mult:1.35, ar:"منتجع",             en:"Resort",                     fr:"Résidence de vacances" },
+  { v:"معرض",          mult:1.15, ar:"معرض",              en:"Showroom",                   fr:"Salle d'exposition" },
+  { v:"عمارة",         mult:1.30, ar:"عمارة",             en:"Building",                   fr:"Immeuble" },
+  { v:"محطة",          mult:1.10, ar:"محطة",              en:"Station",                    fr:"Station" },
+  { v:"دور",           mult:0.95, ar:"دور",               en:"Floor unit",                 fr:"Étage indépendant" },
+];
+
+const SOCIAL_LINKS = [
+  // عدّل href هنا لاحقاً بروابط حساباتك الفعلية — تركتها "#" مؤقتاً كما طلبت
+  { name:"Snapchat",  icon:"👻", color:"#FFFC00", textColor:"#222", href:"#" },
+  { name:"X",         icon:"𝕏",  color:"#111111", textColor:"#fff", href:"#" },
+  { name:"Facebook",  icon:"f",  color:"#1877F2", textColor:"#fff", href:"#" },
+  { name:"Instagram", icon:"📷", color:"#E1306C", textColor:"#fff", href:"#" },
+  { name:"TikTok",    icon:"♪",  color:"#000000", textColor:"#fff", href:"#" },
+  { name:"WhatsApp",  icon:"💬", color:"#25D366", textColor:"#fff", href:"#" },
+];
+
+/* ============================================================================
+   4) Render services / offers / FAQ / social row (all language-aware)
    ========================================================================== */
 function renderServices(){
-  document.getElementById('services-grid').innerHTML = SERVICES.map(s=>`
+  const list = SERVICES_I18N[currentLang] || SERVICES_I18N.ar;
+  document.getElementById('services-grid').innerHTML = list.map(s=>`
     <div class="card service-card">
       <div class="ic">${s.ic}</div>
-      <h4>${s.key_h}</h4>
-      <p>${s.key_p}</p>
+      <h4>${s.h}</h4>
+      <p>${s.p}</p>
     </div>`).join('');
 }
 
 function offerCardHtml(o){
+  const t = I18N[currentLang];
   const priceHtml = o.price_original
-    ? `<span class="price">${money(o.price_final)} ر.س <s>${money(o.price_original)} ر.س</s></span>`
-    : `<span class="price">السعر عند التواصل</span>`;
+    ? `<span class="price">${money(o.price_final)} ${currentLang==='ar' ? 'ر.س' : 'SAR'} <s>${money(o.price_original)} ${currentLang==='ar' ? 'ر.س' : 'SAR'}</s></span>`
+    : `<span class="price">${t.price_on_request}</span>`;
   return `<div class="card offer-card">
     <div class="offer-top"><b>${o.title}</b><span class="offer-discount">-${o.discount_pct}%</span></div>
     <div class="offer-body">
       <h4>${o.property_type} · ${o.district}</h4>
-      <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} غرف</div>
+      <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} ${t.rooms_suffix}</div>
       ${priceHtml}
     </div>
   </div>`;
@@ -867,15 +1075,144 @@ async function renderOffers(){
       return;
     }
   }
-  grid.innerHTML = DEMO_OFFERS.map(offerCardHtml).join('') +
-    `<div class="notice notice-warn" style="grid-column:1/-1">عروض توضيحية — اربط قاعدة البيانات لعرض العروض الفعلية.</div>`;
+  const demo = DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar;
+  const demoLabel = { ar:"عروض توضيحية — اربط قاعدة البيانات لعرض العروض الفعلية.",
+                       en:"Demo offers — connect the database to show real offers.",
+                       fr:"Offres de démonstration — connectez la base de données." }[currentLang];
+  grid.innerHTML = demo.map(offerCardHtml).join('') +
+    `<div class="notice notice-warn" style="grid-column:1/-1">${demoLabel}</div>`;
 }
 
 function renderFaq(){
-  document.getElementById('faq-list').innerHTML = FAQ.map(f=>`
+  const list = FAQ_I18N[currentLang] || FAQ_I18N.ar;
+  document.getElementById('faq-list').innerHTML = list.map(f=>`
     <details class="faq-item"><summary>${f.q} <span>+</span></summary><p>${f.a}</p></details>
   `).join('');
 }
+
+function renderSocialRow(){
+  document.getElementById('social-row').innerHTML = SOCIAL_LINKS.map(s=>`
+    <a class="social-badge" style="background:${s.color};color:${s.textColor}" href="${s.href}" target="_blank" rel="noopener" aria-label="${s.name}" title="${s.name}">${s.icon}</a>
+  `).join('');
+}
+
+/* ============================================================================
+   5) City / district / type selects — shared across valuation, add-property,
+      and contracts forms. Loads from Supabase (cities/districts tables) when
+      connected, so a city added by one visitor becomes available to everyone;
+      otherwise falls back to the seed lists above.
+   ========================================================================== */
+async function loadCitiesFromDb(){
+  if (!dbReady) return;
+  const { data: cities, error: e1 } = await supa.from('cities').select('name, price_per_sqm');
+  if (e1 || !cities || !cities.length) return;
+  const { data: districts, error: e2 } = await supa.from('districts').select('name, cities(name)');
+  if (e2) return;
+
+  // Rebuild the shared maps from live data without discarding the local seed
+  // (in case the DB has fewer districts seeded than this file for some city).
+  cities.forEach(c=>{
+    if (!CITY_DISTRICTS[c.name]) CITY_DISTRICTS[c.name] = [];
+    if (c.price_per_sqm) CITY_PRICE_PER_SQM[c.name] = c.price_per_sqm;
+  });
+  (districts || []).forEach(d=>{
+    const cityName = d.cities?.name;
+    if (!cityName) return;
+    if (!CITY_DISTRICTS[cityName]) CITY_DISTRICTS[cityName] = [];
+    if (!CITY_DISTRICTS[cityName].includes(d.name)) CITY_DISTRICTS[cityName].push(d.name);
+  });
+}
+
+function populateCitySelects(){
+  document.querySelectorAll('select.city-select').forEach(sel=>{
+    const prev = sel.value;
+    sel.innerHTML = Object.keys(CITY_DISTRICTS).map(city=>
+      `<option value="${city}" data-price="${CITY_PRICE_PER_SQM[city] || ''}">${cityLabel(city)}</option>`
+    ).join('');
+    if (prev && CITY_DISTRICTS[prev]) sel.value = prev;
+    populateDistrictSelectFor(sel.id);
+  });
+}
+
+function populateDistrictSelectFor(citySelectId){
+  const citySel = document.getElementById(citySelectId);
+  const districtSel = document.querySelector(`select.district-select[data-city-of="${citySelectId}"]`);
+  if (!citySel || !districtSel) return;
+  const list = CITY_DISTRICTS[citySel.value] || [];
+  const prev = districtSel.value;
+  districtSel.innerHTML = list.map(d=>`<option value="${d}">${d}</option>`).join('');
+  if (list.includes(prev)) districtSel.value = prev;
+}
+
+document.querySelectorAll('select.city-select').forEach(sel=>{
+  sel.addEventListener('change', ()=> populateDistrictSelectFor(sel.id));
+});
+
+function populateTypeSelects(){
+  document.querySelectorAll('select.type-select').forEach(sel=>{
+    const prev = sel.value;
+    sel.innerHTML = PROPERTY_TYPES.map(t=>
+      `<option value="${t.v}" data-mult="${t.mult}">${t[currentLang] || t.ar}</option>`
+    ).join('');
+    if (prev && PROPERTY_TYPES.some(t=>t.v===prev)) sel.value = prev;
+  });
+}
+
+/* Add-city modal — shared by all three forms */
+let addCityTargetSelectId = null;
+function openAddCityModal(targetSelectId){
+  addCityTargetSelectId = targetSelectId;
+  document.getElementById('new-city-name').value = '';
+  document.getElementById('new-city-district').value = '';
+  document.getElementById('add-city-msg').textContent = '';
+  document.getElementById('add-city-modal').classList.add('open');
+}
+function closeAddCityModal(){
+  document.getElementById('add-city-modal').classList.remove('open');
+}
+document.querySelectorAll('.add-city-link').forEach(btn=>{
+  btn.addEventListener('click', ()=> openAddCityModal(btn.dataset.target));
+});
+document.getElementById('add-city-cancel').addEventListener('click', closeAddCityModal);
+document.getElementById('add-city-modal').addEventListener('click', e=>{
+  if (e.target.id === 'add-city-modal') closeAddCityModal();
+});
+document.getElementById('add-city-save').addEventListener('click', async ()=>{
+  const name = document.getElementById('new-city-name').value.trim();
+  const district = document.getElementById('new-city-district').value.trim();
+  const msg = document.getElementById('add-city-msg');
+  if (!name || !district){
+    msg.style.color = 'var(--danger)';
+    msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'عبّئ اسم المدينة والحي.' : 'Fill in both the city and district name.');
+    return;
+  }
+  CITY_DISTRICTS[name] = CITY_DISTRICTS[name] || [];
+  if (!CITY_DISTRICTS[name].includes(district)) CITY_DISTRICTS[name].push(district);
+
+  if (dbReady){
+    const { data: cityRow, error: cErr } = await supa.from('cities').insert({ name }).select().maybeSingle();
+    let cityId = cityRow?.id;
+    if (cErr){
+      // قد تكون موجودة مسبقاً — نجلبها بدل الفشل
+      const { data: existing } = await supa.from('cities').select('id').eq('name', name).maybeSingle();
+      cityId = existing?.id;
+    }
+    if (cityId) await supa.from('districts').insert({ city_id: cityId, name: district });
+    msg.style.color = 'var(--ok)';
+    msg.textContent = '✅ ' + (currentLang==='ar' ? 'تم الحفظ، وستظهر المدينة للجميع.' : 'Saved — this city will now be visible to everyone.');
+  } else {
+    msg.style.color = 'var(--warn)';
+    msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'أُضيفت لهذه الجلسة فقط — اربط قاعدة البيانات لحفظها بشكل دائم.' : 'Added for this session only — connect the database to save it permanently.');
+  }
+
+  populateCitySelects();
+  if (addCityTargetSelectId){
+    document.getElementById(addCityTargetSelectId).value = name;
+    populateDistrictSelectFor(addCityTargetSelectId);
+    document.querySelector(`select.district-select[data-city-of="${addCityTargetSelectId}"]`).value = district;
+  }
+  setTimeout(closeAddCityModal, 900);
+});
 
 /* ============================================================================
    4) Valuation (transparent formula — honestly labeled, not an AI model)
@@ -902,10 +1239,18 @@ function runValuation(){
 
   document.getElementById('res-low').textContent = money(low);
   document.getElementById('res-high').textContent = money(high);
-  document.getElementById('val-breakdown').innerHTML = `
-    السعر الأساسي = ${pricePerSqm} ر.س/م² × ${area} م² × معامل النوع ${typeMult} = ${money(base)} ر.س<br>
-    التعديلات: الواجهة ${(facadeAdj*100).toFixed(0)}% + الحي ${(gradeAdj*100).toFixed(0)}% + العمر ${(ageAdj*100).toFixed(0)}%<br>
-    <b>هذه معادلة حسابية شفافة بالكامل، وليست تنبؤاً من نموذج تعلّم آلي.</b>`;
+  const bd = {
+    ar: `السعر الأساسي = ${pricePerSqm} ر.س/م² × ${area} م² × معامل النوع ${typeMult} = ${money(base)} ر.س<br>
+         التعديلات: الواجهة ${(facadeAdj*100).toFixed(0)}% + الحي ${(gradeAdj*100).toFixed(0)}% + العمر ${(ageAdj*100).toFixed(0)}%<br>
+         <b>هذه معادلة حسابية شفافة بالكامل، وليست تنبؤاً من نموذج تعلّم آلي.</b>`,
+    en: `Base price = ${pricePerSqm} SAR/sqm × ${area} sqm × type factor ${typeMult} = ${money(base)} SAR<br>
+         Adjustments: facade ${(facadeAdj*100).toFixed(0)}% + district ${(gradeAdj*100).toFixed(0)}% + age ${(ageAdj*100).toFixed(0)}%<br>
+         <b>This is a fully transparent formula, not a machine-learning prediction.</b>`,
+    fr: `Prix de base = ${pricePerSqm} SAR/m² × ${area} m² × facteur de type ${typeMult} = ${money(base)} SAR<br>
+         Ajustements : façade ${(facadeAdj*100).toFixed(0)}% + quartier ${(gradeAdj*100).toFixed(0)}% + âge ${(ageAdj*100).toFixed(0)}%<br>
+         <b>Formule de calcul entièrement transparente, pas une prédiction d'un modèle d'apprentissage automatique.</b>`,
+  };
+  document.getElementById('val-breakdown').innerHTML = bd[currentLang] || bd.ar;
   return estimate;
 }
 document.getElementById('btn-run-valuation').addEventListener('click', runValuation);
@@ -919,7 +1264,7 @@ function runFinance(){
   const n = years * 12;
   const principal = Math.max(price - down, 0);
   const monthly = rate === 0 ? principal / n : principal * rate * Math.pow(1+rate, n) / (Math.pow(1+rate, n) - 1);
-  document.getElementById('finance-result').textContent = money(monthly) + ' ر.س';
+  document.getElementById('finance-result').textContent = money(monthly) + (currentLang==='ar' ? ' ر.س' : ' SAR');
 }
 ['fin-price','fin-down','fin-rate','fin-years'].forEach(id=>{
   document.getElementById(id).addEventListener('input', runFinance);
@@ -1000,25 +1345,33 @@ document.querySelectorAll('.tabs button[data-tab]').forEach(btn=>{
 document.getElementById('btn-generate-contract').addEventListener('click', async ()=>{
   const msg = document.getElementById('contract-msg');
   const pre = document.getElementById('contract-text');
-  const contractType = document.querySelector('.tabs button.active').dataset.tab === 'residential' ? 'سكني' : 'تجاري';
+  const isResidential = document.querySelector('.tabs button.active').dataset.tab === 'residential';
+  const contractType = isResidential ? 'سكني' : 'تجاري';    // canonical value stored in the DB
+  const t = I18N[currentLang];
+  const contractTypeLabel = isResidential ? t.type_residential : t.type_commercial;
 
   const v = id => document.getElementById(id).value;
+  const cityDisplay = cityLabel(v('c-city'));
+  const typeDisplay = PROPERTY_TYPES.find(pt=>pt.v===v('c-unit-type'))?.[currentLang] || v('c-unit-type');
   const contractNumber = 'HMD-' + Date.now();
   const rent = parseFloat(v('c-rent')) || 0;
+  const currency = currentLang==='ar' ? 'ر.س' : 'SAR';
 
-  const text = `عقد إيجار ${contractType}
-رقم العقد: ${contractNumber}
-المؤجر: ${v('c-lessor-name')} (هوية: ${v('c-lessor-id')} — جوال: ${v('c-lessor-phone')})
-المستأجر: ${v('c-lessee-name')} (هوية: ${v('c-lessee-id')} — جوال: ${v('c-lessee-phone')})
-العقار: ${v('c-unit-type')} — ${v('c-district')}, ${v('c-city')} — ${v('c-area')} م²
-مدة العقد: من ${v('c-start')} إلى ${v('c-end')}
-الإيجار السنوي: ${money(rent)} ر.س — الضمان: ${money(parseFloat(v('c-deposit'))||0)} ر.س`;
+  const text = `${t.contract_header} — ${contractTypeLabel}
+${t.contract_number_label}: ${contractNumber}
+${t.contract_lessor_label}: ${v('c-lessor-name')} (${t.contract_id_label}: ${v('c-lessor-id')} — ${t.contract_phone_label2}: ${v('c-lessor-phone')})
+${t.contract_lessee_label}: ${v('c-lessee-name')} (${t.contract_id_label}: ${v('c-lessee-id')} — ${t.contract_phone_label2}: ${v('c-lessee-phone')})
+${t.contract_property_label}: ${typeDisplay} — ${v('c-district')}, ${cityDisplay} — ${v('c-area')} م²
+${t.contract_term_label}: ${t.contract_term_from} ${v('c-start')} ${t.contract_term_to} ${v('c-end')}
+${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_label}: ${money(parseFloat(v('c-deposit'))||0)} ${currency}`;
 
   pre.textContent = text;
   pre.classList.remove('hide');
 
   if (!dbReady){
-    msg.textContent = '⚠️ تم توليد نص العقد فقط — قاعدة البيانات غير مربوطة، لن يُحفظ جدول الدفعات.';
+    msg.textContent = '⚠️ ' + (currentLang==='ar'
+      ? 'تم توليد نص العقد فقط — قاعدة البيانات غير مربوطة، لن يُحفظ جدول الدفعات.'
+      : 'Contract text generated only — the database isn\'t connected, so the payment schedule won\'t be saved.');
     msg.style.color = 'var(--warn)';
     return;
   }
@@ -1035,10 +1388,12 @@ document.getElementById('btn-generate-contract').addEventListener('click', async
   });
 
   if (error){
-    msg.textContent = '⚠️ تعذّر حفظ العقد: ' + error.message;
+    msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'تعذّر حفظ العقد: ' : 'Could not save the contract: ') + error.message;
     msg.style.color = 'var(--danger)';
   } else {
-    msg.textContent = '✅ تم إنشاء العقد وجدول الدفعات كاملاً في قاعدة البيانات.';
+    msg.textContent = '✅ ' + (currentLang==='ar'
+      ? 'تم إنشاء العقد وجدول الدفعات كاملاً في قاعدة البيانات.'
+      : 'The contract and its full payment schedule were saved to the database.');
     msg.style.color = 'var(--ok)';
   }
 });
@@ -1050,24 +1405,59 @@ document.getElementById('btn-send-whatsapp').addEventListener('click', ()=>{
   const name = document.getElementById('ct-name').value;
   const type = document.getElementById('ct-type').value;
   const message = document.getElementById('ct-message').value;
-  const text = encodeURIComponent(`الاسم: ${name}\nنوع الاستفسار: ${type}\nالرسالة: ${message}`);
+  const t = I18N[currentLang];
+  const text = encodeURIComponent(`${t.f_name}: ${name}\n${t.f_inquiry_type}: ${type}\n${t.f_message}: ${message}`);
   window.open(`https://wa.me/966530500906?text=${text}`, '_blank');
 });
 
 /* ============================================================================
-   9) Assistant — rule-based, transparently labeled, no external LLM call
+   9) Assistant — rule-based, transparently labeled, no external LLM call.
+      Fix: previously the panel could get "stuck open" with no obvious way to
+      close it. Now there's an explicit close (✕) button, clicking outside
+      the panel closes it, Escape closes it, and state is tracked explicitly
+      instead of relying only on a CSS class toggle.
    ========================================================================== */
-const ASSIST_RULES = [
-  { kw:['تقييم','estimate','valuation'], reply:'يمكنك استخدام قسم «التقييم» أعلى الصفحة لحساب تقدير استرشادي فوري.', goto:'#valuation' },
-  { kw:['عقد','contract'], reply:'من قسم «العقود» تقدر تولّد عقد سكني أو تجاري ويُحفظ جدول دفعاته تلقائياً.', goto:'#contracts' },
-  { kw:['إضافة','اضافة','list','add'], reply:'من قسم «إضافة» تقدر تسجّل عقارك، وسيظهر للجميع بعد مراجعة سريعة.', goto:'#add-property' },
-  { kw:['عرض','عروض','offer'], reply:'أحدث العروض موجودة في قسم «العروض».', goto:'#offers' },
-  { kw:['تواصل','contact','واتساب'], reply:'تقدر تتواصل معنا مباشرة عبر قسم «تواصل» أو واتساب.', goto:'#contact' },
-];
+const ASSIST_I18N = {
+  ar: {
+    greeting:"أهلاً 👋 أنا مساعد إرشادي بقواعد مبرمجة (مو نموذج ذكاء اصطناعي خارجي). كيف أقدر أوجّهك؟",
+    fallback:"أقدر أساعدك بالتنقل بين أقسام الموقع: التقييم، العقود، إضافة عقار، العروض، أو التواصل معنا. اكتب كلمة من هذه وسأوجهك.",
+    rules: [
+      { kw:['تقييم'], reply:"يمكنك استخدام قسم «التقييم» أعلى الصفحة لحساب تقدير استرشادي فوري.", goto:'#valuation' },
+      { kw:['عقد'], reply:"من قسم «العقود» تقدر تولّد عقد سكني أو تجاري ويُحفظ جدول دفعاته تلقائياً.", goto:'#contracts' },
+      { kw:['إضافة','اضافة'], reply:"من قسم «إضافة» تقدر تسجّل عقارك، وسيظهر للجميع بعد مراجعة سريعة.", goto:'#add-property' },
+      { kw:['عرض','عروض'], reply:"أحدث العروض موجودة في قسم «العروض».", goto:'#offers' },
+      { kw:['تواصل','واتساب'], reply:"تقدر تتواصل معنا مباشرة عبر قسم «تواصل» أو واتساب.", goto:'#contact' },
+    ],
+  },
+  en: {
+    greeting:"Hi 👋 I'm a rule-based guided assistant (not an external AI model). How can I point you in the right direction?",
+    fallback:"I can help you navigate: Valuation, Contracts, List Property, Offers, or Contact. Type one of these and I'll take you there.",
+    rules: [
+      { kw:['valuation','estimate'], reply:"Use the “Valuation” section above to get an instant guided estimate.", goto:'#valuation' },
+      { kw:['contract'], reply:"The “Contracts” section lets you generate a residential or commercial contract with its payment schedule saved automatically.", goto:'#contracts' },
+      { kw:['list','add'], reply:"The “List Property” section lets you register your property — it goes live after a quick review.", goto:'#add-property' },
+      { kw:['offer'], reply:"The latest offers are in the “Offers” section.", goto:'#offers' },
+      { kw:['contact','whatsapp'], reply:"You can reach us directly via the “Contact” section or WhatsApp.", goto:'#contact' },
+    ],
+  },
+  fr: {
+    greeting:"Bonjour 👋 Je suis un assistant guidé par des règles (pas un modèle d'IA externe). Comment puis-je vous orienter ?",
+    fallback:"Je peux vous aider à naviguer : Évaluation, Contrats, Ajouter un bien, Offres, ou Contact. Écrivez l'un de ces mots et je vous y emmène.",
+    rules: [
+      { kw:['évaluation','estimation'], reply:"Utilisez la section « Évaluation » ci-dessus pour une estimation indicative instantanée.", goto:'#valuation' },
+      { kw:['contrat'], reply:"La section « Contrats » génère un contrat résidentiel ou commercial avec l'échéancier enregistré automatiquement.", goto:'#contracts' },
+      { kw:['ajout','ajouter'], reply:"La section « Ajouter » permet d'enregistrer votre bien — il sera publié après une vérification rapide.", goto:'#add-property' },
+      { kw:['offre'], reply:"Les dernières offres sont dans la section « Offres ».", goto:'#offers' },
+      { kw:['contact','whatsapp'], reply:"Vous pouvez nous joindre directement via la section « Contact » ou WhatsApp.", goto:'#contact' },
+    ],
+  },
+};
+
 function assistantReply(text){
+  const dict = ASSIST_I18N[currentLang] || ASSIST_I18N.ar;
   const lower = text.toLowerCase();
-  const rule = ASSIST_RULES.find(r => r.kw.some(k => lower.includes(k)));
-  return rule || { reply:'أقدر أساعدك بالتنقل بين أقسام الموقع: التقييم، العقود، إضافة عقار، العروض، أو التواصل معنا. اكتب كلمة من هذه وسأوجهك.', goto:null };
+  const rule = dict.rules.find(r => r.kw.some(k => lower.includes(k.toLowerCase())));
+  return rule || { reply: dict.fallback, goto:null };
 }
 function addAssistMsg(text, who){
   const body = document.getElementById('assist-body');
@@ -1077,14 +1467,32 @@ function addAssistMsg(text, who){
   body.appendChild(div);
   body.scrollTop = body.scrollHeight;
 }
-document.getElementById('assistant-toggle').addEventListener('click', ()=>{
+
+let assistantOpen = false;
+function setAssistantOpen(open){
+  assistantOpen = open;
   const panel = document.getElementById('assistant-panel');
-  panel.classList.toggle('open');
-  if (panel.classList.contains('open') && !panel.dataset.greeted){
-    addAssistMsg('أهلاً 👋 أنا مساعد إرشادي بقواعد مبرمجة (مو نموذج ذكاء اصطناعي خارجي). كيف أقدر أوجّهك؟', 'bot');
+  panel.classList.toggle('open', open);
+  if (open && !panel.dataset.greeted){
+    addAssistMsg((ASSIST_I18N[currentLang] || ASSIST_I18N.ar).greeting, 'bot');
     panel.dataset.greeted = '1';
   }
+}
+document.getElementById('assistant-toggle').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  setAssistantOpen(!assistantOpen);
 });
+document.getElementById('assist-close').addEventListener('click', ()=> setAssistantOpen(false));
+document.addEventListener('click', (e)=>{
+  if (!assistantOpen) return;
+  const panel = document.getElementById('assistant-panel');
+  const toggle = document.getElementById('assistant-toggle');
+  if (!panel.contains(e.target) && e.target !== toggle) setAssistantOpen(false);
+});
+document.addEventListener('keydown', (e)=>{
+  if (e.key === 'Escape' && assistantOpen) setAssistantOpen(false);
+});
+
 function handleAssistSend(){
   const input = document.getElementById('assist-input');
   const text = input.value.trim();
@@ -1098,17 +1506,24 @@ function handleAssistSend(){
   }, 200);
 }
 document.getElementById('assist-send').addEventListener('click', handleAssistSend);
-document.getElementById('assist-input').addEventListener('keydown', e=>{ if (e.key==='Enter') handleAssistSend(); });
+document.getElementById('assist-input').addEventListener('keydown', e=>{
+  if (e.key==='Enter') handleAssistSend();
+  e.stopPropagation(); // avoid the document-level Escape/outside-click handlers firing oddly while typing
+});
 
 /* ============================================================================
    10) Boot
    ========================================================================== */
-window.addEventListener('load', ()=>{
+window.addEventListener('load', async ()=>{
   dbReady = initSupabase();
   renderConfigBanner();
+  await loadCitiesFromDb();
+  populateCitySelects();
+  populateTypeSelects();
   renderServices();
   renderOffers();
   renderFaq();
+  renderSocialRow();
   renderAnalytics();
   runFinance();
 });
