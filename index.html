@@ -85,22 +85,24 @@ th{color:var(--text-600);font-weight:700}
 
 /* Header */
 header.site{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.nav-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:900;font-size:18px;color:var(--navy-900)}
-.brand img{width:38px;height:38px;border-radius:8px;object-fit:cover}
-nav.links{display:flex;gap:22px;font-size:14px;font-weight:700;color:var(--text-600)}
+.nav-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;flex-wrap:wrap;row-gap:10px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:900;font-size:17px;color:var(--navy-900);white-space:nowrap}
+.brand img{width:38px;height:38px;border-radius:8px;object-fit:cover;flex-shrink:0}
+
+nav.links{display:flex;gap:16px;font-size:13px;font-weight:700;color:var(--text-600);flex-wrap:wrap;align-items:center;padding-inline-start:18px;border-inline-start:1px solid var(--line);margin-inline-start:4px}
+nav.links a{white-space:nowrap}
 nav.links a:hover{color:var(--navy-900)}
-nav.links a.active{color:var(--navy-900);position:relative}
+nav.links a.active{color:var(--gold-500);position:relative}
 nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16px;height:2px;background:var(--gold-500)}
 .nav-actions{display:flex;align-items:center;gap:10px}
 .lang-switch{display:flex;gap:4px;background:var(--sand-100);border-radius:999px;padding:3px}
 .lang-switch button{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;background:transparent;color:var(--text-600)}
 .lang-switch button.active{background:var(--navy-900);color:#fff}
-@media(max-width:900px){nav.links{display:none}}
+@media(max-width:680px){nav.links{display:none}}
 
 /* Hero */
 .hero{background:linear-gradient(160deg,var(--navy-900),var(--navy-700));color:#fff;padding:36px 0 60px;position:relative;overflow:hidden}
-.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start}
 @media(max-width:900px){.hero-grid{grid-template-columns:1fr}}
 .hero h1{font-size:clamp(30px,4.4vw,46px);margin:0 0 8px}
 .hero .sub-en{color:var(--gold-100);font-weight:700;margin:0 0 18px;font-size:clamp(17px,2vw,22px);letter-spacing:.3px}
@@ -112,7 +114,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .stat b{display:block;font-size:26px;font-family:var(--font-display)}
 .stat span{font-size:13px;color:#c9d8e6}
 .hero-panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:26px}
-.hero-panel img{width:100%;border-radius:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,.25)}
+.hero-panel img{max-width:220px;max-height:280px;width:auto;height:auto;display:block;margin:0 auto 16px;border-radius:14px;border:1px solid rgba(255,255,255,.25);object-fit:contain}
 .hero-panel h3{margin:0 0 6px;font-size:18px}
 .hero-panel p{color:#cfe0ee;font-size:14px;margin:0}
 
@@ -163,7 +165,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .assist-close:hover{background:rgba(255,255,255,.15)}
 .assist-head{position:relative;display:flex;align-items:center;gap:10px}
 
-#assistant-toggle{position:fixed;inset-inline-end:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--navy-900),var(--navy-700));color:#fff;font-size:22px;box-shadow:0 10px 25px rgba(7,42,71,.35);z-index:80;transition:transform .15s ease}
+#assistant-toggle{position:fixed;inset-inline-end:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--navy-900),var(--navy-700));color:#fff;box-shadow:0 10px 25px rgba(7,42,71,.35);z-index:80;transition:transform .15s ease;display:flex;align-items:center;justify-content:center}
 #assistant-toggle:hover{transform:scale(1.06)}
 
 /* WhatsApp — floating & fixed on every page */
@@ -251,9 +253,9 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
     </nav>
     <div class="nav-actions">
       <div class="lang-switch" id="lang-switch">
-        <button data-lang="ar" class="active">AR</button>
-        <button data-lang="en">EN</button>
-        <button data-lang="fr">FR</button>
+        <button data-lang="ar" class="active">🇸🇦 AR</button>
+        <button data-lang="en">🇬🇧 EN</button>
+        <button data-lang="fr">🇫🇷 FR</button>
       </div>
     </div>
   </div>
@@ -579,7 +581,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <p><b data-i18n="contact_location_label">الموقع: </b><span data-i18n="contact_location">المدينة المنورة، المملكة العربية السعودية</span></p>
         <p><b>Email:</b> <a href="mailto:ffaaddhheell2323@gmail.com">ffaaddhheell2323@gmail.com</a></p>
         <p><b data-i18n="contact_phone_label">الهاتف: </b><a href="tel:+966530500906">+966 530 500 906</a></p>
-        <p><a href="https://wa.me/966530500906" class="btn btn-primary" style="margin-top:8px" target="_blank" rel="noopener">واتساب</a></p>
+        <p><a href="https://wa.me/966530500906" class="btn btn-primary" style="margin-top:8px" target="_blank" rel="noopener" data-i18n="whatsapp_word">واتساب</a></p>
         <p style="margin-top:22px;font-weight:700" data-i18n="social_title">تابعنا عبر منصات التواصل</p>
         <div class="social-row" id="social-row"></div>
       </div>
@@ -664,11 +666,33 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      Assistant (rule-based — labeled honestly, no external LLM call by default)
      ========================================================================== -->
-<button id="assistant-toggle">💬</button>
+<button id="assistant-toggle" aria-label="assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
+    <rect x="4" y="8" width="16" height="11" rx="4"/>
+    <line x1="12" y1="8" x2="12" y2="4"/>
+    <circle cx="12" cy="3" r="1" fill="currentColor"/>
+    <circle cx="9" cy="13.5" r="1.1" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="13.5" r="1.1" fill="currentColor" stroke="none"/>
+    <line x1="9" y1="17" x2="15" y2="17"/>
+    <line x1="2" y1="12" x2="4" y2="12"/>
+    <line x1="20" y1="12" x2="22" y2="12"/>
+  </svg>
+</button>
 <div id="assistant-panel">
   <div class="assist-head">
     <button class="assist-close" id="assist-close" aria-label="close">✕</button>
-    <div class="assist-avatar">🏠</div>
+    <div class="assist-avatar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <rect x="4" y="8" width="16" height="11" rx="4"/>
+        <line x1="12" y1="8" x2="12" y2="4"/>
+        <circle cx="12" cy="3" r="1" fill="currentColor"/>
+        <circle cx="9" cy="13.5" r="1.1" fill="currentColor" stroke="none"/>
+        <circle cx="15" cy="13.5" r="1.1" fill="currentColor" stroke="none"/>
+        <line x1="9" y1="17" x2="15" y2="17"/>
+        <line x1="2" y1="12" x2="4" y2="12"/>
+        <line x1="20" y1="12" x2="22" y2="12"/>
+      </svg>
+    </div>
     <div class="assist-head-text">
       <b data-i18n="assist_title">المساعد الإرشادي</b>
       <span data-i18n="assist_sub">قواعد مبرمجة داخل الموقع، وليس نموذج ذكاء اصطناعي خارجي</span>
@@ -759,7 +783,7 @@ const I18N = {
     contact_title:"تواصل معنا", contact_desc:"فريقنا في انتظارك.",
     contact_location_label:"الموقع: ", contact_location:"المدينة المنورة، المملكة العربية السعودية",
     contact_phone_label:"الهاتف: ", f_name:"الاسم", f_inquiry_type:"نوع الاستفسار", f_message:"الرسالة",
-    contact_send:"إرسال عبر واتساب",
+    contact_send:"إرسال عبر واتساب", whatsapp_word:"واتساب",
     footer_legal:"قانوني", footer_privacy:"سياسة الخصوصية", footer_terms:"شروط الاستخدام",
     footer_tech:"البنية التقنية", footer_tech_text:"مبني على قاعدة بيانات Supabase مع صلاحيات وصول محكومة (RLS).",
     footer_tag:"🕌 شريكك العقاري الموثوق في المدينة المنورة",
@@ -828,7 +852,7 @@ const I18N = {
     contact_title:"Contact Us", contact_desc:"Our team is ready to help.",
     contact_location_label:"Location: ", contact_location:"Madinah, Saudi Arabia",
     contact_phone_label:"Phone: ", f_name:"Name", f_inquiry_type:"Inquiry type", f_message:"Message",
-    contact_send:"Send via WhatsApp",
+    contact_send:"Send via WhatsApp", whatsapp_word:"WhatsApp",
     footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Use",
     footer_tech:"Technology", footer_tech_text:"Built on Supabase with row-level security policies.",
     footer_tag:"🕌 Your trusted real estate partner in Madinah",
@@ -897,7 +921,7 @@ const I18N = {
     contact_title:"Contactez-nous", contact_desc:"Notre équipe est à votre écoute.",
     contact_location_label:"Emplacement : ", contact_location:"Médine, Arabie Saoudite",
     contact_phone_label:"Téléphone : ", f_name:"Nom", f_inquiry_type:"Type de demande", f_message:"Message",
-    contact_send:"Envoyer via WhatsApp",
+    contact_send:"Envoyer via WhatsApp", whatsapp_word:"WhatsApp",
     footer_legal:"Mentions légales", footer_privacy:"Politique de confidentialité", footer_terms:"Conditions d'utilisation",
     footer_tech:"Technologie", footer_tech_text:"Basé sur Supabase avec des politiques RLS.",
     footer_tag:"🕌 Votre partenaire immobilier de confiance à Médine",
@@ -1068,6 +1092,93 @@ const CITY_DISTRICTS = {
 };
 const CITY_PRICE_PER_SQM = { "المدينة المنورة":4200, "مكة المكرمة":6100, "جدة":5800, "الرياض":6500 };
 
+// أسماء الأحياء كما تُنطق بالحروف اللاتينية، تُستخدم في وضعي EN/FR
+const DISTRICT_TRANSLIT = {
+  "أبحر الجنوبية":"Obhur Al Janubiyah", "أبحر الشمالية":"Obhur Al Shamaliyah", "أبو بريقاء":"Abu Buraiqa",
+  "أبو كبير":"Abu Kabeer", "أحد":"Uhud", "أم الحمام الشرقي":"Umm Al Hamam Al Sharqi",
+  "أم الحمام الغربي":"Umm Al Hamam Al Gharbi", "أم السلم":"Umm Al Salam", "اشبيلية":"Ishbiliyah",
+  "الأجاويد":"Al Ajaweed", "الأجواد":"Al Ajwad", "الأصالة":"Al Asalah",
+  "الأمواج":"Al Amwaj", "الأمير فواز الجنوبي":"Al Amir Fawaz Al Janubi", "الأمير فواز الشمالي":"Al Amir Fawaz Al Shamali",
+  "الإسكان":"Al Iskan", "الازدهار":"Al Izdihar", "البحيرات":"Al Buhairat",
+  "البديعة":"Al Badiah", "البركة":"Al Barakah", "البساتين":"Al Basateen",
+  "البغدادية الشرقية":"Al Baghdadiyah Al Sharqiyah", "البغدادية الغربية":"Al Baghdadiyah Al Gharbiyah", "البلد":"Al Balad",
+  "البوادي":"Al Bawadi", "التعاون":"Al Taawon", "التنعيم":"Al Tanaim",
+  "الثعالبة":"Al Thaalibah", "الثغر":"Al Thaghr", "الجامعة":"Al Jamiah",
+  "الجرادية":"Al Jaradiyah", "الجرف":"Al Jurf", "الجنادرية":"Al Janadriyah",
+  "الحجون":"Al Hajoun", "الحرازات":"Al Harazat", "الحرة الشرقية":"Al Harrah Al Sharqiyah",
+  "الحزم":"Al Hazm", "الحسينية":"Al Husainiyah", "الحمدانية":"Al Hamdaniyah",
+  "الحمراء":"Al Hamra", "الحمراء وأم الجود":"Al Hamra wa Umm Al Joud", "الخاتم":"Al Khatim",
+  "الخالدية":"Al Khalidiyah", "الخليج":"Al Khaleej", "الخمرة":"Al Khumrah",
+  "الدفاع":"Al Difa", "الدويمة":"Al Duwaimah", "الديرة":"Al Dirah",
+  "الرائد":"Al Raed", "الراشدية":"Al Rashidiyah", "الرانوناء":"Al Ranuna",
+  "الراية":"Al Rayah", "الربوة":"Al Rabwah", "الربيع":"Al Rabee",
+  "الرحاب":"Al Rihab", "الرحمانية":"Al Rahmaniyah", "الرصيفة":"Al Rusaifah",
+  "الرمال":"Al Rimal", "الروابي":"Al Rawabi", "الروضة":"Al Rawdah",
+  "الرياض":"Al Riyadh", "الريان":"Al Rayyan", "الزاهر":"Al Zahir",
+  "الزمرد":"Al Zumurrud", "الزهراء":"Al Zahra", "الزهرة":"Al Zahrah",
+  "السامر":"Al Samer", "السبيل":"Al Sabeel", "السكب":"Al Sakb",
+  "السلام":"Al Salam", "السلامة":"Al Salamah", "السليمانية":"Al Sulaimaniyah",
+  "السنابل":"Al Sanabil", "السويدي":"Al Suwaidi", "السويدي الغربي":"Al Suwaidi Al Gharbi",
+  "السيح":"Al Sayh", "الشاطئ":"Al Shati", "الشامية":"Al Shamiyah",
+  "الشبيكة":"Al Shubaikah", "الشرائع":"Al Sharai", "الشرائع الجنوبية":"Al Sharai Al Janubiyah",
+  "الشرائع الشمالية":"Al Sharai Al Shamaliyah", "الشراع":"Al Shiraa", "الشفا":"Al Shifa",
+  "الشميسي":"Al Shumaisi", "الشهداء":"Al Shuhada", "الشوقية":"Al Shawqiyah",
+  "الصالحية":"Al Salihiyah", "الصحافة":"Al Sahafah", "الصحيفة":"Al Sahifah",
+  "الصفا":"Al Safa", "الصفوة":"Al Safwah", "الضباط":"Al Dhubbat",
+  "الضيافة":"Al Diyafah", "العارض":"Al Aarid", "العاقول":"Al Aaqool",
+  "العتيبية":"Al Utaibiyah", "العدل":"Al Adl", "العريجاء":"Al Uraija",
+  "العريجاء الغربية":"Al Uraija Al Gharbiyah", "العريجاء الوسطى":"Al Uraija Al Wusta", "العريض":"Al Areed",
+  "العزيزية":"Al Aziziyah", "العزيزية الشمالية":"Al Aziziyah Al Shamaliyah", "العسيلة":"Al Usailah",
+  "العصبة":"Al Usbah", "العقيق":"Al Aqeeq", "العكيشية":"Al Ukaishiyah",
+  "العليا":"Al Olaya", "العمرة":"Al Umrah", "العمرة الجديدة":"Al Umrah Al Jadidah",
+  "العوالي":"Al Awali", "العود":"Al Ood", "العيون":"Al Uyoon",
+  "الغدير":"Al Ghadeer", "الفاخرية":"Al Fakhiriyah", "الفتح":"Al Fath",
+  "الفردوس":"Al Firdaws", "الفضيلة":"Al Fadilah", "الفلاح":"Al Falah",
+  "الفيحاء":"Al Faihaa", "الفيصلية":"Al Faisaliyah", "القادسية":"Al Qadisiyah",
+  "القبلتين":"Al Qiblatain", "القدس":"Al Quds", "القرينية":"Al Qurainiyah",
+  "القصواء":"Al Qaswa", "القيروان":"Al Qairawan", "الكرنتينا":"Al Karantina",
+  "الكعكية":"Al Kakiyah", "الكندرة":"Al Kandarah", "الكوثر":"Al Kawthar",
+  "اللؤلؤ":"Al Loulou", "الليث الجديد":"Al Laith Al Jadid", "المبعوث":"Al Mabouth",
+  "المحجر":"Al Mahjar", "المحمدية":"Al Muhammadiyah", "المرجان":"Al Murjan",
+  "المرسلات":"Al Mursalat", "المرقب":"Al Marqab", "المروة":"Al Marwah",
+  "المسفلة":"Al Misfalah", "المصانع":"Al Masani", "المصيف":"Al Maseef",
+  "المعابدة":"Al Maabidah", "المعذر":"Al Muather", "المعذر الشمالي":"Al Muather Al Shamali",
+  "المغرزات":"Al Mughrizat", "المغيسلة":"Al Mughaysilah", "الملاوي":"Al Malawi",
+  "الملز":"Al Malaz", "الملقا":"Al Malqa", "الملك عبدالعزيز":"King Abdulaziz",
+  "الملك عبدالله":"King Abdullah", "الملك فهد":"King Fahd", "الملك فيصل":"King Faisal",
+  "المناخة":"Al Manakhah", "المنار":"Al Manar", "المنتزهات":"Al Muntazahat",
+  "المنصور":"Al Mansour", "المنطقة الصناعية":"Al Mantiqah Al Sinaiyah", "المونسية":"Al Mounisiyah",
+  "النخيل":"Al Nakheel", "الندى":"Al Nada", "النرجس":"Al Narjis",
+  "النزلة الشرقية":"Al Nazlah Al Sharqiyah", "النزلة اليمانية":"Al Nazlah Al Yamaniyah", "النزهة":"Al Nuzhah",
+  "النسيم":"Al Naseem", "النسيم الشرقي":"Al Naseem Al Sharqi", "النسيم الغربي":"Al Naseem Al Gharbi",
+  "النصر":"Al Nasr", "النعيم":"Al Naeem", "النفل":"Al Nafal",
+  "النهضة":"Al Nahdah", "النوارية":"Al Nawariyah", "النور":"Al Noor",
+  "الهجرة":"Al Hijrah", "الهدا":"Al Hada", "الهدى":"Al Huda",
+  "الهنداوية":"Al Hindawiyah", "الواحة":"Al Wahah", "الوادي":"Al Wadi",
+  "الوبرة":"Al Wabrah", "الورود":"Al Wurood", "الوزارات":"Al Wizarat",
+  "الوزيرية":"Al Waziriyah", "الياسمين":"Al Yasmin", "الياقوت":"Al Yaqoot",
+  "اليرموك":"Al Yarmouk", "اليمامة":"Al Yamamah", "بدر":"Badr",
+  "بريمان":"Bryman", "بطحاء قريش":"Batha Quraish", "بني بياضة":"Bani Bayadah",
+  "بني حارثة":"Bani Haritha", "بني خدرة":"Bani Khudrah", "بني ظفر":"Bani Zafar",
+  "بني مالك":"Bani Malik", "بني معاوية":"Bani Muawiyah", "جرهم":"Jurhum",
+  "جرول":"Jarwal", "حطين":"Hittin", "ديراب":"Dirab",
+  "ريع ذاخر":"Rai Dhakhir", "سلطانة":"Sultanah", "سيد الشهداء":"Sayyid Al Shuhada",
+  "شبرا":"Shubra", "شظاة":"Shazah", "شوران":"Shawran",
+  "صلاح الدين":"Salah Al Din", "طيبة":"Taibah", "ظهرة البديعة":"Dhahrat Al Badiah",
+  "ظهرة نمار":"Dhahrat Namar", "عكاظ":"Okaz", "غبيراء":"Ghubaira",
+  "غرناطة":"Ghirnatah", "غليل":"Ghulail", "قباء":"Quba",
+  "قربان":"Qurban", "قرطبة":"Qurtubah", "كدي":"Kudai",
+  "مدائن الفهد":"Madain Al Fahd", "مذينب":"Muzainib", "مريخ":"Mareekh",
+  "مشرفة":"Mishrifah", "منفوحة":"Manfouhah", "منفوحة الجديدة":"Manfouhah Al Jadidah",
+  "مهزور":"Mahzoor", "نمار":"Namar", "وادي البطان":"Wadi Al Bathan",
+  "وادي جليل":"Wadi Jaleel", "ولي العهد":"Waliy Al Ahd",
+};
+
+function districtLabel(name){
+  if (currentLang === 'ar') return name;
+  return DISTRICT_TRANSLIT[name] || name;
+}
+
 const PROPERTY_TYPES = [
   { v:"فيلا",          mult:1.18, ar:"فيلا",              en:"Villa",                     fr:"Villa" },
   { v:"شقة في برج",     mult:1.05, ar:"شقة في برج",         en:"Apartment in a tower",       fr:"Appartement en tour" },
@@ -1118,7 +1229,7 @@ function offerCardHtml(o){
   return `<div class="card offer-card">
     <div class="offer-top"><b>${o.title}</b><span class="offer-discount">-${o.discount_pct}%</span></div>
     <div class="offer-body">
-      <h4>${o.property_type} · ${o.district}</h4>
+      <h4>${o.property_type} · ${districtLabel(o.district)}</h4>
       <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} ${t.rooms_suffix}</div>
       ${priceHtml}
     </div>
@@ -1199,7 +1310,7 @@ function populateDistrictSelectFor(citySelectId){
   if (!citySel || !districtSel) return;
   const list = CITY_DISTRICTS[citySel.value] || [];
   const prev = districtSel.value;
-  districtSel.innerHTML = list.map(d=>`<option value="${d}">${d}</option>`).join('');
+  districtSel.innerHTML = list.map(d=>`<option value="${d}">${districtLabel(d)}</option>`).join('');
   if (list.includes(prev)) districtSel.value = prev;
 }
 
@@ -1374,7 +1485,7 @@ async function renderAnalytics(){
   if (error || !data || !data.length) return;
 
   document.getElementById('stat-live-count').textContent = data.length;
-  tbody.innerHTML = data.map(p=>`<tr><td>${p.city}</td><td>${p.district}</td><td>${p.property_type}</td><td>${money(p.price)}</td><td>${p.area_sqm}</td></tr>`).join('');
+  tbody.innerHTML = data.map(p=>`<tr><td>${cityLabel(p.city)}</td><td>${districtLabel(p.district)}</td><td>${p.property_type}</td><td>${money(p.price)}</td><td>${p.area_sqm}</td></tr>`).join('');
 
   const byCity = {};
   data.forEach(p=>{ byCity[p.city] = byCity[p.city] || []; byCity[p.city].push(p.price / p.area_sqm); });
@@ -1420,7 +1531,7 @@ document.getElementById('btn-generate-contract').addEventListener('click', async
 ${t.contract_number_label}: ${contractNumber}
 ${t.contract_lessor_label}: ${v('c-lessor-name')} (${t.contract_id_label}: ${v('c-lessor-id')} — ${t.contract_phone_label2}: ${v('c-lessor-phone')})
 ${t.contract_lessee_label}: ${v('c-lessee-name')} (${t.contract_id_label}: ${v('c-lessee-id')} — ${t.contract_phone_label2}: ${v('c-lessee-phone')})
-${t.contract_property_label}: ${typeDisplay} — ${v('c-district')}, ${cityDisplay} — ${v('c-area')} م²
+${t.contract_property_label}: ${typeDisplay} — ${districtLabel(v('c-district'))}, ${cityDisplay} — ${v('c-area')} م²
 ${t.contract_term_label}: ${t.contract_term_from} ${v('c-start')} ${t.contract_term_to} ${v('c-end')}
 ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_label}: ${money(parseFloat(v('c-deposit'))||0)} ${currency}`;
 
@@ -1511,6 +1622,17 @@ window.addEventListener('popstate', ()=> showPage(location.hash.slice(1) || 'hom
    ========================================================================== */
 function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
 function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+const ROBOT_ICON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+  <rect x="4" y="8" width="16" height="11" rx="4"/>
+  <line x1="12" y1="8" x2="12" y2="4"/>
+  <circle cx="12" cy="3" r="1" fill="currentColor"/>
+  <circle cx="9" cy="13.5" r="1.1" fill="currentColor" stroke="none"/>
+  <circle cx="15" cy="13.5" r="1.1" fill="currentColor" stroke="none"/>
+  <line x1="9" y1="17" x2="15" y2="17"/>
+  <line x1="2" y1="12" x2="4" y2="12"/>
+  <line x1="20" y1="12" x2="22" y2="12"/>
+</svg>`;
 
 const ASSIST_I18N = {
   ar: {
@@ -1639,7 +1761,7 @@ function addAssistMsg(text, who, extraHtml=''){
   const body = document.getElementById('assist-body');
   const row = document.createElement('div');
   row.className = 'assist-row' + (who==='user' ? ' user' : '');
-  row.innerHTML = `<div class="assist-mini-avatar">${who==='user' ? '🙂' : '🏠'}</div><div class="assist-msg">${escapeHtml(text)}${extraHtml}</div>`;
+  row.innerHTML = `<div class="assist-mini-avatar">${who==='user' ? '🙂' : ROBOT_ICON_SVG}</div><div class="assist-msg">${escapeHtml(text)}${extraHtml}</div>`;
   body.appendChild(row);
   body.scrollTop = body.scrollHeight;
 }
@@ -1648,7 +1770,7 @@ function showTyping(){
   const row = document.createElement('div');
   row.className = 'assist-row';
   row.id = 'assist-typing-row';
-  row.innerHTML = `<div class="assist-mini-avatar">🏠</div><div class="assist-typing"><span></span><span></span><span></span></div>`;
+  row.innerHTML = `<div class="assist-mini-avatar">${ROBOT_ICON_SVG}</div><div class="assist-typing"><span></span><span></span><span></span></div>`;
   body.appendChild(row);
   body.scrollTop = body.scrollHeight;
 }
@@ -1718,7 +1840,7 @@ async function handleAssistSend(textOverride){
       const cardsHtml = results.map(r=>{
         const priceText = r.price ? `${money(r.price)} ${currentLang==='ar' ? 'ر.س' : 'SAR'}` : I18N[currentLang].price_on_request;
         return `<div class="assist-result-card">
-          <b>${r.property_type} — ${r.district}</b>
+          <b>${r.property_type} — ${districtLabel(r.district)}</b>
           <div class="meta">${cityLabel(r.city)} · ${r.area_sqm || '—'} م²${r.rooms ? (' · ' + r.rooms + ' ' + I18N[currentLang].rooms_suffix) : ''}</div>
           <span class="price">${priceText}</span>
         </div>`;
