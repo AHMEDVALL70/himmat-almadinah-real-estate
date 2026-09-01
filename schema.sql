@@ -42,6 +42,11 @@ create table if not exists properties (
     facade          varchar(20),
     street_width    numeric(6,2),
     district_grade  varchar(20),
+    has_elevator    boolean not null default false,
+    has_maid_room   boolean not null default false,
+    has_driver_room boolean not null default false,
+    has_central_ac  boolean not null default false,
+    is_furnished    boolean not null default false,
     ai_estimate     numeric(14,2),          -- ناتج التقدير الاسترشادي وقت الإدخال
     status          varchar(20) not null default 'pending'
                         check (status in ('pending','approved','rejected')),
@@ -87,6 +92,121 @@ create table if not exists offers (
 );
 
 create index if not exists idx_offers_published on offers(is_published);
+
+-- ============================================================================
+-- 3.5) المدن والأحياء — مرجع مركزي يغذي كل قوائم المدينة/الحي في الموقع
+--      (التقييم، إضافة عقار، العقود). قابل للتوسعة: أي زائر يقدر يضيف مدينة
+--      أو حياً غير موجود من واجهة الموقع، فتُحفظ ويستفيد منها كل الزوار لاحقاً.
+-- ============================================================================
+create table if not exists cities (
+    id             uuid primary key default gen_random_uuid(),
+    name           varchar(100) unique not null,
+    price_per_sqm  numeric(10,2),           -- متوسط استرشادي يستخدمه التقييم
+    created_at     timestamptz not null default now()
+);
+
+create table if not exists districts (
+    id         uuid primary key default gen_random_uuid(),
+    city_id    uuid not null references cities(id) on delete cascade,
+    name       varchar(100) not null,
+    created_at timestamptz not null default now(),
+    unique (city_id, name)
+);
+
+create index if not exists idx_districts_city on districts(city_id);
+
+-- المدن الأساسية (لا تشمل الدمام بناءً على النطاق الحالي: المنطقة الغربية)
+insert into cities (name, price_per_sqm) values
+    ('المدينة المنورة', 4200),
+    ('مكة المكرمة',     6100),
+    ('جدة',             5800),
+    ('الرياض',          6500)
+on conflict (name) do nothing;
+
+-- بذر الأحياء لكل مدينة
+do $$
+declare
+    v_city_id uuid;
+begin
+    select id into v_city_id from cities where name = 'المدينة المنورة';
+    insert into districts (city_id, name)
+    select v_city_id, d from unnest(array[
+        'العزيزية','العاقول','العريض','الخالدية','الزهرة','شظاة','الملك فهد','المبعوث',
+        'الروابي','الربوة','الإسكان','الدويمة','قربان','العوالي','الهجرة','العصبة',
+        'قباء','القصواء','الرانوناء','شوران','مهزور','مذينب','بني حارثة','بني معاوية',
+        'بني ظفر','بني خدرة','بني بياضة','السيح','الفتح','القبلتين','الجامعة','أبو كبير',
+        'الجرف','البركة','السلام','الدفاع','طيبة','أحد','سيد الشهداء','المصانع','العيون',
+        'النصر','الراية','المناخة','المغيسلة','الوبرة','السكب','الخاتم','أبو بريقاء',
+        'وادي البطان','الحرة الشرقية'
+    ]) as d
+    on conflict do nothing;
+
+    select id into v_city_id from cities where name = 'مكة المكرمة';
+    insert into districts (city_id, name)
+    select v_city_id, d from unnest(array[
+        'العوالي','الشوقية','الشرائع','النسيم','الزاهر','العتيبية','العمرة','النوارية',
+        'التنعيم','الراشدية','بطحاء قريش','الكعكية','ولي العهد','الحمراء وأم الجود',
+        'الزهراء','الضيافة','النزهة','الرصيفة','المسفلة','الهجرة','كدي','جرهم','الروابي',
+        'الخالدية','الهنداوية','المنصور','الشبيكة','الشامية','جرول','ريع ذاخر','الحجون',
+        'المعابدة','العزيزية الشمالية','الملاوي','العدل','العسيلة','وادي جليل',
+        'العمرة الجديدة','البحيرات','الشرائع الشمالية','الشرائع الجنوبية','الصفوة',
+        'الملك فهد','الحسينية','العكيشية','الليث الجديد'
+    ]) as d
+    on conflict do nothing;
+
+    select id into v_city_id from cities where name = 'جدة';
+    insert into districts (city_id, name)
+    select v_city_id, d from unnest(array[
+        'الروضة','الزهراء','السلامة','النهضة','الشاطئ','المحمدية','الخالدية','النعيم',
+        'النزهة','البوادي','الربوة','الصفا','الفيصلية','الرحاب','مشرفة','العزيزية',
+        'الورود','بني مالك','النسيم','الواحة','السامر','المنار','الأجواد','الريان',
+        'مريخ','بريمان','المنطقة الصناعية','الجامعة','الفيحاء','السليمانية','الثغر',
+        'الروابي','الوزيرية','غليل','مدائن الفهد','البلد','الهنداوية',
+        'البغدادية الشرقية','البغدادية الغربية','الكندرة','الصحيفة','السبيل',
+        'النزلة الشرقية','النزلة اليمانية','الثعالبة','المحجر','الكرنتينا',
+        'الأمير فواز الشمالي','الأمير فواز الجنوبي','السنابل','الهدى','الأجاويد',
+        'الفضيلة','الخمرة','القرينية','الحمدانية','الصالحية','الفلاح','الرحمانية',
+        'طيبة','الرياض','الكوثر','الياقوت','الزمرد','اللؤلؤ','الأمواج','الشراع',
+        'الفردوس','الأصالة','البساتين','أبحر الجنوبية','أبحر الشمالية','المرجان',
+        'الشفا','المنتزهات','أم السلم','الحرازات'
+    ]) as d
+    on conflict do nothing;
+
+    select id into v_city_id from cities where name = 'الرياض';
+    insert into districts (city_id, name)
+    select v_city_id, d from unnest(array[
+        'العليا','السليمانية','الملز','الوزارات','الضباط','الورود','الرحمانية',
+        'المحمدية','الرائد','النخيل','أم الحمام الشرقي','أم الحمام الغربي','المعذر',
+        'المعذر الشمالي','الهدا','الشفا','بدر','المروة','عكاظ','الحزم','ديراب','نمار',
+        'ظهرة نمار','العريجاء','العريجاء الغربية','العريجاء الوسطى','ظهرة البديعة',
+        'البديعة','السويدي','السويدي الغربي','شبرا','سلطانة','الجرادية','منفوحة',
+        'منفوحة الجديدة','الديرة','الشميسي','الفاخرية','العود','المرقب','الصالحية',
+        'الخالدية','غبيراء','اليمامة','الربوة','الريان','الروابي','النسيم الشرقي',
+        'النسيم الغربي','السلام','المنار','النهضة','الخليج','القدس','الحمراء',
+        'غرناطة','الشهداء','قرطبة','اليرموك','المونسية','الرمال','الجنادرية',
+        'القادسية','اشبيلية','الملك فيصل','الروضة','الملقا','حطين','العقيق',
+        'الصحافة','الياسمين','النرجس','العارض','القيروان','الربيع','الغدير','النفل',
+        'الوادي','التعاون','الازدهار','المصيف','المرسلات','الفلاح','الندى','الواحة',
+        'صلاح الدين','الملك فهد','الملك عبدالله','الملك عبدالعزيز','المغرزات','النور'
+    ]) as d
+    on conflict do nothing;
+end $$;
+
+-- ============================================================================
+-- 3.6) طلبات التواصل — يغذّي نموذج "تواصل معنا" الحقيقي بدل واتساب فقط
+-- ============================================================================
+create table if not exists inquiries (
+    id              uuid primary key default gen_random_uuid(),
+    full_name       varchar(255) not null,
+    phone           varchar(20),
+    email           varchar(255),
+    inquiry_type    varchar(50),
+    message         text,
+    status          varchar(20) not null default 'new'
+                        check (status in ('new','contacted','closed')),
+    created_at      timestamptz not null default now()
+);
+create index if not exists idx_inquiries_status on inquiries(status);
 
 -- ============================================================================
 -- 4) العقود
@@ -284,6 +404,9 @@ $$ language plpgsql;
 -- ============================================================================
 alter table properties            enable row level security;
 alter table offers                enable row level security;
+alter table inquiries             enable row level security;
+alter table cities                enable row level security;
+alter table districts             enable row level security;
 alter table parties               enable row level security;
 alter table contracts             enable row level security;
 alter table contract_installments enable row level security;
@@ -298,6 +421,20 @@ create policy properties_public_read on properties
     for select using (status = 'approved');
 create policy properties_public_insert on properties
     for insert with check (true);
+
+-- طلبات التواصل: إدخال عام (أي زائر يقدر يرسل استفساراً)، بلا قراءة عامة —
+-- فريق الدعم يراجعها لاحقاً عبر service_role، مو من كود الموقع العام.
+create policy inquiries_public_insert on inquiries
+    for insert with check (true);
+
+-- المدن والأحياء: بيانات مرجعية عامة القراءة فقط. إضافة مدينة/حي جديد مهمة
+-- إدارية تتم مباشرة من لوحة Supabase (أو لوحة تحكم داخلية لاحقاً) وليس من
+-- واجهة الموقع العامة — كانت النسخة السابقة تسمح لأي زائر بالإضافة مباشرة،
+-- وهذا عُدَّ ثغرة تصميمية (يمكن لأي شخص حقن بيانات وهمية)، فأُغلقت هنا.
+create policy cities_public_read on cities
+    for select using (true);
+create policy districts_public_read on districts
+    for select using (true);
 
 -- الأطراف / العقود / الدفعات / سجل الإشعارات: لا وصول مباشر للزوار أبداً.
 -- كل الكتابة تمر حصراً عبر create_contract_with_schedule (SECURITY DEFINER).
