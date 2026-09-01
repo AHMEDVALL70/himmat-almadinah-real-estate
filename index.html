@@ -102,18 +102,18 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 
 /* Hero */
 .hero{background:linear-gradient(160deg,var(--navy-900),var(--navy-700));color:#fff;padding:36px 0 60px;position:relative;overflow:hidden}
-.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start}
-@media(max-width:900px){.hero-grid{grid-template-columns:1fr}}
+.hero .container{max-width:980px}
+.hero-grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:28px}
+.hero-grid > *:first-child{flex:1 1 460px;min-width:280px}
 .hero h1{font-size:clamp(30px,4.4vw,46px);margin:0 0 8px}
 .hero .sub-en{color:var(--gold-100);font-weight:700;margin:0 0 18px;font-size:clamp(17px,2vw,22px);letter-spacing:.3px}
-.hero-grid{margin-top:0}
 .eyebrow.hero-eyebrow{margin:0 0 10px}
 .hero p.desc{color:#dce8f2;max-width:520px;margin:0 0 26px}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:34px}
 .stats-row{display:flex;gap:28px;flex-wrap:wrap}
 .stat b{display:block;font-size:26px;font-family:var(--font-display)}
 .stat span{font-size:13px;color:#c9d8e6}
-.hero-panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:26px}
+.hero-panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:22px;width:100%;max-width:300px;flex:0 0 auto}
 .hero-panel img{max-width:220px;max-height:280px;width:auto;height:auto;display:block;margin:0 auto 16px;border-radius:14px;border:1px solid rgba(255,255,255,.25);object-fit:contain}
 .hero-panel h3{margin:0 0 6px;font-size:18px}
 .hero-panel p{color:#cfe0ee;font-size:14px;margin:0}
@@ -156,9 +156,9 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .modal-close-row{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
 
 /* Social row */
-.social-row{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
-.social-badge{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;transition:transform .15s ease}
-.social-badge:hover{transform:translateY(-3px)}
+.social-row{display:flex;gap:14px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.social-icon-link{display:inline-flex;transition:transform .15s ease;line-height:0}
+.social-icon-link:hover{transform:translateY(-3px)}
 
 /* Assistant — modern chat interface */
 .assist-close{background:transparent;color:#fff;font-size:15px;padding:4px 8px;border-radius:8px;position:absolute;inset-inline-end:12px;top:14px}
@@ -277,6 +277,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       </div>
       <div class="stats-row">
         <div class="stat"><b>4+</b><span data-i18n="stat1">مدن مدعومة</span></div>
+        <div class="stat"><b id="stat-district-count">—</b><span data-i18n="stat4">حي مدعوم</span></div>
         <div class="stat"><b>10+</b><span data-i18n="stat2">عامل تقييم</span></div>
         <div class="stat"><b id="stat-live-count">—</b><span data-i18n="stat3">عقار مسجَّل فعلياً</span></div>
       </div>
@@ -583,7 +584,35 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <p><b data-i18n="contact_phone_label">الهاتف: </b><a href="tel:+966530500906">+966 530 500 906</a></p>
         <p><a href="https://wa.me/966530500906" class="btn btn-primary" style="margin-top:8px" target="_blank" rel="noopener" data-i18n="whatsapp_word">واتساب</a></p>
         <p style="margin-top:22px;font-weight:700" data-i18n="social_title">تابعنا عبر منصات التواصل</p>
-        <div class="social-row" id="social-row"></div>
+        <div class="social-row" id="social-row">
+          <!-- عدّل الروابط أدناه بحساباتك الفعلية. رقم واتساب معبّأ مسبقاً لأنه معروف من باقي الموقع. -->
+          <a href="https://wa.me/966530500906" target="_blank" rel="noopener" aria-label="WhatsApp" class="social-icon-link">
+            <svg viewBox="0 0 32 32" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="16" fill="#25D366"/>
+              <path d="M23.27 22.733c-.356 1.002-2.072 1.838-2.85 1.917-.745.076-1.688.136-2.732-.216-1.042-.351-2.378-.857-3.905-1.93-3.037-2.146-5.02-4.896-5.244-5.202-.224-.306-1.228-1.637-1.228-3.123 0-1.486.777-2.217 1.053-2.518.275-.301.6-.376.8-.376.2 0 .4.002.574.01.185.008.434-.07.679.506.244.576.837 2.04.91 2.191.074.151.124.327.025.528-.099.201-.15.326-.3.502-.15.176-.316.393-.45.528-.15.15-.307.314-.132.614.175.3 0 .779-.475 1.482-.697 1.025-1.303 1.708-1.483 2.009-.18.3-.019.462.126.612.13.136.29.352.435.529.145.176.195.302.295.503.1.201.05.377-.025.528-.075.151-.673 1.621-.922 2.215z" fill="#FFF"/>
+            </svg>
+          </a>
+          <a href="#" target="_blank" rel="noopener" aria-label="X" class="social-icon-link">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="#000000" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+          <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn" class="social-icon-link">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="#0A66C2" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+          </a>
+          <a href="#" target="_blank" rel="noopener" aria-label="Facebook" class="social-icon-link">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="#1877F2" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a href="#" target="_blank" rel="noopener" aria-label="Instagram" class="social-icon-link">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="#E4405F" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+          </a>
+        </div>
       </div>
       <div class="card" style="padding:22px">
         <div class="field"><label data-i18n="f_name">الاسم</label><input id="ct-name" type="text"></div>
@@ -650,16 +679,14 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 </div>
 
 <!-- ==========================================================================
-     WhatsApp — floating & fixed on every page.
-     Note: this is a generic phone-glyph on WhatsApp's brand green (#25D366),
-     not Meta's exact trademarked logo file. For pixel-perfect brand
-     compliance, swap the <svg> below with the official asset from
-     WhatsApp's Brand Resource Center — the id stays the same either way.
+     WhatsApp — floating & fixed on every page. Same icon used in the
+     Contact page's social row, for consistency across the whole site.
      ========================================================================== -->
 <a id="whatsapp-float" href="https://wa.me/966530500906" target="_blank" rel="noopener" aria-label="WhatsApp">
   <span class="wa-pulse"></span>
-  <svg viewBox="0 0 32 32" fill="#fff" xmlns="http://www.w3.org/2000/svg">
-    <path d="M23.7 19.4c-.9-.5-2.1-1-3.1-.4-.4.2-.7.6-1.1.9-.9.6-1.8.3-2.6-.2-1.7-1-3.1-2.4-4.1-4.1-.5-.8-.8-1.7-.2-2.6.3-.4.7-.7.9-1.1.6-1-.1-2.2-.4-3.1-.4-1-1-2.6-2.1-2.7-1.7-.1-3.5 1.9-3.9 3.5-.5 2 .3 4.1 1.3 5.8 2.4 4 6 7.6 10 10 1.7 1 3.8 1.8 5.8 1.3 1.6-.4 3.6-2.2 3.5-3.9-.1-1.1-1.7-1.7-2.7-2.1z"/>
+  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="16" fill="#25D366"/>
+    <path d="M23.27 22.733c-.356 1.002-2.072 1.838-2.85 1.917-.745.076-1.688.136-2.732-.216-1.042-.351-2.378-.857-3.905-1.93-3.037-2.146-5.02-4.896-5.244-5.202-.224-.306-1.228-1.637-1.228-3.123 0-1.486.777-2.217 1.053-2.518.275-.301.6-.376.8-.376.2 0 .4.002.574.01.185.008.434-.07.679.506.244.576.837 2.04.91 2.191.074.151.124.327.025.528-.099.201-.15.326-.3.502-.15.176-.316.393-.45.528-.15.15-.307.314-.132.614.175.3 0 .779-.475 1.482-.697 1.025-1.303 1.708-1.483 2.009-.18.3-.019.462.126.612.13.136.29.352.435.529.145.176.195.302.295.503.1.201.05.377-.025.528-.075.151-.673 1.621-.922 2.215z" fill="#FFF"/>
   </svg>
 </a>
 
@@ -744,7 +771,7 @@ const I18N = {
     hero_eyebrow:"🇸🇦 المدينة المنورة", hero_title:"همة المدينة العقارية", hero_sub:"Himmat Al Madinah Real Estate",
     hero_desc:"نعمل في المدينة المنورة لنقدم خدمات عقارية مبنية على المعرفة بالسوق، ودقة المعلومة، ووضوح التعامل.",
     hero_cta1:"ابدأ التقييم الآن", hero_cta2:"تعرف علينا",
-    stat1:"مدن مدعومة", stat2:"عامل تقييم", stat3:"عقار مسجَّل فعلياً",
+    stat1:"مدن مدعومة", stat2:"عامل تقييم", stat3:"عقار مسجَّل فعلياً", stat4:"حي مدعوم",
     hero_panel_title:"قاعدة بيانات مشتركة وحقيقية",
     hero_panel_desc:"كل عقار وعقد تضيفه يُخزَّن مركزياً ويبقى محفوظاً — وليس فقط على متصفحك.",
     offers_eyebrow:"فرص لا تفوّت", offers_title:"عروض وخصومات",
@@ -813,7 +840,7 @@ const I18N = {
     hero_eyebrow:"🇸🇦 Madinah", hero_title:"Himmat Al Madinah Real Estate", hero_sub:"همة المدينة العقارية",
     hero_desc:"We operate in Madinah, offering real estate services grounded in market knowledge and transparency.",
     hero_cta1:"Start Valuation", hero_cta2:"About Us",
-    stat1:"Cities covered", stat2:"Valuation factors", stat3:"Properties actually listed",
+    stat1:"Cities covered", stat2:"Valuation factors", stat3:"Properties actually listed", stat4:"Districts covered",
     hero_panel_title:"A real, shared database",
     hero_panel_desc:"Every property and contract you add is stored centrally — not just in your browser.",
     offers_eyebrow:"Don't miss out", offers_title:"Offers & Discounts",
@@ -882,7 +909,7 @@ const I18N = {
     hero_eyebrow:"🇸🇦 Médine", hero_title:"Himmat Al Madinah Immobilier", hero_sub:"همة المدينة العقارية",
     hero_desc:"Nous opérons à Médine, avec des services immobiliers fondés sur la connaissance du marché.",
     hero_cta1:"Commencer l'évaluation", hero_cta2:"À propos",
-    stat1:"Villes couvertes", stat2:"Facteurs d'évaluation", stat3:"Biens réellement enregistrés",
+    stat1:"Villes couvertes", stat2:"Facteurs d'évaluation", stat3:"Biens réellement enregistrés", stat4:"Quartiers couverts",
     hero_panel_title:"Une base de données réelle et partagée",
     hero_panel_desc:"Chaque bien et contrat ajouté est stocké de façon centralisée.",
     offers_eyebrow:"À ne pas manquer", offers_title:"Offres et remises",
@@ -968,7 +995,6 @@ function applyLang(lang){
   renderServices();
   renderFaq();
   renderOffers();
-  renderSocialRow();
   populateTypeSelects();
   populateCitySelects();
   renderQuickChips();
@@ -1198,18 +1224,10 @@ const PROPERTY_TYPES = [
   { v:"دور",           mult:0.95, ar:"دور",               en:"Floor unit",                 fr:"Étage indépendant" },
 ];
 
-const SOCIAL_LINKS = [
-  // عدّل href هنا لاحقاً بروابط حساباتك الفعلية — تركتها "#" مؤقتاً كما طلبت
-  { name:"Snapchat",  icon:"👻", color:"#FFFC00", textColor:"#222", href:"#" },
-  { name:"X",         icon:"𝕏",  color:"#111111", textColor:"#fff", href:"#" },
-  { name:"Facebook",  icon:"f",  color:"#1877F2", textColor:"#fff", href:"#" },
-  { name:"Instagram", icon:"📷", color:"#E1306C", textColor:"#fff", href:"#" },
-  { name:"TikTok",    icon:"♪",  color:"#000000", textColor:"#fff", href:"#" },
-  { name:"WhatsApp",  icon:"💬", color:"#25D366", textColor:"#fff", href:"#" },
-];
-
 /* ============================================================================
-   4) Render services / offers / FAQ / social row (all language-aware)
+   4) Render services / offers / FAQ (all language-aware).
+      The social-row icons are static markup directly in the HTML now
+      (brand icons/names don't need translation), so no JS renderer needed.
    ========================================================================== */
 function renderServices(){
   const list = SERVICES_I18N[currentLang] || SERVICES_I18N.ar;
@@ -1257,12 +1275,6 @@ function renderFaq(){
   const list = FAQ_I18N[currentLang] || FAQ_I18N.ar;
   document.getElementById('faq-list').innerHTML = list.map(f=>`
     <details class="faq-item"><summary>${f.q} <span>+</span></summary><p>${f.a}</p></details>
-  `).join('');
-}
-
-function renderSocialRow(){
-  document.getElementById('social-row').innerHTML = SOCIAL_LINKS.map(s=>`
-    <a class="social-badge" style="background:${s.color};color:${s.textColor}" href="${s.href}" target="_blank" rel="noopener" aria-label="${s.name}" title="${s.name}">${s.icon}</a>
   `).join('');
 }
 
@@ -1874,9 +1886,10 @@ window.addEventListener('load', async ()=>{
   renderServices();
   renderOffers();
   renderFaq();
-  renderSocialRow();
   renderAnalytics();
   runFinance();
+  const totalDistricts = Object.values(CITY_DISTRICTS).reduce((sum, list) => sum + list.length, 0);
+  document.getElementById('stat-district-count').textContent = totalDistricts + '+';
   showPage(location.hash.slice(1) || 'home');
 });
 </script>
