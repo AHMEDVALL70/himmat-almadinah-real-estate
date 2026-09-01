@@ -48,8 +48,8 @@ a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 button{font-family:inherit;cursor:pointer;border:none}
 .container{max-width:1180px;margin:0 auto;padding:0 24px}
-section{padding:72px 0}
-.section-head{max-width:640px;margin-bottom:36px}
+section{padding:44px 0 60px}
+.section-head{max-width:640px;margin-bottom:28px}
 .section-head h2{font-size:clamp(26px,3vw,34px);margin:0 0 10px}
 .section-head p{color:var(--text-600);margin:0}
 .eyebrow{color:var(--navy-700);font-weight:700;font-size:14px;margin:0 0 8px}
@@ -90,6 +90,8 @@ header.site{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);ba
 .brand img{width:38px;height:38px;border-radius:8px;object-fit:cover}
 nav.links{display:flex;gap:22px;font-size:14px;font-weight:700;color:var(--text-600)}
 nav.links a:hover{color:var(--navy-900)}
+nav.links a.active{color:var(--navy-900);position:relative}
+nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16px;height:2px;background:var(--gold-500)}
 .nav-actions{display:flex;align-items:center;gap:10px}
 .lang-switch{display:flex;gap:4px;background:var(--sand-100);border-radius:999px;padding:3px}
 .lang-switch button{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;background:transparent;color:var(--text-600)}
@@ -97,7 +99,7 @@ nav.links a:hover{color:var(--navy-900)}
 @media(max-width:900px){nav.links{display:none}}
 
 /* Hero */
-.hero{background:linear-gradient(160deg,var(--navy-900),var(--navy-700));color:#fff;padding:64px 0 90px;position:relative;overflow:hidden}
+.hero{background:linear-gradient(160deg,var(--navy-900),var(--navy-700));color:#fff;padding:36px 0 60px;position:relative;overflow:hidden}
 .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
 @media(max-width:900px){.hero-grid{grid-template-columns:1fr}}
 .hero h1{font-size:clamp(30px,4.4vw,46px);margin:0 0 8px}
@@ -156,23 +158,60 @@ nav.links a:hover{color:var(--navy-900)}
 .social-badge{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;transition:transform .15s ease}
 .social-badge:hover{transform:translateY(-3px)}
 
-/* Assistant */
-.assist-close{background:transparent;color:#fff;font-size:16px;padding:2px 6px;border-radius:6px;position:absolute;inset-inline-end:10px;top:10px}
+/* Assistant — modern chat interface */
+.assist-close{background:transparent;color:#fff;font-size:15px;padding:4px 8px;border-radius:8px;position:absolute;inset-inline-end:12px;top:14px}
 .assist-close:hover{background:rgba(255,255,255,.15)}
-.assist-head{position:relative}
+.assist-head{position:relative;display:flex;align-items:center;gap:10px}
 
-#assistant-toggle{position:fixed;inset-inline-end:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:var(--navy-900);color:#fff;font-size:22px;box-shadow:0 10px 25px rgba(7,42,71,.35);z-index:80}
-#assistant-panel{position:fixed;inset-inline-end:22px;bottom:88px;width:320px;max-height:420px;background:#fff;border-radius:16px;box-shadow:0 20px 45px rgba(0,0,0,.2);display:none;flex-direction:column;overflow:hidden;z-index:80;border:1px solid var(--line)}
-#assistant-panel.open{display:flex}
-.assist-head{background:var(--navy-900);color:#fff;padding:14px 16px}
-.assist-head b{display:block;font-size:14px}
-.assist-head span{font-size:11px;color:#cfe0ee}
-.assist-body{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;font-size:13px}
-.assist-msg{background:var(--sand-100);border-radius:10px;padding:8px 10px;max-width:88%}
-.assist-msg.user{align-self:flex-end;background:var(--gold-100)}
-.assist-input{display:flex;border-top:1px solid var(--line)}
-.assist-input input{flex:1;border:none;padding:12px;font-family:inherit;font-size:13px}
-.assist-input button{padding:0 16px;background:var(--navy-900);color:#fff}
+#assistant-toggle{position:fixed;inset-inline-end:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--navy-900),var(--navy-700));color:#fff;font-size:22px;box-shadow:0 10px 25px rgba(7,42,71,.35);z-index:80;transition:transform .15s ease}
+#assistant-toggle:hover{transform:scale(1.06)}
+
+/* WhatsApp — floating & fixed on every page */
+#whatsapp-float{position:fixed;inset-inline-start:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 25px rgba(37,211,102,.4);z-index:80;transition:transform .15s ease}
+#whatsapp-float:hover{transform:scale(1.06)}
+#whatsapp-float svg{width:30px;height:30px}
+#whatsapp-float .wa-pulse{position:absolute;inset:0;border-radius:50%;background:#25D366;opacity:.55;animation:wa-pulse 2.2s ease-out infinite}
+@keyframes wa-pulse{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.6);opacity:0}}
+@media(max-width:900px){#whatsapp-float{inset-inline-start:16px;bottom:16px;width:50px;height:50px}#assistant-toggle{inset-inline-end:16px;bottom:16px;width:50px;height:50px}}
+
+#assistant-panel{position:fixed;inset-inline-end:22px;bottom:88px;width:370px;height:min(560px,72vh);background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(7,20,33,.28);display:none;flex-direction:column;overflow:hidden;z-index:80;border:1px solid var(--line);opacity:0;transform:translateY(12px) scale(.97);transition:opacity .18s ease, transform .18s ease}
+#assistant-panel.open{display:flex;opacity:1;transform:translateY(0) scale(1)}
+@media(max-width:480px){#assistant-panel{inset-inline-end:12px;inset-inline-start:12px;width:auto;bottom:82px;height:min(70vh,520px)}}
+
+.assist-head{background:linear-gradient(135deg,var(--navy-900),var(--navy-700));color:#fff;padding:16px 44px 16px 16px}
+.assist-avatar{width:38px;height:38px;border-radius:50%;background:var(--gold-500);color:var(--navy-900);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.assist-head-text b{display:block;font-size:14px}
+.assist-head-text span{font-size:11px;color:#cfe0ee;display:block;margin-top:1px}
+.assist-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#8be3a8;margin-top:3px}
+.assist-status i{width:6px;height:6px;border-radius:50%;background:#3ddc72;display:inline-block}
+
+.assist-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;font-size:13.5px;background:linear-gradient(180deg,#fbfbf9,var(--sand-100))}
+.assist-row{display:flex;gap:8px;align-items:flex-end;max-width:92%}
+.assist-row.user{align-self:flex-end;flex-direction:row-reverse}
+.assist-mini-avatar{width:26px;height:26px;border-radius:50%;background:var(--navy-900);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.assist-row.user .assist-mini-avatar{background:var(--gold-500);color:var(--navy-900)}
+.assist-msg{background:#fff;border:1px solid var(--line);border-radius:14px;border-start-end-radius:4px;padding:10px 13px;line-height:1.6;box-shadow:0 2px 6px rgba(7,20,33,.04)}
+.assist-row.user .assist-msg{background:var(--navy-900);color:#fff;border-color:var(--navy-900);border-start-end-radius:14px;border-end-start-radius:4px}
+.assist-typing{display:flex;gap:4px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;border-start-end-radius:4px;width:fit-content}
+.assist-typing span{width:6px;height:6px;border-radius:50%;background:var(--text-600);animation:assist-bounce 1.2s infinite ease-in-out}
+.assist-typing span:nth-child(2){animation-delay:.15s}
+.assist-typing span:nth-child(3){animation-delay:.3s}
+@keyframes assist-bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+
+.assist-result-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:6px}
+.assist-result-card b{display:block;font-size:13px;color:var(--navy-900)}
+.assist-result-card .meta{font-size:11.5px;color:var(--text-600);margin-top:2px}
+.assist-result-card .price{font-size:13px;font-weight:800;color:var(--navy-800);margin-top:4px;display:block}
+
+.assist-quick{display:flex;gap:6px;padding:0 14px 10px;flex-wrap:wrap}
+.assist-chip{background:var(--sand-100);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:var(--navy-800);font-weight:700;white-space:nowrap}
+.assist-chip:hover{background:var(--gold-100)}
+
+.assist-input{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:10px 12px;background:#fff}
+.assist-input input{flex:1;border:1px solid var(--line);border-radius:999px;padding:10px 16px;font-family:inherit;font-size:13px;background:var(--sand-100)}
+.assist-input input:focus{outline:none;border-color:var(--navy-700);background:#fff}
+.assist-input button{width:38px;height:38px;border-radius:50%;background:var(--navy-900);color:#fff;font-size:15px;flex-shrink:0}
+.assist-input button:hover{background:var(--navy-700)}
 
 footer.site{background:var(--navy-900);color:#cfe0ee;padding:48px 0 20px;margin-top:40px}
 footer.site h4{color:#fff;margin:0 0 10px}
@@ -199,7 +238,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       <span data-i18n="brand">همة المدينة العقارية</span>
     </div>
     <nav class="links">
-      <a href="#home" data-i18n="nav_home">الرئيسية</a>
+      <a href="#home" class="active" data-i18n="nav_home">الرئيسية</a>
       <a href="#valuation" data-i18n="nav_valuation">التقييم</a>
       <a href="#offers" data-i18n="nav_offers">العروض</a>
       <a href="#contracts" data-i18n="nav_contracts">العقود</a>
@@ -223,7 +262,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      Hero
      ========================================================================== -->
-<section id="home" class="hero" style="padding-top:56px">
+<section id="home" class="hero">
   <div class="container hero-grid">
     <div>
       <p class="eyebrow hero-eyebrow" style="color:var(--gold-100)" data-i18n="hero_eyebrow">🇸🇦 المدينة المنورة</p>
@@ -256,7 +295,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      Offers
      ========================================================================== -->
-<section id="offers">
+<section id="offers" style="display:none">
   <div class="container">
     <div class="section-head">
       <p class="eyebrow" data-i18n="offers_eyebrow">فرص لا تفوّت</p>
@@ -270,7 +309,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      Services
      ========================================================================== -->
-<section id="services" style="background:var(--surface)">
+<section id="services" style="background:var(--surface);display:none">
   <div class="container">
     <div class="section-head">
       <p class="eyebrow" data-i18n="services_eyebrow">خدماتنا</p>
@@ -288,7 +327,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      Valuation — renamed honestly (formula-based, not an ML model)
      ========================================================================== -->
-<section id="valuation">
+<section id="valuation" style="display:none">
   <div class="container">
     <div class="section-head">
       <p class="eyebrow" data-i18n="val_eyebrow">تقييم فوري</p>
@@ -386,7 +425,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      Add property — now persisted centrally (Supabase), pending review
      ========================================================================== -->
-<section id="add-property" style="background:var(--surface)">
+<section id="add-property" style="background:var(--surface);display:none">
   <div class="container">
     <div class="section-head">
       <p class="eyebrow" data-i18n="add_eyebrow">إضافة عقار جديد</p>
@@ -416,7 +455,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      Analytics — reads real persisted data (status = approved), visible to all
      ========================================================================== -->
-<section id="analytics">
+<section id="analytics" style="display:none">
   <div class="container">
     <div class="section-head">
       <p class="eyebrow" data-i18n="analytics_eyebrow">التحليلات وقاعدة البيانات</p>
@@ -443,7 +482,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      Contracts — persisted via secure RPC (create_contract_with_schedule)
      ========================================================================== -->
-<section id="contracts" style="background:var(--surface)">
+<section id="contracts" style="background:var(--surface);display:none">
   <div class="container">
     <div class="section-head">
       <p class="eyebrow" data-i18n="contracts_eyebrow">صياغة العقود</p>
@@ -491,7 +530,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      FAQ
      ========================================================================== -->
-<section id="faq">
+<section id="faq" style="display:none">
   <div class="container">
     <div class="section-head">
       <p class="eyebrow" data-i18n="faq_eyebrow">مركز المساعدة</p>
@@ -504,7 +543,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      About
      ========================================================================== -->
-<section id="about" style="background:var(--surface)">
+<section id="about" style="background:var(--surface);display:none">
   <div class="container">
     <div class="section-head">
       <h2 data-i18n="about_title">عنّا</h2>
@@ -529,7 +568,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 <!-- ==========================================================================
      Contact
      ========================================================================== -->
-<section id="contact">
+<section id="contact" style="display:none">
   <div class="container">
     <div class="section-head">
       <h2 data-i18n="contact_title">تواصل معنا</h2>
@@ -609,19 +648,38 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 </div>
 
 <!-- ==========================================================================
+     WhatsApp — floating & fixed on every page.
+     Note: this is a generic phone-glyph on WhatsApp's brand green (#25D366),
+     not Meta's exact trademarked logo file. For pixel-perfect brand
+     compliance, swap the <svg> below with the official asset from
+     WhatsApp's Brand Resource Center — the id stays the same either way.
+     ========================================================================== -->
+<a id="whatsapp-float" href="https://wa.me/966530500906" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <span class="wa-pulse"></span>
+  <svg viewBox="0 0 32 32" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+    <path d="M23.7 19.4c-.9-.5-2.1-1-3.1-.4-.4.2-.7.6-1.1.9-.9.6-1.8.3-2.6-.2-1.7-1-3.1-2.4-4.1-4.1-.5-.8-.8-1.7-.2-2.6.3-.4.7-.7.9-1.1.6-1-.1-2.2-.4-3.1-.4-1-1-2.6-2.1-2.7-1.7-.1-3.5 1.9-3.9 3.5-.5 2 .3 4.1 1.3 5.8 2.4 4 6 7.6 10 10 1.7 1 3.8 1.8 5.8 1.3 1.6-.4 3.6-2.2 3.5-3.9-.1-1.1-1.7-1.7-2.7-2.1z"/>
+  </svg>
+</a>
+
+<!-- ==========================================================================
      Assistant (rule-based — labeled honestly, no external LLM call by default)
      ========================================================================== -->
 <button id="assistant-toggle">💬</button>
 <div id="assistant-panel">
   <div class="assist-head">
     <button class="assist-close" id="assist-close" aria-label="close">✕</button>
-    <b data-i18n="assist_title">المساعد الإرشادي</b>
-    <span data-i18n="assist_sub">قواعد مبرمجة داخل الموقع، وليس نموذج ذكاء اصطناعي خارجي</span>
+    <div class="assist-avatar">🏠</div>
+    <div class="assist-head-text">
+      <b data-i18n="assist_title">المساعد الإرشادي</b>
+      <span data-i18n="assist_sub">قواعد مبرمجة داخل الموقع، وليس نموذج ذكاء اصطناعي خارجي</span>
+      <span class="assist-status"><i></i><span data-i18n="assist_online">متصل الآن</span></span>
+    </div>
   </div>
   <div class="assist-body" id="assist-body"></div>
+  <div class="assist-quick" id="assist-quick"></div>
   <div class="assist-input">
     <input id="assist-input" type="text" data-i18n-placeholder="assist_placeholder" placeholder="اكتب سؤالك...">
-    <button id="assist-send" data-i18n="assist_send">إرسال</button>
+    <button id="assist-send" aria-label="send">➤</button>
   </div>
 </div>
 
@@ -706,7 +764,7 @@ const I18N = {
     footer_tech:"البنية التقنية", footer_tech_text:"مبني على قاعدة بيانات Supabase مع صلاحيات وصول محكومة (RLS).",
     footer_tag:"🕌 شريكك العقاري الموثوق في المدينة المنورة",
     assist_title:"المساعد الإرشادي", assist_sub:"قواعد مبرمجة، وليس نموذج ذكاء اصطناعي خارجي",
-    assist_placeholder:"اكتب سؤالك...", assist_send:"إرسال",
+    assist_placeholder:"اكتب سؤالك...", assist_send:"إرسال", assist_online:"متصل الآن",
     social_title:"تابعنا عبر منصات التواصل",
     add_city_prompt:"لا تجد مدينتك؟ أضف مدينة جديدة", add_city_modal_title:"أضف مدينة جديدة",
     add_city_name:"اسم المدينة", add_city_district:"اسم أول حي فيها",
@@ -775,7 +833,7 @@ const I18N = {
     footer_tech:"Technology", footer_tech_text:"Built on Supabase with row-level security policies.",
     footer_tag:"🕌 Your trusted real estate partner in Madinah",
     assist_title:"Guided Assistant", assist_sub:"Rule-based logic, not an external AI model",
-    assist_placeholder:"Type your question...", assist_send:"Send",
+    assist_placeholder:"Type your question...", assist_send:"Send", assist_online:"Online now",
     social_title:"Follow us on social media",
     add_city_prompt:"Can't find your city? Add a new one", add_city_modal_title:"Add a new city",
     add_city_name:"City name", add_city_district:"Name of its first district",
@@ -844,7 +902,7 @@ const I18N = {
     footer_tech:"Technologie", footer_tech_text:"Basé sur Supabase avec des politiques RLS.",
     footer_tag:"🕌 Votre partenaire immobilier de confiance à Médine",
     assist_title:"Assistant guidé", assist_sub:"Logique programmée, pas un modèle d'IA externe",
-    assist_placeholder:"Écrivez votre question...", assist_send:"Envoyer",
+    assist_placeholder:"Écrivez votre question...", assist_send:"Envoyer", assist_online:"En ligne",
     social_title:"Suivez-nous sur les réseaux sociaux",
     add_city_prompt:"Votre ville n'est pas listée ? Ajoutez-la", add_city_modal_title:"Ajouter une nouvelle ville",
     add_city_name:"Nom de la ville", add_city_district:"Nom de son premier quartier",
@@ -889,6 +947,7 @@ function applyLang(lang){
   renderSocialRow();
   populateTypeSelects();
   populateCitySelects();
+  renderQuickChips();
 }
 document.getElementById('lang-switch').addEventListener('click', e=>{
   const btn = e.target.closest('button[data-lang]');
@@ -1411,61 +1470,204 @@ document.getElementById('btn-send-whatsapp').addEventListener('click', ()=>{
 });
 
 /* ============================================================================
-   9) Assistant — rule-based, transparently labeled, no external LLM call.
-      Fix: previously the panel could get "stuck open" with no obvious way to
-      close it. Now there's an explicit close (✕) button, clicking outside
-      the panel closes it, Escape closes it, and state is tracked explicitly
-      instead of relying only on a CSS class toggle.
+   9) Page router — turns section navigation into independent "pages".
+      Clicking a nav item (or any in-page link to a known page id) hides
+      every other section and shows only the target, scrolls to top, and
+      keeps the URL hash + active nav link in sync with browser back/forward.
    ========================================================================== */
+const PAGES = ['home','offers','services','valuation','add-property','analytics','contracts','faq','about','contact'];
+
+function showPage(id){
+  if (!PAGES.includes(id)) id = 'home';
+  PAGES.forEach(p=>{
+    const el = document.getElementById(p);
+    if (el) el.style.display = (p === id) ? '' : 'none';
+  });
+  document.querySelectorAll('nav.links a[href^="#"]').forEach(a=>{
+    a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+  });
+  if (location.hash !== '#' + id) history.pushState(null, '', '#' + id);
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+document.addEventListener('click', (e)=>{
+  const a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  const id = a.getAttribute('href').slice(1);
+  if (PAGES.includes(id)){
+    e.preventDefault();
+    showPage(id);
+  }
+});
+window.addEventListener('popstate', ()=> showPage(location.hash.slice(1) || 'home'));
+
+/* ============================================================================
+   10) Assistant — rule-based, transparently labeled, no external LLM call.
+      Upgraded to a modern chat interface: avatar bubbles, a typing
+      indicator, quick-reply chips, and real property search — it parses
+      city / type / budget / room count from free text and queries the
+      live database (or the demo data when not connected) instead of only
+      pointing to a section.
+   ========================================================================== */
+function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
 const ASSIST_I18N = {
   ar: {
-    greeting:"أهلاً 👋 أنا مساعد إرشادي بقواعد مبرمجة (مو نموذج ذكاء اصطناعي خارجي). كيف أقدر أوجّهك؟",
-    fallback:"أقدر أساعدك بالتنقل بين أقسام الموقع: التقييم، العقود، إضافة عقار، العروض، أو التواصل معنا. اكتب كلمة من هذه وسأوجهك.",
+    greeting:"أهلاً 👋 أنا مساعد إرشادي بقواعد مبرمجة (مو نموذج ذكاء اصطناعي خارجي). اسألني عن عقار — مثلاً «شقة في جدة تحت 900 ألف» — أو اكتب اسم قسم تبي أروح له.",
+    fallback:"أقدر أساعدك بالتنقل بين أقسام الموقع: التقييم، العقود، إضافة عقار، العروض، أو التواصل معنا. أو صف لي العقار اللي تدور عليه (المدينة، النوع، الميزانية) وأبحث لك عنه.",
+    noResults:"ما لقيت نتائج مطابقة تماماً، جرّب توسيع النطاق أو تصفح كل العروض.",
+    resultsIntro: n => `لقيت لك ${n} نتيجة مطابقة تقريباً:`,
     rules: [
-      { kw:['تقييم'], reply:"يمكنك استخدام قسم «التقييم» أعلى الصفحة لحساب تقدير استرشادي فوري.", goto:'#valuation' },
-      { kw:['عقد'], reply:"من قسم «العقود» تقدر تولّد عقد سكني أو تجاري ويُحفظ جدول دفعاته تلقائياً.", goto:'#contracts' },
-      { kw:['إضافة','اضافة'], reply:"من قسم «إضافة» تقدر تسجّل عقارك، وسيظهر للجميع بعد مراجعة سريعة.", goto:'#add-property' },
-      { kw:['عرض','عروض'], reply:"أحدث العروض موجودة في قسم «العروض».", goto:'#offers' },
-      { kw:['تواصل','واتساب'], reply:"تقدر تتواصل معنا مباشرة عبر قسم «تواصل» أو واتساب.", goto:'#contact' },
+      { kw:['تقييم'], reply:"يمكنك استخدام قسم «التقييم» لحساب تقدير استرشادي فوري.", goto:'valuation' },
+      { kw:['عقد'], reply:"من قسم «العقود» تقدر تولّد عقد سكني أو تجاري ويُحفظ جدول دفعاته تلقائياً.", goto:'contracts' },
+      { kw:['إضافة','اضافة','أضيف','اضف'], reply:"من قسم «إضافة» تقدر تسجّل عقارك، وسيظهر للجميع بعد مراجعة سريعة.", goto:'add-property' },
+      { kw:['عرض','عروض'], reply:"أحدث العروض موجودة في قسم «العروض».", goto:'offers' },
+      { kw:['تواصل','واتساب'], reply:"تقدر تتواصل معنا مباشرة عبر قسم «تواصل» أو واتساب.", goto:'contact' },
     ],
   },
   en: {
-    greeting:"Hi 👋 I'm a rule-based guided assistant (not an external AI model). How can I point you in the right direction?",
-    fallback:"I can help you navigate: Valuation, Contracts, List Property, Offers, or Contact. Type one of these and I'll take you there.",
+    greeting:"Hi 👋 I'm a rule-based guided assistant (not an external AI model). Ask me about a property — e.g. “apartment in Jeddah under 900k” — or name a section you'd like to visit.",
+    fallback:"I can help you navigate: Valuation, Contracts, List Property, Offers, or Contact. Or describe the property you're after (city, type, budget) and I'll search for it.",
+    noResults:"I couldn't find an exact match — try broadening your search or browse all offers.",
+    resultsIntro: n => `Found ${n} roughly matching result(s):`,
     rules: [
-      { kw:['valuation','estimate'], reply:"Use the “Valuation” section above to get an instant guided estimate.", goto:'#valuation' },
-      { kw:['contract'], reply:"The “Contracts” section lets you generate a residential or commercial contract with its payment schedule saved automatically.", goto:'#contracts' },
-      { kw:['list','add'], reply:"The “List Property” section lets you register your property — it goes live after a quick review.", goto:'#add-property' },
-      { kw:['offer'], reply:"The latest offers are in the “Offers” section.", goto:'#offers' },
-      { kw:['contact','whatsapp'], reply:"You can reach us directly via the “Contact” section or WhatsApp.", goto:'#contact' },
+      { kw:['valuation','estimate'], reply:"Use the “Valuation” section to get an instant guided estimate.", goto:'valuation' },
+      { kw:['contract'], reply:"The “Contracts” section generates a residential or commercial contract with its payment schedule saved automatically.", goto:'contracts' },
+      { kw:['list','add'], reply:"The “List Property” section lets you register your property — it goes live after a quick review.", goto:'add-property' },
+      { kw:['offer'], reply:"The latest offers are in the “Offers” section.", goto:'offers' },
+      { kw:['contact','whatsapp'], reply:"You can reach us directly via the “Contact” section or WhatsApp.", goto:'contact' },
     ],
   },
   fr: {
-    greeting:"Bonjour 👋 Je suis un assistant guidé par des règles (pas un modèle d'IA externe). Comment puis-je vous orienter ?",
-    fallback:"Je peux vous aider à naviguer : Évaluation, Contrats, Ajouter un bien, Offres, ou Contact. Écrivez l'un de ces mots et je vous y emmène.",
+    greeting:"Bonjour 👋 Je suis un assistant guidé par des règles (pas un modèle d'IA externe). Décrivez un bien — ex. « appartement à Djeddah sous 900k » — ou nommez une section à visiter.",
+    fallback:"Je peux vous aider à naviguer : Évaluation, Contrats, Ajouter un bien, Offres, ou Contact. Ou décrivez le bien recherché (ville, type, budget) et je le cherche pour vous.",
+    noResults:"Aucun résultat exact — essayez d'élargir la recherche ou parcourez toutes les offres.",
+    resultsIntro: n => `${n} résultat(s) trouvé(s) :`,
     rules: [
-      { kw:['évaluation','estimation'], reply:"Utilisez la section « Évaluation » ci-dessus pour une estimation indicative instantanée.", goto:'#valuation' },
-      { kw:['contrat'], reply:"La section « Contrats » génère un contrat résidentiel ou commercial avec l'échéancier enregistré automatiquement.", goto:'#contracts' },
-      { kw:['ajout','ajouter'], reply:"La section « Ajouter » permet d'enregistrer votre bien — il sera publié après une vérification rapide.", goto:'#add-property' },
-      { kw:['offre'], reply:"Les dernières offres sont dans la section « Offres ».", goto:'#offers' },
-      { kw:['contact','whatsapp'], reply:"Vous pouvez nous joindre directement via la section « Contact » ou WhatsApp.", goto:'#contact' },
+      { kw:['évaluation','estimation'], reply:"Utilisez la section « Évaluation » pour une estimation indicative instantanée.", goto:'valuation' },
+      { kw:['contrat'], reply:"La section « Contrats » génère un contrat avec l'échéancier enregistré automatiquement.", goto:'contracts' },
+      { kw:['ajout','ajouter'], reply:"La section « Ajouter » permet d'enregistrer votre bien — publié après vérification.", goto:'add-property' },
+      { kw:['offre'], reply:"Les dernières offres sont dans la section « Offres ».", goto:'offers' },
+      { kw:['contact','whatsapp'], reply:"Contactez-nous via la section « Contact » ou WhatsApp.", goto:'contact' },
     ],
   },
 };
+
+const QUICK_CHIPS_I18N = {
+  ar: ["شقة في جدة تحت 900 ألف", "فيلا للبيع بالرياض", "كيف أضيف عقاري؟", "تواصل مع فريقنا"],
+  en: ["Apartment in Jeddah under 900k", "Villa for sale in Riyadh", "How do I list my property?", "Contact our team"],
+  fr: ["Appartement à Djeddah sous 900k", "Villa à vendre à Riyad", "Comment ajouter mon bien ?", "Contacter notre équipe"],
+};
+
+/* --- Lightweight entity extraction from free text (no external NLP) --- */
+function detectCity(text, lower){
+  for (const cname of Object.keys(CITY_DISTRICTS)){
+    if (text.includes(cname)) return cname;
+    const lbl = CITY_LABELS[cname];
+    if (lbl && (lower.includes(lbl.en.toLowerCase()) || lower.includes(lbl.fr.toLowerCase()))) return cname;
+  }
+  return null;
+}
+function detectType(text, lower){
+  if (text.includes('شقة') || lower.includes('apartment') || lower.includes('appartement')){
+    return (text.includes('برج') || lower.includes('tower') || lower.includes('tour')) ? 'شقة في برج' : 'شقة في عمارة';
+  }
+  if (text.includes('محل') || lower.includes('shop') || lower.includes('retail') || lower.includes('commerce')) return 'محل تجاري';
+  const skip = new Set(['شقة في برج','شقة في عمارة','محل تجاري']);
+  for (const pt of PROPERTY_TYPES){
+    if (skip.has(pt.v)) continue;
+    if (text.includes(pt.ar) || lower.includes(pt.en.toLowerCase()) || lower.includes(pt.fr.toLowerCase())) return pt.v;
+  }
+  return null;
+}
+function extractAmount(str){
+  const m = str.match(/(\d+(?:[.,]\d+)?)\s*(ألف|الف|مليون|million|thousand|k|m)?/i);
+  if (!m) return null;
+  let n = parseFloat(m[1].replace(',', '.'));
+  const unit = (m[2] || '').toLowerCase();
+  if (unit === 'ألف' || unit === 'الف' || unit === 'thousand' || unit === 'k') n *= 1000;
+  else if (unit === 'مليون' || unit === 'million' || unit === 'm') n *= 1000000;
+  return n;
+}
+function detectPrice(text){
+  const numMatch = text.match(/\d/);
+  if (!numMatch) return { minPrice:null, maxPrice:null };
+  const amount = extractAmount(text);
+  if (!amount) return { minPrice:null, maxPrice:null };
+  if (/تحت|أقل من|دون|under|below|less than|moins de/i.test(text)) return { minPrice:null, maxPrice:amount };
+  if (/فوق|أكثر من|above|over|more than|plus de/i.test(text)) return { minPrice:amount, maxPrice:null };
+  return { minPrice:null, maxPrice:amount }; // no explicit direction → treat as a budget ceiling
+}
+function detectRooms(text){
+  const m = text.match(/(\d+)\s*(غرف|غرفة|rooms?|pi[eè]ces?)/i);
+  return m ? parseInt(m[1], 10) : null;
+}
+function parseQuery(text){
+  const lower = text.toLowerCase();
+  const { minPrice, maxPrice } = detectPrice(text);
+  return { city: detectCity(text, lower), type: detectType(text, lower), minPrice, maxPrice, rooms: detectRooms(text) };
+}
+
+async function searchProperties(q){
+  let results = [];
+  if (dbReady){
+    let query = supa.from('properties').select('*').eq('status', 'approved').limit(5);
+    if (q.city) query = query.eq('city', q.city);
+    if (q.type) query = query.eq('property_type', q.type);
+    if (q.maxPrice) query = query.lte('price', q.maxPrice);
+    if (q.minPrice) query = query.gte('price', q.minPrice);
+    if (q.rooms) query = query.eq('rooms', q.rooms);
+    const { data, error } = await query;
+    if (!error && data) results = data.map(p=>({ city:p.city, district:p.district, property_type:p.property_type, price:p.price, area_sqm:p.area_sqm, rooms:p.rooms }));
+  }
+  if (!results.length){
+    const demo = DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar;
+    results = demo.filter(o=>{
+      if (q.city && o.city !== cityLabel(q.city) && o.city !== q.city) return false;
+      const price = o.price_final || o.price_original;
+      if (q.maxPrice && price && price > q.maxPrice) return false;
+      if (q.minPrice && price && price < q.minPrice) return false;
+      if (q.rooms && o.rooms !== q.rooms) return false;
+      return true;
+    }).map(o=>({ city:o.city, district:o.district, property_type:o.property_type, price:o.price_final || o.price_original, area_sqm:o.area_sqm, rooms:o.rooms }));
+  }
+  return results;
+}
+
+function addAssistMsg(text, who, extraHtml=''){
+  const body = document.getElementById('assist-body');
+  const row = document.createElement('div');
+  row.className = 'assist-row' + (who==='user' ? ' user' : '');
+  row.innerHTML = `<div class="assist-mini-avatar">${who==='user' ? '🙂' : '🏠'}</div><div class="assist-msg">${escapeHtml(text)}${extraHtml}</div>`;
+  body.appendChild(row);
+  body.scrollTop = body.scrollHeight;
+}
+function showTyping(){
+  const body = document.getElementById('assist-body');
+  const row = document.createElement('div');
+  row.className = 'assist-row';
+  row.id = 'assist-typing-row';
+  row.innerHTML = `<div class="assist-mini-avatar">🏠</div><div class="assist-typing"><span></span><span></span><span></span></div>`;
+  body.appendChild(row);
+  body.scrollTop = body.scrollHeight;
+}
+function hideTyping(){ document.getElementById('assist-typing-row')?.remove(); }
+
+function renderQuickChips(){
+  const list = QUICK_CHIPS_I18N[currentLang] || QUICK_CHIPS_I18N.ar;
+  const wrap = document.getElementById('assist-quick');
+  wrap.innerHTML = list.map(c=>`<button class="assist-chip" type="button">${c}</button>`).join('');
+  wrap.querySelectorAll('.assist-chip').forEach(btn=>{
+    btn.addEventListener('click', ()=> handleAssistSend(btn.textContent));
+  });
+}
 
 function assistantReply(text){
   const dict = ASSIST_I18N[currentLang] || ASSIST_I18N.ar;
   const lower = text.toLowerCase();
   const rule = dict.rules.find(r => r.kw.some(k => lower.includes(k.toLowerCase())));
   return rule || { reply: dict.fallback, goto:null };
-}
-function addAssistMsg(text, who){
-  const body = document.getElementById('assist-body');
-  const div = document.createElement('div');
-  div.className = 'assist-msg' + (who==='user' ? ' user' : '');
-  div.textContent = text;
-  body.appendChild(div);
-  body.scrollTop = body.scrollHeight;
 }
 
 let assistantOpen = false;
@@ -1475,6 +1677,7 @@ function setAssistantOpen(open){
   panel.classList.toggle('open', open);
   if (open && !panel.dataset.greeted){
     addAssistMsg((ASSIST_I18N[currentLang] || ASSIST_I18N.ar).greeting, 'bot');
+    renderQuickChips();
     panel.dataset.greeted = '1';
   }
 }
@@ -1493,26 +1696,52 @@ document.addEventListener('keydown', (e)=>{
   if (e.key === 'Escape' && assistantOpen) setAssistantOpen(false);
 });
 
-function handleAssistSend(){
+async function handleAssistSend(textOverride){
   const input = document.getElementById('assist-input');
-  const text = input.value.trim();
+  const text = (textOverride !== undefined ? textOverride : input.value).trim();
   if (!text) return;
   addAssistMsg(text, 'user');
-  input.value = '';
-  const { reply, goto } = assistantReply(text);
-  setTimeout(()=>{
+  if (textOverride === undefined) input.value = '';
+  showTyping();
+
+  const t = ASSIST_I18N[currentLang] || ASSIST_I18N.ar;
+  const q = parseQuery(text);
+  const isSearch = !!(q.city || q.type || q.maxPrice || q.minPrice || q.rooms);
+
+  if (isSearch){
+    const results = await searchProperties(q);
+    await sleep(350);
+    hideTyping();
+    if (!results.length){
+      addAssistMsg(t.noResults, 'bot');
+    } else {
+      const cardsHtml = results.map(r=>{
+        const priceText = r.price ? `${money(r.price)} ${currentLang==='ar' ? 'ر.س' : 'SAR'}` : I18N[currentLang].price_on_request;
+        return `<div class="assist-result-card">
+          <b>${r.property_type} — ${r.district}</b>
+          <div class="meta">${cityLabel(r.city)} · ${r.area_sqm || '—'} م²${r.rooms ? (' · ' + r.rooms + ' ' + I18N[currentLang].rooms_suffix) : ''}</div>
+          <span class="price">${priceText}</span>
+        </div>`;
+      }).join('');
+      addAssistMsg(t.resultsIntro(results.length), 'bot', cardsHtml);
+    }
+    showPage('offers');
+  } else {
+    const { reply, goto } = assistantReply(text);
+    await sleep(300);
+    hideTyping();
     addAssistMsg(reply, 'bot');
-    if (goto) document.querySelector(goto)?.scrollIntoView({behavior:'smooth'});
-  }, 200);
+    if (goto) showPage(goto);
+  }
 }
-document.getElementById('assist-send').addEventListener('click', handleAssistSend);
+document.getElementById('assist-send').addEventListener('click', ()=> handleAssistSend());
 document.getElementById('assist-input').addEventListener('keydown', e=>{
   if (e.key==='Enter') handleAssistSend();
   e.stopPropagation(); // avoid the document-level Escape/outside-click handlers firing oddly while typing
 });
 
 /* ============================================================================
-   10) Boot
+   11) Boot
    ========================================================================== */
 window.addEventListener('load', async ()=>{
   dbReady = initSupabase();
@@ -1526,6 +1755,7 @@ window.addEventListener('load', async ()=>{
   renderSocialRow();
   renderAnalytics();
   runFinance();
+  showPage(location.hash.slice(1) || 'home');
 });
 </script>
 </body>
