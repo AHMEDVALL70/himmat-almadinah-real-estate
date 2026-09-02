@@ -444,17 +444,21 @@ alter table contract_installments enable row level security;
 alter table notification_log      enable row level security;
 
 -- العروض: قراءة عامة للمنشور فقط، لا كتابة من الزوار إطلاقاً
+drop policy if exists offers_public_read on offers;
 create policy offers_public_read on offers
     for select using (is_published = true);
 
 -- العقارات: قراءة عامة للمعتمد فقط + إدخال عام (يُجبر على pending بالـ trigger)
+drop policy if exists properties_public_read on properties;
 create policy properties_public_read on properties
     for select using (status = 'approved');
+drop policy if exists properties_public_insert on properties;
 create policy properties_public_insert on properties
     for insert with check (true);
 
 -- طلبات التواصل: إدخال عام (أي زائر يقدر يرسل استفساراً)، بلا قراءة عامة —
 -- فريق الدعم يراجعها لاحقاً عبر service_role، مو من كود الموقع العام.
+drop policy if exists inquiries_public_insert on inquiries;
 create policy inquiries_public_insert on inquiries
     for insert with check (true);
 
@@ -462,8 +466,10 @@ create policy inquiries_public_insert on inquiries
 -- إدارية تتم مباشرة من لوحة Supabase (أو لوحة تحكم داخلية لاحقاً) وليس من
 -- واجهة الموقع العامة — كانت النسخة السابقة تسمح لأي زائر بالإضافة مباشرة،
 -- وهذا عُدَّ ثغرة تصميمية (يمكن لأي شخص حقن بيانات وهمية)، فأُغلقت هنا.
+drop policy if exists cities_public_read on cities;
 create policy cities_public_read on cities
     for select using (true);
+drop policy if exists districts_public_read on districts;
 create policy districts_public_read on districts
     for select using (true);
 
