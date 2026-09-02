@@ -159,6 +159,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 
 /* Offers */
 .offer-card{overflow:hidden;position:relative}
+.offer-img{width:100%;height:180px;object-fit:cover;display:block;background:var(--sand-100)}
 .offer-top{background:var(--navy-900);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
 .offer-discount{background:var(--gold-500);color:var(--navy-900);font-weight:900;padding:3px 10px;border-radius:8px;font-size:13px}
 .offer-body{padding:18px}
@@ -166,6 +167,8 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .offer-body .loc{color:var(--text-600);font-size:13px;margin-bottom:10px}
 .offer-body .price{font-weight:900;font-size:18px;color:var(--navy-900)}
 .offer-body .price s{color:var(--text-600);font-weight:400;font-size:14px;margin-inline-start:8px}
+.offer-details-btn{display:block;width:100%;margin-top:14px;padding:10px;border-radius:9px;background:var(--sand-100);color:var(--navy-900);font-weight:700;font-size:13px;text-align:center;transition:background .15s ease}
+.offer-card:hover .offer-details-btn{background:var(--gold-500)}
 
 /* Services */
 .service-card{padding:24px}
@@ -200,8 +203,10 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .modal-box{background:#fff;border-radius:16px;width:100%;max-width:640px;position:relative;box-shadow:0 30px 70px rgba(0,0,0,.3)}
 .modal-close-btn{position:absolute;inset-inline-end:14px;top:14px;width:34px;height:34px;border-radius:50%;background:var(--sand-100);color:var(--text-900);font-size:15px;z-index:2}
 .modal-close-btn:hover{background:var(--line)}
-.detail-box{padding:32px 28px 28px}
-.detail-header{background:var(--navy-900);color:#fff;padding:16px 18px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.detail-box{padding:0 28px 28px}
+.detail-img{width:calc(100% + 56px);margin-inline-start:-28px;margin-top:0;height:220px;object-fit:cover;border-radius:16px 16px 0 0;display:block;margin-bottom:0}
+.modal-close-btn{background:rgba(255,255,255,.9)}
+.detail-header{background:var(--navy-900);color:#fff;padding:16px 18px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin:20px 0 18px}
 .detail-header .discount{background:var(--gold-500);color:var(--navy-900);font-weight:900;padding:4px 12px;border-radius:8px;font-size:13px}
 .detail-title{font-size:20px;margin:0 0 4px}
 .detail-loc{color:var(--text-600);font-size:14px;margin:0 0 16px}
@@ -1016,7 +1021,7 @@ const I18N = {
     price_on_request:"السعر عند التواصل", rooms_suffix:"غرف",
     detail_map:"عرض على الخريطة", detail_whatsapp:"تواصل عبر واتساب",
     detail_marketer:"المسوّق", detail_license:"رقم الرخصة العقارية", detail_ad_license:"رقم الترخيص الإعلاني",
-    detail_no_desc:"لا يوجد وصف تفصيلي لهذا العقار بعد.",
+    detail_no_desc:"لا يوجد وصف تفصيلي لهذا العقار بعد.", detail_view_btn:"عرض التفاصيل الكاملة ←",
     contract_header:"عقد إيجار", contract_number_label:"رقم العقد",
     contract_lessor_label:"المؤجر", contract_lessee_label:"المستأجر",
     contract_id_label:"هوية", contract_phone_label2:"جوال",
@@ -1100,7 +1105,7 @@ const I18N = {
     price_on_request:"Price on request", rooms_suffix:"rooms",
     detail_map:"View on map", detail_whatsapp:"Contact via WhatsApp",
     detail_marketer:"Marketed by", detail_license:"Real estate license no.", detail_ad_license:"Ad license no.",
-    detail_no_desc:"No detailed description available for this property yet.",
+    detail_no_desc:"No detailed description available for this property yet.", detail_view_btn:"View Full Details →",
     contract_header:"Lease contract", contract_number_label:"Contract No.",
     contract_lessor_label:"Lessor", contract_lessee_label:"Lessee",
     contract_id_label:"ID", contract_phone_label2:"Phone",
@@ -1184,7 +1189,7 @@ const I18N = {
     price_on_request:"Prix sur demande", rooms_suffix:"pièces",
     detail_map:"Voir sur la carte", detail_whatsapp:"Contacter via WhatsApp",
     detail_marketer:"Commercialisé par", detail_license:"N° de licence immobilière", detail_ad_license:"N° de licence publicitaire",
-    detail_no_desc:"Aucune description détaillée disponible pour ce bien pour le moment.",
+    detail_no_desc:"Aucune description détaillée disponible pour ce bien pour le moment.", detail_view_btn:"Voir tous les détails →",
     contract_header:"Contrat de location", contract_number_label:"N° du contrat",
     contract_lessor_label:"Bailleur", contract_lessee_label:"Locataire",
     contract_id_label:"ID", contract_phone_label2:"Téléphone",
@@ -1279,28 +1284,28 @@ const SERVICES_I18N = {
 
 const DEMO_OFFERS_I18N = {
   ar: [
-    {title:"فيلا فاخرة بتشطيب راقٍ", city:"الرياض", district:"العليا", property_type:"فيلا", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000},
-    {title:"شقة بإطلالة بحرية", city:"جدة", district:"الشاطئ", property_type:"شقة في برج", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400},
-    {title:"أرض تجارية قريبة من الحرم", city:"المدينة المنورة", district:"قباء", property_type:"أرض", area_sqm:500, rooms:null, price_original:1500000, discount_pct:5, price_final:1425000},
-    {title:"دبلكس عائلي واسع", city:"الرياض", district:"النرجس", property_type:"دبلكس", area_sqm:320, rooms:5, price_original:2100000, discount_pct:10, price_final:1890000},
-    {title:"شقة اقتصادية جاهزة للسكن", city:"مكة المكرمة", district:"العزيزية الشمالية", property_type:"شقة في عمارة", area_sqm:140, rooms:3, price_original:720000, discount_pct:7, price_final:669600},
-    {title:"استراحة بمساحات خضراء", city:"المدينة المنورة", district:"أحد", property_type:"استراحة", area_sqm:800, rooms:null, price_original:950000, discount_pct:15, price_final:807500},
+    {title:"فيلا فاخرة بتشطيب راقٍ", city:"الرياض", district:"العليا", property_type:"فيلا", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000, image_url:"https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"شقة بإطلالة بحرية", city:"جدة", district:"الشاطئ", property_type:"شقة في برج", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400, image_url:"https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"أرض تجارية قريبة من الحرم", city:"المدينة المنورة", district:"قباء", property_type:"أرض", area_sqm:500, rooms:null, price_original:1500000, discount_pct:5, price_final:1425000, image_url:"https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"دبلكس عائلي واسع", city:"الرياض", district:"النرجس", property_type:"دبلكس", area_sqm:320, rooms:5, price_original:2100000, discount_pct:10, price_final:1890000, image_url:"https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"شقة اقتصادية جاهزة للسكن", city:"مكة المكرمة", district:"العزيزية الشمالية", property_type:"شقة في عمارة", area_sqm:140, rooms:3, price_original:720000, discount_pct:7, price_final:669600, image_url:"https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"استراحة بمساحات خضراء", city:"المدينة المنورة", district:"أحد", property_type:"استراحة", area_sqm:800, rooms:null, price_original:950000, discount_pct:15, price_final:807500, image_url:"https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
   ],
   en: [
-    {title:"Upscale Luxury Villa", city:"Riyadh", district:"Al Olaya", property_type:"Villa", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000},
-    {title:"Apartment with Sea View", city:"Jeddah", district:"Al Shati", property_type:"Apartment in a tower", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400},
-    {title:"Commercial Land Near the Haram", city:"Madinah", district:"Quba", property_type:"Land", area_sqm:500, rooms:null, price_original:1500000, discount_pct:5, price_final:1425000},
-    {title:"Spacious Family Duplex", city:"Riyadh", district:"Al Narjis", property_type:"Duplex", area_sqm:320, rooms:5, price_original:2100000, discount_pct:10, price_final:1890000},
-    {title:"Move-in Ready Apartment", city:"Makkah", district:"Al Aziziyah Al Shamaliyah", property_type:"Apartment in a building", area_sqm:140, rooms:3, price_original:720000, discount_pct:7, price_final:669600},
-    {title:"Chalet with Green Spaces", city:"Madinah", district:"Uhud", property_type:"Chalet / Resthouse", area_sqm:800, rooms:null, price_original:950000, discount_pct:15, price_final:807500},
+    {title:"Upscale Luxury Villa", city:"Riyadh", district:"Al Olaya", property_type:"Villa", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000, image_url:"https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Apartment with Sea View", city:"Jeddah", district:"Al Shati", property_type:"Apartment in a tower", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400, image_url:"https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Commercial Land Near the Haram", city:"Madinah", district:"Quba", property_type:"Land", area_sqm:500, rooms:null, price_original:1500000, discount_pct:5, price_final:1425000, image_url:"https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Spacious Family Duplex", city:"Riyadh", district:"Al Narjis", property_type:"Duplex", area_sqm:320, rooms:5, price_original:2100000, discount_pct:10, price_final:1890000, image_url:"https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Move-in Ready Apartment", city:"Makkah", district:"Al Aziziyah Al Shamaliyah", property_type:"Apartment in a building", area_sqm:140, rooms:3, price_original:720000, discount_pct:7, price_final:669600, image_url:"https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Chalet with Green Spaces", city:"Madinah", district:"Uhud", property_type:"Chalet / Resthouse", area_sqm:800, rooms:null, price_original:950000, discount_pct:15, price_final:807500, image_url:"https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
   ],
   fr: [
-    {title:"Villa de luxe haut de gamme", city:"Riyad", district:"Al Olaya", property_type:"Villa", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000},
-    {title:"Appartement vue sur mer", city:"Djeddah", district:"Al Shati", property_type:"Appartement en tour", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400},
-    {title:"Terrain commercial près du Haram", city:"Médine", district:"Quba", property_type:"Terrain", area_sqm:500, rooms:null, price_original:1500000, discount_pct:5, price_final:1425000},
-    {title:"Duplex familial spacieux", city:"Riyad", district:"Al Narjis", property_type:"Duplex", area_sqm:320, rooms:5, price_original:2100000, discount_pct:10, price_final:1890000},
-    {title:"Appartement prêt à emménager", city:"La Mecque", district:"Al Aziziyah Al Shamaliyah", property_type:"Appartement en immeuble", area_sqm:140, rooms:3, price_original:720000, discount_pct:7, price_final:669600},
-    {title:"Chalet aux espaces verts", city:"Médine", district:"Uhud", property_type:"Chalet", area_sqm:800, rooms:null, price_original:950000, discount_pct:15, price_final:807500},
+    {title:"Villa de luxe haut de gamme", city:"Riyad", district:"Al Olaya", property_type:"Villa", area_sqm:410, rooms:6, price_original:3850000, discount_pct:8, price_final:3542000, image_url:"https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Appartement vue sur mer", city:"Djeddah", district:"Al Shati", property_type:"Appartement en tour", area_sqm:165, rooms:3, price_original:980000, discount_pct:12, price_final:862400, image_url:"https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Terrain commercial près du Haram", city:"Médine", district:"Quba", property_type:"Terrain", area_sqm:500, rooms:null, price_original:1500000, discount_pct:5, price_final:1425000, image_url:"https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Duplex familial spacieux", city:"Riyad", district:"Al Narjis", property_type:"Duplex", area_sqm:320, rooms:5, price_original:2100000, discount_pct:10, price_final:1890000, image_url:"https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Appartement prêt à emménager", city:"La Mecque", district:"Al Aziziyah Al Shamaliyah", property_type:"Appartement en immeuble", area_sqm:140, rooms:3, price_original:720000, discount_pct:7, price_final:669600, image_url:"https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940"},
+    {title:"Chalet aux espaces verts", city:"Médine", district:"Uhud", property_type:"Chalet", area_sqm:800, rooms:null, price_original:950000, discount_pct:15, price_final:807500, image_url:"https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"},
   ],
 };
 
@@ -1442,7 +1447,7 @@ function money(n){
 // browser 10–30+ seconds to give up on — this makes the site fail fast
 // and fall back to demo data almost immediately instead of leaving the
 // visitor staring at a slow page.
-function withTimeout(promise, ms = 4000){
+function withTimeout(promise, ms = 3000){
   return Promise.race([
     promise,
     new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out')), ms)),
@@ -1592,12 +1597,17 @@ function offerCardHtml(o){
   const priceHtml = o.price_original
     ? `<span class="price">${money(o.price_final)} ${currentLang==='ar' ? 'ر.س' : 'SAR'} <s>${money(o.price_original)} ${currentLang==='ar' ? 'ر.س' : 'SAR'}</s></span>`
     : `<span class="price">${t.price_on_request}</span>`;
+  const imageHtml = o.image_url
+    ? `<img src="${o.image_url}" alt="${escapeHtml(o.title)}" class="offer-img" loading="lazy" onerror="this.remove()">`
+    : '';
   return `<div class="card offer-card" onclick="openDetailModal('${key}')">
+    ${imageHtml}
     <div class="offer-top"><b>${o.title}</b><span class="offer-discount">-${o.discount_pct}%</span></div>
     <div class="offer-body">
       <h4>${o.property_type} · ${districtLabel(o.district)}</h4>
       <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} ${t.rooms_suffix}</div>
       ${priceHtml}
+      <button type="button" class="offer-details-btn">${t.detail_view_btn}</button>
     </div>
   </div>`;
 }
@@ -1636,8 +1646,10 @@ function openDetailModal(key){
   const contactPhone = o.marketer_phone || '966530500906';
   const waLink = `https://wa.me/${contactPhone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(o.title + ' — ' + o.city)}`;
   const mapButton = o.map_url ? `<a href="${o.map_url}" target="_blank" rel="noopener" class="btn btn-ghost">📍 ${t.detail_map}</a>` : '';
+  const imageHtml = o.image_url ? `<img src="${o.image_url}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.remove()">` : '';
 
   document.getElementById('detail-content').innerHTML = `
+    ${imageHtml}
     <div class="detail-header">
       <b>${escapeHtml(o.title)}</b>
       ${o.discount_pct ? `<span class="discount">-${o.discount_pct}%</span>` : ''}
@@ -1779,9 +1791,16 @@ function renderFaq(){
 async function loadCitiesFromDb(){
   if (!dbReady) return;
   try {
-    const { data: cities, error: e1 } = await withTimeout(supa.from('cities').select('name, price_per_sqm'));
+    // كانت هذه الاستعلامات تشتغل بالتتابع (واحد بعد الآخر) — لو تعطّل
+    // الاتصال، تضاعف وقت الانتظار الأقصى لضعفين. تشغيلهم بالتوازي يحل
+    // هذا مباشرة، بالإضافة لمهلة قصوى مشتركة أقصر (3 ثوانٍ بدل 4).
+    const [citiesRes, districtsRes] = await Promise.all([
+      withTimeout(supa.from('cities').select('name, price_per_sqm'), 3000),
+      withTimeout(supa.from('districts').select('name, cities(name)'), 3000),
+    ]);
+    const { data: cities, error: e1 } = citiesRes;
+    const { data: districts, error: e2 } = districtsRes;
     if (e1 || !cities || !cities.length) return;
-    const { data: districts, error: e2 } = await withTimeout(supa.from('districts').select('name, cities(name)'));
     if (e2) return;
 
     // Rebuild the shared maps from live data without discarding the local seed
