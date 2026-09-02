@@ -662,11 +662,6 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <p style="color:var(--text-600);font-size:14px;margin:0" data-i18n="license_text">همة المدينة العقارية مرخّصة رسمياً من الهيئة العامة للعقار بالمملكة العربية السعودية — رقم رخصة فال العقارية: 1200030428.</p>
       </div>
     </div>
-
-    <details style="margin-top:24px;max-width:640px">
-      <summary style="cursor:pointer;font-size:13px;color:var(--text-600);font-weight:700" data-i18n="tech_summary">للمهتمين بالتفاصيل التقنية</summary>
-      <p style="color:var(--text-600);font-size:13px;margin-top:8px" data-i18n="tech_detail">مبني على قاعدة بيانات Supabase مع صلاحيات وصول محكومة (RLS) — لا تُخزَّن أي بيانات في متصفحك فقط، بل مركزياً ومشتركة بين كل الزوار.</p>
-    </details>
   </div>
 </section>
 
@@ -924,7 +919,6 @@ const I18N = {
     vision_title:"رؤيتنا", vision_text:"أن نكون مرجعاً عقارياً موثوقاً في المدينة المنورة.",
     goal_title:"هدفنا", goal_text:"هدفنا ليس إتمام صفقة فحسب، بل بناء علاقة تبدأ بالثقة.",
     license_title:"الترخيص والاعتماد", license_text:"همة المدينة العقارية مرخّصة رسمياً من الهيئة العامة للعقار بالمملكة العربية السعودية — رقم رخصة فال العقارية: 1200030428.",
-    tech_summary:"للمهتمين بالتفاصيل التقنية", tech_detail:"مبني على قاعدة بيانات Supabase مع صلاحيات وصول محكومة (RLS) — لا تُخزَّن أي بيانات في متصفحك فقط، بل مركزياً ومشتركة بين كل الزوار.",
     contact_title:"تواصل معنا", contact_desc:"سؤال أو استفسار أو عقار تبي تناقشه؟ فريقنا يرد خلال ساعات العمل.",
     contact_location_label:"الموقع: ", contact_location:"المدينة المنورة، المملكة العربية السعودية",
     contact_phone_label:"الهاتف: ", f_name:"الاسم", f_inquiry_type:"نوع الاستفسار", f_message:"الرسالة",
@@ -1002,7 +996,6 @@ const I18N = {
     vision_title:"Our Vision", vision_text:"To be the trusted real estate reference in Madinah.",
     goal_title:"Our Goal", goal_text:"Not just closing a deal, but building trust that lasts.",
     license_title:"License & Accreditation", license_text:"Himmat Al Madinah Real Estate is officially licensed by Saudi Arabia's General Real Estate Authority — Fal Real Estate License No. 1200030428.",
-    tech_summary:"For those curious about the technical details", tech_detail:"Built on a Supabase database with row-level security policies (RLS) — data isn't just stored in your browser, it's centralized and shared across all visitors.",
     contact_title:"Contact Us", contact_desc:"A question, an inquiry, or a property you'd like to discuss? Our team replies during working hours.",
     contact_location_label:"Location: ", contact_location:"Madinah, Saudi Arabia",
     contact_phone_label:"Phone: ", f_name:"Name", f_inquiry_type:"Inquiry type", f_message:"Message",
@@ -1080,7 +1073,6 @@ const I18N = {
     vision_title:"Notre vision", vision_text:"Être la référence immobilière de confiance à Médine.",
     goal_title:"Notre objectif", goal_text:"Pas seulement conclure une affaire, mais bâtir la confiance.",
     license_title:"Licence et accréditation", license_text:"Himmat Al Madinah Immobilier est officiellement agréée par l'Autorité générale de l'immobilier d'Arabie Saoudite — Licence immobilière Fal n° 1200030428.",
-    tech_summary:"Pour les curieux des détails techniques", tech_detail:"Basé sur une base de données Supabase avec des politiques de sécurité (RLS) — les données ne sont pas stockées seulement dans votre navigateur, mais centralisées et partagées entre tous les visiteurs.",
     contact_title:"Contactez-nous", contact_desc:"Une question, une demande, ou un bien à discuter ? Notre équipe répond pendant les heures d'ouverture.",
     contact_location_label:"Emplacement : ", contact_location:"Médine, Arabie Saoudite",
     contact_phone_label:"Téléphone : ", f_name:"Nom", f_inquiry_type:"Type de demande", f_message:"Message",
@@ -2271,12 +2263,17 @@ window.addEventListener('load', async ()=>{
   populateTypeSelects();
   populateFilterSelects();
   renderServices();
-  await safely('renderOffers', () => renderOffers());
-  await safely('renderFeatured', renderFeatured);
   renderFaq();
   renderLegalPages();
-  await safely('renderAnalytics', renderAnalytics);
   runFinance();
+
+  // هذه الثلاثة مستقلة عن بعضها (كل وحدة تجيب بياناتها من جدول مختلف) —
+  // تشغيلها بالتوازي بدل التتابع يقلّل زمن التحميل الكلي بشكل ملموس.
+  await Promise.all([
+    safely('renderOffers', () => renderOffers()),
+    safely('renderFeatured', renderFeatured),
+    safely('renderAnalytics', renderAnalytics),
+  ]);
 
   const totalDistricts = Object.values(CITY_DISTRICTS).reduce((sum, list) => sum + list.length, 0);
   document.getElementById('stat-district-count').dataset.target = totalDistricts;
