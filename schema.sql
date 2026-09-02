@@ -94,6 +94,21 @@ create table if not exists offers (
 create index if not exists idx_offers_published on offers(is_published);
 
 -- ============================================================================
+-- 3.1) تفاصيل موسّعة للعقارات والعروض — وصف حر + معلومات نظامية (رخصة عقارية،
+--      رخصة إعلانية، بيانات المسوّق) لعرض صفحة تفاصيل كاملة لكل عقار/عرض.
+--      ALTER TABLE ... ADD COLUMN IF NOT EXISTS آمن يتكرر ولا يمسح بيانات موجودة.
+-- ============================================================================
+alter table offers add column if not exists marketer_name varchar(255);
+alter table offers add column if not exists marketer_phone varchar(20);
+alter table offers add column if not exists real_estate_license varchar(50);
+alter table offers add column if not exists ad_license varchar(50);
+
+alter table properties add column if not exists description text;
+alter table properties add column if not exists map_url text;
+alter table properties add column if not exists real_estate_license varchar(50);
+alter table properties add column if not exists ad_license varchar(50);
+
+-- ============================================================================
 -- 3.5) المدن والأحياء — مرجع مركزي يغذي كل قوائم المدينة/الحي في الموقع
 --      (التقييم، إضافة عقار، العقود). قابل للتوسعة: أي زائر يقدر يضيف مدينة
 --      أو حياً غير موجود من واجهة الموقع، فتُحفظ ويستفيد منها كل الزوار لاحقاً.
