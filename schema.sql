@@ -222,7 +222,9 @@ select * from (values
     ('شقة اقتصادية جاهزة للسكن', 'مكة المكرمة', 'العزيزية الشمالية', 'شقة في عمارة', 140, 3, 720000, 7, 669600, 'شقة نظيفة وجاهزة للسكن الفوري قرب الحرم المكي.', true),
     ('استراحة بمساحات خضراء', 'المدينة المنورة', 'أحد', 'استراحة', 800, null, 950000, 15, 807500, 'استراحة عائلية بمساحة واسعة ومرافق ترفيهية.', true)
 ) as v(title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, is_published)
-where not exists (select 1 from offers limit 1);
+where not exists (
+    select 1 from offers where title = 'فيلا فاخرة بتشطيب راقٍ' and city = 'الرياض'
+);
 
 with seeded_properties as (
     insert into properties (city, district, property_type, price, area_sqm, rooms, age_years, facade, district_grade)
@@ -234,7 +236,13 @@ with seeded_properties as (
         ('المدينة المنورة', 'العوالي', 'أرض', 480000, 400, null, null, 'شرقية', 'متوسط'),
         ('جدة', 'أبحر الشمالية', 'شقة في برج', 1050000, 190, 4, 0, 'شمالية', 'راقي')
     ) as v(city, district, property_type, price, area_sqm, rooms, age_years, facade, district_grade)
-    where not exists (select 1 from properties limit 1)
+    -- يتحقق تحديداً من عدم وجود هذه الدفعة بالذات (وليس "أي صف بالجدول")، حتى
+    -- لو كان الجدول يحتوي عقاراً حقيقياً مُدخلاً من زائر (حالة pending) مسبقاً —
+    -- هذا هو إصلاح الثغرة التي منعت بذر العقارات في المحاولة السابقة.
+    where not exists (
+        select 1 from properties
+        where district = 'الروابي' and price = 620000 and city = 'المدينة المنورة'
+    )
     returning id
 )
 update properties set status = 'approved' where id in (select id from seeded_properties);
@@ -480,17 +488,3 @@ create policy districts_public_read on districts
 -- (لا سياسات select/insert تُضاف هنا عمداً؛ RLS بدون سياسات = رفض كل شيء)
 
 -- ============================================================================
--- 10) جدولة فحص التنبيهات يومياً عبر pg_cron (بديل خادم Python الدائم)
---     يستدعي Edge Function عبر pg_net، فتبقى منطق الإرسال في مكان واحد آمن
--- ============================================================================
--- ملاحظة: يتطلب تفعيل إضافتي pg_cron و pg_net من لوحة Supabase أولاً.
--- select cron.schedule(
---     'daily-payment-reminders',
---     '0 6 * * *',  -- 6 صباحاً بتوقيت السيرفر يومياً
---     $$
---     select net.http_post(
---         url := 'https://<project-ref>.supabase.co/functions/v1/send-reminders',
---         headers := jsonb_build_object('Authorization', 'Bearer <service_role_key>')
---     );
---     $$
--- );
