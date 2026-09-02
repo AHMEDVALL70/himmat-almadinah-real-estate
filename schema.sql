@@ -243,6 +243,16 @@ where not exists (
     select 1 from offers where title = 'فيلا فاخرة بتشطيب راقٍ' and city = 'الرياض'
 );
 
+-- تحديث الصور على العروض الست حتى لو كانت موجودة مسبقاً من تشغيل سابق
+-- لهذا الملف (الإدراج فوق يتجاوزها وقتها بسبب الحارس، فهذا يضمن وصول
+-- الصور لها بأي الحالتين). آمن يتكرر تشغيله بلا أي أثر جانبي.
+update offers set image_url = 'https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'فيلا فاخرة بتشطيب راقٍ' and image_url is null;
+update offers set image_url = 'https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'شقة بإطلالة بحرية' and image_url is null;
+update offers set image_url = 'https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'أرض تجارية قريبة من الحرم' and image_url is null;
+update offers set image_url = 'https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'دبلكس عائلي واسع' and image_url is null;
+update offers set image_url = 'https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'شقة اقتصادية جاهزة للسكن' and image_url is null;
+update offers set image_url = 'https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'استراحة بمساحات خضراء' and image_url is null;
+
 with seeded_properties as (
     insert into properties (city, district, property_type, price, area_sqm, rooms, age_years, facade, district_grade)
     select * from (values
