@@ -107,6 +107,8 @@ alter table properties add column if not exists description text;
 alter table properties add column if not exists map_url text;
 alter table properties add column if not exists real_estate_license varchar(50);
 alter table properties add column if not exists ad_license varchar(50);
+alter table offers add column if not exists image_url text;
+alter table properties add column if not exists image_url text;
 
 -- ============================================================================
 -- 3.5) المدن والأحياء — مرجع مركزي يغذي كل قوائم المدينة/الحي في الموقع
@@ -228,15 +230,15 @@ create index if not exists idx_inquiries_status on inquiries(status);
 --      عند الإطلاق. آمن التكرار (on conflict do nothing عبر تحقق مسبق) —
 --      شغّل هذا القسم مرة واحدة؛ عدّل الأسعار والصور لاحقاً من لوحتكم.
 -- ============================================================================
-insert into offers (title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, is_published)
+insert into offers (title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, image_url, is_published)
 select * from (values
-    ('فيلا فاخرة بتشطيب راقٍ', 'الرياض', 'العليا', 'فيلا', 410, 6, 3850000, 8, 3542000, 'فيلا حديثة بتصميم عصري في أحد أرقى أحياء الرياض.', true),
-    ('شقة بإطلالة بحرية', 'جدة', 'الشاطئ', 'شقة في برج', 165, 3, 980000, 12, 862400, 'شقة عصرية بإطلالة مباشرة على البحر الأحمر.', true),
-    ('أرض تجارية قريبة من الحرم', 'المدينة المنورة', 'قباء', 'أرض', 500, null, 1500000, 5, 1425000, 'أرض بموقع استراتيجي قريبة من المسجد النبوي.', true),
-    ('دبلكس عائلي واسع', 'الرياض', 'النرجس', 'دبلكس', 320, 5, 2100000, 10, 1890000, 'دبلكس بتصميم عائلي في حي النرجس الحيوي.', true),
-    ('شقة اقتصادية جاهزة للسكن', 'مكة المكرمة', 'العزيزية الشمالية', 'شقة في عمارة', 140, 3, 720000, 7, 669600, 'شقة نظيفة وجاهزة للسكن الفوري قرب الحرم المكي.', true),
-    ('استراحة بمساحات خضراء', 'المدينة المنورة', 'أحد', 'استراحة', 800, null, 950000, 15, 807500, 'استراحة عائلية بمساحة واسعة ومرافق ترفيهية.', true)
-) as v(title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, is_published)
+    ('فيلا فاخرة بتشطيب راقٍ', 'الرياض', 'العليا', 'فيلا', 410, 6, 3850000, 8, 3542000, 'فيلا حديثة بتصميم عصري في أحد أرقى أحياء الرياض.', 'https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true),
+    ('شقة بإطلالة بحرية', 'جدة', 'الشاطئ', 'شقة في برج', 165, 3, 980000, 12, 862400, 'شقة عصرية بإطلالة مباشرة على البحر الأحمر.', 'https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true),
+    ('أرض تجارية قريبة من الحرم', 'المدينة المنورة', 'قباء', 'أرض', 500, null, 1500000, 5, 1425000, 'أرض بموقع استراتيجي قريبة من المسجد النبوي.', 'https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true),
+    ('دبلكس عائلي واسع', 'الرياض', 'النرجس', 'دبلكس', 320, 5, 2100000, 10, 1890000, 'دبلكس بتصميم عائلي في حي النرجس الحيوي.', 'https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true),
+    ('شقة اقتصادية جاهزة للسكن', 'مكة المكرمة', 'العزيزية الشمالية', 'شقة في عمارة', 140, 3, 720000, 7, 669600, 'شقة نظيفة وجاهزة للسكن الفوري قرب الحرم المكي.', 'https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940', true),
+    ('استراحة بمساحات خضراء', 'المدينة المنورة', 'أحد', 'استراحة', 800, null, 950000, 15, 807500, 'استراحة عائلية بمساحة واسعة ومرافق ترفيهية.', 'https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true)
+) as v(title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, image_url, is_published)
 where not exists (
     select 1 from offers where title = 'فيلا فاخرة بتشطيب راقٍ' and city = 'الرياض'
 );
