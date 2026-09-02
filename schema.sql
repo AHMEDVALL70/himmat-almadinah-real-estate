@@ -230,28 +230,303 @@ create index if not exists idx_inquiries_status on inquiries(status);
 --      عند الإطلاق. آمن التكرار (on conflict do nothing عبر تحقق مسبق) —
 --      شغّل هذا القسم مرة واحدة؛ عدّل الأسعار والصور لاحقاً من لوحتكم.
 -- ============================================================================
-insert into offers (title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, image_url, is_published)
+insert into offers (title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, image_url, map_url, marketer_name, marketer_phone, real_estate_license, is_published)
 select * from (values
-    ('فيلا فاخرة بتشطيب راقٍ', 'الرياض', 'العليا', 'فيلا', 410, 6, 3850000, 8, 3542000, 'فيلا حديثة بتصميم عصري في أحد أرقى أحياء الرياض.', 'https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true),
-    ('شقة بإطلالة بحرية', 'جدة', 'الشاطئ', 'شقة في برج', 165, 3, 980000, 12, 862400, 'شقة عصرية بإطلالة مباشرة على البحر الأحمر.', 'https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true),
-    ('أرض تجارية قريبة من الحرم', 'المدينة المنورة', 'قباء', 'أرض', 500, null, 1500000, 5, 1425000, 'أرض بموقع استراتيجي قريبة من المسجد النبوي.', 'https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true),
-    ('دبلكس عائلي واسع', 'الرياض', 'النرجس', 'دبلكس', 320, 5, 2100000, 10, 1890000, 'دبلكس بتصميم عائلي في حي النرجس الحيوي.', 'https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true),
-    ('شقة اقتصادية جاهزة للسكن', 'مكة المكرمة', 'العزيزية الشمالية', 'شقة في عمارة', 140, 3, 720000, 7, 669600, 'شقة نظيفة وجاهزة للسكن الفوري قرب الحرم المكي.', 'https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940', true),
-    ('استراحة بمساحات خضراء', 'المدينة المنورة', 'أحد', 'استراحة', 800, null, 950000, 15, 807500, 'استراحة عائلية بمساحة واسعة ومرافق ترفيهية.', 'https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940', true)
-) as v(title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, image_url, is_published)
+    ('فيلا فاخرة بتشطيب راقٍ', 'الرياض', 'العليا', 'فيلا', 410, 6, 3850000, 8, 3542000,
+     'فيلا مستقلة بتشطيب عصري راقٍ، دورين وملحق.
+المساحة: 410 م² — العمر: سنتان.
+
+المواصفات:
+٦ غرف نوم (منها غرفتان ماستر)
+٥ دورات مياه
+صالتان (رجال ونساء)
+مطبخ راكب مجهّز بالكامل
+غرفة خادمة بدورة مياه
+غرفة غسيل ومخزن
+
+المرافق الخارجية:
+مسبح خاص
+حديقة أمامية وخلفية
+موقف سيارات مغطّى لسيارتين
+
+المميزات:
+تكييف مركزي
+نظام أمان وكاميرات مراقبة
+مصعد داخلي
+
+مميزات الموقع:
+قريبة من طريق الملك فهد
+قرب مجمعات تجارية كبرى
+قرب مدارس ومساجد الحي',
+     'https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+     'https://www.google.com/maps/search/حي+العليا+الرياض', 'همة المدينة العقارية', '966530500906', '1200030428', true),
+
+    ('شقة بإطلالة بحرية', 'جدة', 'الشاطئ', 'شقة في برج', 165, 3, 980000, 12, 862400,
+     'شقة راقية بالدور السابع، إطلالة مباشرة وكاملة على البحر الأحمر.
+المساحة: 165 م² — العمر: سنة واحدة.
+
+المواصفات:
+٣ غرف نوم (منها غرفة ماستر بدورة مياه خاصة)
+٣ دورات مياه
+صالة معيشة مطلة على البحر
+مطبخ راكب
+غرفة غسيل
+
+المميزات:
+مكيّفة بالكامل (سبليت)
+مطبخ مجهز بالكامل
+موقف سيارة خاص بالقبو
+مصعدين بالبرج
+
+مميزات الموقع:
+على كورنيش جدة مباشرة
+قريبة من أبراج جدة الشهيرة
+قرب المطاعم والمقاهي على الواجهة البحرية',
+     'https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+     'https://www.google.com/maps/search/حي+الشاطئ+جدة', 'همة المدينة العقارية', '966530500906', '1200030428', true),
+
+    ('أرض تجارية قريبة من الحرم', 'المدينة المنورة', 'قباء', 'أرض', 500, null, 1500000, 5, 1425000,
+     'أرض تجارية بموقع استراتيجي، مخطّطة ومرخّصة للبناء التجاري.
+المساحة: 500 م² — واجهة تقريبية 20 م.
+كروكي وصك إلكتروني جاهزان.
+
+المواصفات:
+أرض مستطيلة الشكل، تصلح لمبنى تجاري أو سكني استثماري
+على شارعين (رئيسي وفرعي)
+جميع الخدمات متوفرة (كهرباء، مياه، صرف صحي)
+
+مميزات الموقع:
+على بعد دقائق من المسجد النبوي الشريف
+قريبة من حي قباء التاريخي
+قرب محطات نقل عام ومواقف زوار',
+     'https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+     'https://www.google.com/maps/search/حي+قباء+المدينة+المنورة', 'همة المدينة العقارية', '966530500906', '1200030428', true),
+
+    ('دبلكس عائلي واسع', 'الرياض', 'النرجس', 'دبلكس', 320, 5, 2100000, 10, 1890000,
+     'دبلكس عائلي بتصميم داخلي عصري، دورين مستقلين.
+المساحة: 320 م² — العمر: 3 سنوات.
+
+المواصفات:
+٥ غرف نوم (٢ بالدور الأرضي، ٣ بالدور العلوي)
+٤ دورات مياه
+صالتان (استقبال رجال ونساء)
+مطبخ راكب
+غرفة خادمة وغرفة سائق
+
+المرافق:
+درج داخلي بين الدورين
+فناء خلفي صغير
+موقفان مغطّيان
+
+مميزات الموقع:
+حي النرجس الحيوي شمال الرياض
+قرب مدارس عالمية ومجمعات تسوق
+سهولة الوصول لطريق الملك سلمان',
+     'https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+     'https://www.google.com/maps/search/حي+النرجس+الرياض', 'همة المدينة العقارية', '966530500906', '1200030428', true),
+
+    ('شقة اقتصادية جاهزة للسكن', 'مكة المكرمة', 'العزيزية الشمالية', 'شقة في عمارة', 140, 3, 720000, 7, 669600,
+     'شقة نظيفة وجاهزة للسكن الفوري، بالدور الثالث بعمارة سكنية هادئة.
+المساحة: 140 م² — العمر: 5 سنوات.
+
+المواصفات:
+٣ غرف نوم
+٢ دورة مياه
+صالة واحدة
+مطبخ (غير راكب)
+
+المميزات:
+تكييف سبليت بكل الغرف
+خزانات حائط بالغرف الرئيسية
+موقف سيارة بالشارع
+
+مميزات الموقع:
+قرب الحرم المكي (خدمة نقل من الحي)
+قريبة من أسواق العزيزية الشعبية
+محطات نقل عام قريبة',
+     'https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940',
+     'https://www.google.com/maps/search/العزيزية+الشمالية+مكة', 'همة المدينة العقارية', '966530500906', '1200030428', true),
+
+    ('استراحة بمساحات خضراء', 'المدينة المنورة', 'أحد', 'استراحة', 800, null, 950000, 15, 807500,
+     'استراحة عائلية بمساحة واسعة، مناسبة للتجمعات العائلية والمناسبات الصغيرة.
+المساحة الكلية: 800 م² (مبنى + حديقة) — العمر: 4 سنوات.
+
+المواصفات:
+صالة استقبال كبيرة
+٢ دورة مياه
+مطبخ خارجي ومجلس شاي
+غرفة نوم واحدة للضيافة
+
+المرافق الخارجية:
+حديقة خضراء واسعة
+مسبح صغير
+ملعب أطفال
+مواقف سيارات متعددة
+
+مميزات الموقع:
+قريبة من جبل أحد
+أجواء هادئة بعيدة عن الزحام
+سهولة الوصول من طريق الأمير عبدالمجيد',
+     'https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+     'https://www.google.com/maps/search/حي+أحد+المدينة+المنورة', 'همة المدينة العقارية', '966530500906', '1200030428', true)
+) as v(title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, image_url, map_url, marketer_name, marketer_phone, real_estate_license, is_published)
 where not exists (
     select 1 from offers where title = 'فيلا فاخرة بتشطيب راقٍ' and city = 'الرياض'
 );
 
--- تحديث الصور على العروض الست حتى لو كانت موجودة مسبقاً من تشغيل سابق
--- لهذا الملف (الإدراج فوق يتجاوزها وقتها بسبب الحارس، فهذا يضمن وصول
--- الصور لها بأي الحالتين). آمن يتكرر تشغيله بلا أي أثر جانبي.
-update offers set image_url = 'https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'فيلا فاخرة بتشطيب راقٍ' and image_url is null;
-update offers set image_url = 'https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'شقة بإطلالة بحرية' and image_url is null;
-update offers set image_url = 'https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'أرض تجارية قريبة من الحرم' and image_url is null;
-update offers set image_url = 'https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'دبلكس عائلي واسع' and image_url is null;
-update offers set image_url = 'https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'شقة اقتصادية جاهزة للسكن' and image_url is null;
-update offers set image_url = 'https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' where title = 'استراحة بمساحات خضراء' and image_url is null;
+-- تحديث الحقول الغنية (الوصف، الصورة، الخريطة، بيانات المسوّق) على العروض
+-- الست حتى لو كانت موجودة مسبقاً من تشغيل سابق لهذا الملف (الإدراج فوق
+-- يتجاوزها وقتها بسبب الحارس، فهذا يضمن وصول التحديثات لها بأي الحالتين).
+-- آمن يتكرر تشغيله بلا أي أثر جانبي.
+update offers set
+    description = 'فيلا مستقلة بتشطيب عصري راقٍ، دورين وملحق.
+المساحة: 410 م² — العمر: سنتان.
+
+المواصفات:
+٦ غرف نوم (منها غرفتان ماستر)
+٥ دورات مياه
+صالتان (رجال ونساء)
+مطبخ راكب مجهّز بالكامل
+غرفة خادمة بدورة مياه
+غرفة غسيل ومخزن
+
+المرافق الخارجية:
+مسبح خاص
+حديقة أمامية وخلفية
+موقف سيارات مغطّى لسيارتين
+
+المميزات:
+تكييف مركزي
+نظام أمان وكاميرات مراقبة
+مصعد داخلي
+
+مميزات الموقع:
+قريبة من طريق الملك فهد
+قرب مجمعات تجارية كبرى
+قرب مدارس ومساجد الحي',
+    image_url = 'https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+    map_url = 'https://www.google.com/maps/search/حي+العليا+الرياض',
+    marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
+where title = 'فيلا فاخرة بتشطيب راقٍ';
+
+update offers set
+    description = 'شقة راقية بالدور السابع، إطلالة مباشرة وكاملة على البحر الأحمر.
+المساحة: 165 م² — العمر: سنة واحدة.
+
+المواصفات:
+٣ غرف نوم (منها غرفة ماستر بدورة مياه خاصة)
+٣ دورات مياه
+صالة معيشة مطلة على البحر
+مطبخ راكب
+غرفة غسيل
+
+المميزات:
+مكيّفة بالكامل (سبليت)
+مطبخ مجهز بالكامل
+موقف سيارة خاص بالقبو
+مصعدين بالبرج
+
+مميزات الموقع:
+على كورنيش جدة مباشرة
+قريبة من أبراج جدة الشهيرة
+قرب المطاعم والمقاهي على الواجهة البحرية',
+    image_url = 'https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+    map_url = 'https://www.google.com/maps/search/حي+الشاطئ+جدة',
+    marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
+where title = 'شقة بإطلالة بحرية';
+
+update offers set
+    description = 'أرض تجارية بموقع استراتيجي، مخطّطة ومرخّصة للبناء التجاري.
+المساحة: 500 م² — واجهة تقريبية 20 م.
+كروكي وصك إلكتروني جاهزان.
+
+المواصفات:
+أرض مستطيلة الشكل، تصلح لمبنى تجاري أو سكني استثماري
+على شارعين (رئيسي وفرعي)
+جميع الخدمات متوفرة (كهرباء، مياه، صرف صحي)
+
+مميزات الموقع:
+على بعد دقائق من المسجد النبوي الشريف
+قريبة من حي قباء التاريخي
+قرب محطات نقل عام ومواقف زوار',
+    image_url = 'https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+    map_url = 'https://www.google.com/maps/search/حي+قباء+المدينة+المنورة',
+    marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
+where title = 'أرض تجارية قريبة من الحرم';
+
+update offers set
+    description = 'دبلكس عائلي بتصميم داخلي عصري، دورين مستقلين.
+المساحة: 320 م² — العمر: 3 سنوات.
+
+المواصفات:
+٥ غرف نوم (٢ بالدور الأرضي، ٣ بالدور العلوي)
+٤ دورات مياه
+صالتان (استقبال رجال ونساء)
+مطبخ راكب
+غرفة خادمة وغرفة سائق
+
+المرافق:
+درج داخلي بين الدورين
+فناء خلفي صغير
+موقفان مغطّيان
+
+مميزات الموقع:
+حي النرجس الحيوي شمال الرياض
+قرب مدارس عالمية ومجمعات تسوق
+سهولة الوصول لطريق الملك سلمان',
+    image_url = 'https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+    map_url = 'https://www.google.com/maps/search/حي+النرجس+الرياض',
+    marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
+where title = 'دبلكس عائلي واسع';
+
+update offers set
+    description = 'شقة نظيفة وجاهزة للسكن الفوري، بالدور الثالث بعمارة سكنية هادئة.
+المساحة: 140 م² — العمر: 5 سنوات.
+
+المواصفات:
+٣ غرف نوم
+٢ دورة مياه
+صالة واحدة
+مطبخ (غير راكب)
+
+المميزات:
+تكييف سبليت بكل الغرف
+خزانات حائط بالغرف الرئيسية
+موقف سيارة بالشارع
+
+مميزات الموقع:
+قرب الحرم المكي (خدمة نقل من الحي)
+قريبة من أسواق العزيزية الشعبية
+محطات نقل عام قريبة',
+    image_url = 'https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940',
+    map_url = 'https://www.google.com/maps/search/العزيزية+الشمالية+مكة',
+    marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
+where title = 'شقة اقتصادية جاهزة للسكن';
+
+update offers set
+    description = 'استراحة عائلية بمساحة واسعة، مناسبة للتجمعات العائلية والمناسبات الصغيرة.
+المساحة الكلية: 800 م² (مبنى + حديقة) — العمر: 4 سنوات.
+
+المواصفات:
+صالة استقبال كبيرة
+٢ دورة مياه
+مطبخ خارجي ومجلس شاي
+غرفة نوم واحدة للضيافة
+
+المرافق الخارجية:
+حديقة خضراء واسعة
+مسبح صغير
+ملعب أطفال
+مواقف سيارات متعددة
+
+مميزات الموقع:
+قريبة من جبل أحد
+أجواء هادئة بعيدة عن الزحام
+سهولة الوصول من طريق الأمير عبدالمجيد',
+    image_url = 'https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+    map_url = 'https://www.google.com/maps/search/حي+أحد+المدينة+المنورة',
+    marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
+where title = 'استراحة بمساحات خضراء';
 
 with seeded_properties as (
     insert into properties (city, district, property_type, price, area_sqm, rooms, age_years, facade, district_grade)
@@ -273,6 +548,19 @@ with seeded_properties as (
     returning id
 )
 update properties set status = 'approved' where id in (select id from seeded_properties);
+
+-- يضمن اعتماد العقارات الست الأساسية حتى لو تجاهلها الإدراج فوق (لأنها
+-- موجودة أصلاً من تشغيل سابق) — هذا هو سبب بقاء "التحليلات" فارغة رغم
+-- ظهور العروض. آمن يتكرر تشغيله بلا أي أثر جانبي.
+update properties set status = 'approved'
+where status != 'approved' and (
+    (district = 'الروابي' and price = 620000 and city = 'المدينة المنورة') or
+    (district = 'النسيم' and price = 2300000 and city = 'مكة المكرمة') or
+    (district = 'الصفا' and price = 890000 and city = 'جدة') or
+    (district = 'الياسمين' and price = 1750000 and city = 'الرياض') or
+    (district = 'العوالي' and price = 480000 and city = 'المدينة المنورة') or
+    (district = 'أبحر الشمالية' and price = 1050000 and city = 'جدة')
+);
 
 -- ============================================================================
 -- 4) العقود
