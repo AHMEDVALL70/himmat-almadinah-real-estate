@@ -173,6 +173,7 @@ tr:hover td{background:#fafbfc}
           <div class="field"><label>نسبة الخصم %</label><input id="offer-discount" type="number" min="0" max="100" value="0"></div>
           <div class="field"><label>السعر النهائي (ر.س)</label><input id="offer-price-final" type="number"></div>
           <div class="field"><label>رابط الخريطة</label><input id="offer-map-url" type="url" placeholder="https://maps.app.goo.gl/..."></div>
+          <div class="field"><label>رابط صورة العقار</label><input id="offer-image-url" type="url" placeholder="https://images.pexels.com/..."></div>
           <div class="field"><label>اسم المسوّق</label><input id="offer-marketer-name" type="text"></div>
           <div class="field"><label>جوال المسوّق</label><input id="offer-marketer-phone" type="text" placeholder="9665xxxxxxxx"></div>
           <div class="field"><label>رقم الرخصة العقارية</label><input id="offer-re-license" type="text"></div>
@@ -414,6 +415,7 @@ function readOfferForm(){
     discount_pct: parseInt(document.getElementById('offer-discount').value, 10) || 0,
     price_final: parseFloat(document.getElementById('offer-price-final').value) || null,
     map_url: document.getElementById('offer-map-url').value.trim() || null,
+    image_url: document.getElementById('offer-image-url').value.trim() || null,
     marketer_name: document.getElementById('offer-marketer-name').value.trim() || null,
     marketer_phone: document.getElementById('offer-marketer-phone').value.trim() || null,
     real_estate_license: document.getElementById('offer-re-license').value.trim() || null,
@@ -425,7 +427,7 @@ function readOfferForm(){
 function clearOfferForm(){
   document.getElementById('offer-edit-id').value = '';
   ['offer-title','offer-city','offer-district','offer-type','offer-area','offer-rooms',
-   'offer-price-original','offer-price-final','offer-map-url','offer-marketer-name',
+   'offer-price-original','offer-price-final','offer-map-url','offer-image-url','offer-marketer-name',
    'offer-marketer-phone','offer-re-license','offer-ad-license','offer-description'].forEach(id=>{
     document.getElementById(id).value = '';
   });
@@ -508,6 +510,7 @@ function editOffer(id){
   document.getElementById('offer-discount').value = o.discount_pct || 0;
   document.getElementById('offer-price-final').value = o.price_final || '';
   document.getElementById('offer-map-url').value = o.map_url || '';
+  document.getElementById('offer-image-url').value = o.image_url || '';
   document.getElementById('offer-marketer-name').value = o.marketer_name || '';
   document.getElementById('offer-marketer-phone').value = o.marketer_phone || '';
   document.getElementById('offer-re-license').value = o.real_estate_license || '';
