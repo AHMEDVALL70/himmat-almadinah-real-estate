@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة التحكم — همة المدينة العقارية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=Almarai:wght@400;700&display=swap" rel="stylesheet">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --navy-900:#072a47; --navy-800:#0b3d66; --navy-700:#124d7d;
+  --gold-500:#c9a227; --gold-100:#f4e9c8; --sand-100:#f7f5ef;
+  --surface:#ffffff; --text-900:#152435; --text-600:#546678; --line:#e3e8ee;
+  --ok:#2f7a4f; --warn:#a5590f; --danger:#b3352c; --radius:14px;
+  --shadow:0 10px 30px rgba(7,42,71,.08);
+  --font-display:'Tajawal',sans-serif; --font-body:'Almarai',sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font-body);color:var(--text-900);background:var(--sand-100)}
+h1,h2,h3,.display{font-family:var(--font-display)}
+button{font-family:inherit;cursor:pointer;border:none}
+.btn{padding:9px 18px;border-radius:9px;font-weight:700;font-size:13.5px}
+.btn-primary{background:var(--navy-900);color:#fff}
+.btn-primary:hover{background:var(--navy-700)}
+.btn-ok{background:#e1f3e6;color:var(--ok)}
+.btn-danger{background:#fbe4e1;color:var(--danger)}
+.btn-ghost{background:var(--surface);border:1px solid var(--line);color:var(--text-900)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+input,select,textarea{font-family:inherit;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);font-size:14px;width:100%}
+
+/* Login screen */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+#login-box{width:100%;max-width:360px;padding:32px}
+#login-box h1{font-size:20px;margin:0 0 6px}
+#login-box p{color:var(--text-600);font-size:13px;margin:0 0 20px}
+#login-box .field{margin-bottom:14px}
+#login-box label{font-size:13px;font-weight:700;color:var(--text-600);display:block;margin-bottom:5px}
+#login-msg{font-size:13px;margin-top:10px;min-height:18px}
+
+/* App shell */
+#app{display:none}
+header.admin-bar{background:var(--navy-900);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+header.admin-bar .brand{font-family:var(--font-display);font-weight:900;font-size:16px}
+header.admin-bar .right{display:flex;align-items:center;gap:14px;font-size:13px}
+.tabs-row{display:flex;gap:8px;padding:16px 24px 0;background:var(--surface);border-bottom:1px solid var(--line)}
+.tab-btn{padding:12px 18px;font-weight:700;font-size:14px;color:var(--text-600);background:transparent;border-bottom:3px solid transparent}
+.tab-btn.active{color:var(--navy-900);border-color:var(--gold-500)}
+main{padding:24px;max-width:1200px;margin:0 auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px}
+.stat-card{padding:18px}
+.stat-card b{display:block;font-size:26px;font-family:var(--font-display);color:var(--navy-900)}
+.stat-card span{font-size:12.5px;color:var(--text-600)}
+
+.filter-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-row select{width:auto;min-width:140px}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--text-600);font-weight:700;background:var(--sand-100)}
+tr:hover td{background:#fafbfc}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700}
+.badge-pending{background:#fdf3e7;color:var(--warn)}
+.badge-approved{background:#e1f3e6;color:var(--ok)}
+.badge-rejected{background:#fbe4e1;color:var(--danger)}
+.badge-new{background:#eaf1f8;color:var(--navy-800)}
+.badge-contacted{background:#fdf3e7;color:var(--warn)}
+.badge-closed{background:#eee;color:var(--text-600)}
+.actions-cell{display:flex;gap:6px}
+.empty-row td{text-align:center;color:var(--text-600);padding:28px}
+#toast{position:fixed;bottom:20px;left:20px;background:var(--navy-900);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;display:none;z-index:50}
+</style>
+</head>
+<body>
+
+<!-- ==========================================================================
+     Login — simple Supabase Auth (email + password), not a custom role system.
+     Create the one admin account from: Supabase Dashboard → Authentication →
+     Users → Add user. This login is the UI convenience; the real protection
+     lives in the RLS policies on the database (see supabase/schema.sql §9.5).
+     ========================================================================== -->
+<div id="login-screen">
+  <div class="card" id="login-box">
+    <h1>لوحة التحكم</h1>
+    <p>همة المدينة العقارية — دخول المدير فقط</p>
+    <div class="field">
+      <label>البريد الإلكتروني</label>
+      <input id="login-email" type="email" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>كلمة المرور</label>
+      <input id="login-password" type="password" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" id="btn-login" style="width:100%">دخول</button>
+    <p id="login-msg"></p>
+  </div>
+</div>
+
+<!-- ========================================================================== -->
+<div id="app">
+  <header class="admin-bar">
+    <span class="brand">همة المدينة العقارية — لوحة التحكم</span>
+    <div class="right">
+      <span id="admin-email"></span>
+      <button class="btn btn-ghost" id="btn-logout">تسجيل خروج</button>
+    </div>
+  </header>
+
+  <div class="tabs-row">
+    <button class="tab-btn active" data-tab="dashboard">نظرة عامة</button>
+    <button class="tab-btn" data-tab="properties">العقارات</button>
+    <button class="tab-btn" data-tab="inquiries">الاستفسارات</button>
+  </div>
+
+  <main>
+    <!-- Dashboard -->
+    <section class="tab-panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="card stat-card"><b id="s-pending">—</b><span>عقارات بانتظار المراجعة</span></div>
+        <div class="card stat-card"><b id="s-approved">—</b><span>عقارات معتمدة</span></div>
+        <div class="card stat-card"><b id="s-rejected">—</b><span>عقارات مرفوضة</span></div>
+        <div class="card stat-card"><b id="s-new-inquiries">—</b><span>استفسارات جديدة</span></div>
+      </div>
+      <div class="card" style="padding:18px">
+        <h3 style="margin:0 0 12px">آخر العقارات المضافة</h3>
+        <table>
+          <thead><tr><th>المدينة</th><th>الحي</th><th>النوع</th><th>السعر</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+          <tbody id="dashboard-recent"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Properties -->
+    <section class="tab-panel" id="panel-properties">
+      <div class="filter-row">
+        <select id="prop-filter">
+          <option value="pending">بانتظار المراجعة</option>
+          <option value="approved">معتمدة</option>
+          <option value="rejected">مرفوضة</option>
+          <option value="all">الكل</option>
+        </select>
+        <button class="btn btn-ghost" id="btn-refresh-props">تحديث</button>
+      </div>
+      <div class="card" style="padding:0;overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>المدينة</th><th>الحي</th><th>النوع</th><th>السعر</th><th>المساحة</th>
+            <th>غرف</th><th>الحالة</th><th>وسيلة تواصل</th><th>إجراءات</th>
+          </tr></thead>
+          <tbody id="properties-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Inquiries -->
+    <section class="tab-panel" id="panel-inquiries">
+      <div class="filter-row">
+        <select id="inq-filter">
+          <option value="new">جديدة</option>
+          <option value="contacted">تم التواصل</option>
+          <option value="closed">مغلقة</option>
+          <option value="all">الكل</option>
+        </select>
+        <button class="btn btn-ghost" id="btn-refresh-inq">تحديث</button>
+      </div>
+      <div class="card" style="padding:0;overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>الاسم</th><th>وسيلة التواصل</th><th>النوع</th><th>الرسالة</th>
+            <th>الحالة</th><th>التاريخ</th><th>إجراءات</th>
+          </tr></thead>
+          <tbody id="inquiries-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================================
+   Config — same project as the public site (index.html)
+   ========================================================================== */
+const SUPABASE_URL = "https://wlebcvwsleoleodjtrcf.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_KhUpsOF0OxVQWyWLakXx2g_yDsUlnxV";
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function money(n){ return Math.round(n || 0).toLocaleString('en-US'); }
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(()=> t.style.display = 'none', 2500);
+}
+
+/* ============================================================================
+   Auth
+   ========================================================================== */
+async function checkSession(){
+  const { data: { session } } = await supa.auth.getSession();
+  if (session){
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('admin-email').textContent = session.user.email;
+    await loadDashboard();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+}
+
+document.getElementById('btn-login').addEventListener('click', async ()=>{
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const msg = document.getElementById('login-msg');
+  msg.style.color = 'var(--text-600)';
+  msg.textContent = 'جاري الدخول...';
+  try {
+    const { error } = await supa.auth.signInWithPassword({ email, password });
+    if (error){
+      msg.style.color = 'var(--danger)';
+      msg.textContent = '⚠️ ' + error.message;
+    } else {
+      msg.textContent = '';
+      await checkSession();
+    }
+  } catch (e) {
+    msg.style.color = 'var(--danger)';
+    msg.textContent = '⚠️ تعذّر الاتصال بالخادم. تحقق من اتصالك وحاول مجدداً.';
+    console.error(e);
+  }
+});
+document.getElementById('login-password').addEventListener('keydown', e=>{
+  if (e.key === 'Enter') document.getElementById('btn-login').click();
+});
+document.getElementById('btn-logout').addEventListener('click', async ()=>{
+  await supa.auth.signOut();
+  checkSession();
+});
+
+/* ============================================================================
+   Tabs
+   ========================================================================== */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'properties') loadProperties();
+    if (btn.dataset.tab === 'inquiries') loadInquiries();
+  });
+});
+
+/* ============================================================================
+   Dashboard
+   ========================================================================== */
+async function loadDashboard(){
+  try {
+    const [pending, approved, rejected, newInq, recent] = await Promise.all([
+      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
+      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'rejected'),
+      supa.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+      supa.from('properties').select('*').order('created_at', { ascending: false }).limit(8),
+    ]);
+    document.getElementById('s-pending').textContent = pending.count ?? 0;
+    document.getElementById('s-approved').textContent = approved.count ?? 0;
+    document.getElementById('s-rejected').textContent = rejected.count ?? 0;
+    document.getElementById('s-new-inquiries').textContent = newInq.count ?? 0;
+
+    const tbody = document.getElementById('dashboard-recent');
+    const rows = recent.data || [];
+    tbody.innerHTML = rows.length ? rows.map(p => `
+      <tr>
+        <td>${p.city}</td><td>${p.district}</td><td>${p.property_type}</td>
+        <td>${money(p.price)} ر.س</td>
+        <td><span class="badge badge-${p.status}">${statusLabel(p.status)}</span></td>
+        <td>${new Date(p.created_at).toLocaleDateString('ar-SA')}</td>
+      </tr>`).join('') : `<tr class="empty-row"><td colspan="6">لا توجد عقارات بعد.</td></tr>`;
+  } catch (e) {
+    console.error('loadDashboard failed', e);
+    showToast('⚠️ تعذّر تحميل لوحة القيادة');
+  }
+}
+
+function statusLabel(s){
+  return { pending:'بانتظار المراجعة', approved:'معتمد', rejected:'مرفوض',
+           new:'جديد', contacted:'تم التواصل', closed:'مغلق' }[s] || s;
+}
+
+/* ============================================================================
+   Properties moderation
+   ========================================================================== */
+async function loadProperties(){
+  const filter = document.getElementById('prop-filter').value;
+  const tbody = document.getElementById('properties-tbody');
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="9">جاري التحميل...</td></tr>`;
+  try {
+    let query = supa.from('properties').select('*').order('created_at', { ascending: false }).limit(100);
+    if (filter !== 'all') query = query.eq('status', filter);
+    const { data, error } = await query;
+    if (error) throw error;
+    if (!data || !data.length){
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="9">لا توجد عقارات مطابقة.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(p => `
+      <tr>
+        <td>${p.city}</td><td>${p.district}</td><td>${p.property_type}</td>
+        <td>${money(p.price)} ر.س</td><td>${p.area_sqm} م²</td><td>${p.rooms ?? '—'}</td>
+        <td><span class="badge badge-${p.status}">${statusLabel(p.status)}</span></td>
+        <td>${p.submitted_by_contact || '—'}</td>
+        <td class="actions-cell">
+          ${p.status !== 'approved' ? `<button class="btn btn-ok" onclick="setPropertyStatus('${p.id}','approved')">اعتماد</button>` : ''}
+          ${p.status !== 'rejected' ? `<button class="btn btn-danger" onclick="setPropertyStatus('${p.id}','rejected')">رفض</button>` : ''}
+          <button class="btn btn-ghost" onclick="deleteProperty('${p.id}')">حذف</button>
+        </td>
+      </tr>`).join('');
+  } catch (e) {
+    console.error('loadProperties failed', e);
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="9">⚠️ تعذّر تحميل العقارات.</td></tr>`;
+  }
+}
+document.getElementById('prop-filter').addEventListener('change', loadProperties);
+document.getElementById('btn-refresh-props').addEventListener('click', loadProperties);
+
+async function setPropertyStatus(id, status){
+  try {
+    const { error } = await supa.from('properties').update({ status }).eq('id', id);
+    if (error) throw error;
+    showToast(status === 'approved' ? '✅ تم اعتماد العقار' : '✅ تم رفض العقار');
+    loadProperties();
+    loadDashboard();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر تحديث الحالة: ' + e.message);
+  }
+}
+
+async function deleteProperty(id){
+  if (!confirm('حذف هذا العقار نهائياً؟ لا يمكن التراجع.')) return;
+  try {
+    const { error } = await supa.from('properties').delete().eq('id', id);
+    if (error) throw error;
+    showToast('🗑️ تم الحذف');
+    loadProperties();
+    loadDashboard();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر الحذف: ' + e.message);
+  }
+}
+
+/* ============================================================================
+   Inquiries
+   ========================================================================== */
+async function loadInquiries(){
+  const filter = document.getElementById('inq-filter').value;
+  const tbody = document.getElementById('inquiries-tbody');
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="7">جاري التحميل...</td></tr>`;
+  try {
+    let query = supa.from('inquiries').select('*').order('created_at', { ascending: false }).limit(100);
+    if (filter !== 'all') query = query.eq('status', filter);
+    const { data, error } = await query;
+    if (error) throw error;
+    if (!data || !data.length){
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">لا توجد استفسارات مطابقة.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(i => `
+      <tr>
+        <td>${i.full_name}</td><td>${i.email || i.phone || '—'}</td><td>${i.inquiry_type || '—'}</td>
+        <td style="white-space:normal;max-width:260px">${i.message || '—'}</td>
+        <td><span class="badge badge-${i.status}">${statusLabel(i.status)}</span></td>
+        <td>${new Date(i.created_at).toLocaleDateString('ar-SA')}</td>
+        <td class="actions-cell">
+          ${i.status !== 'contacted' ? `<button class="btn btn-ghost" onclick="setInquiryStatus('${i.id}','contacted')">تم التواصل</button>` : ''}
+          ${i.status !== 'closed' ? `<button class="btn btn-ghost" onclick="setInquiryStatus('${i.id}','closed')">إغلاق</button>` : ''}
+        </td>
+      </tr>`).join('');
+  } catch (e) {
+    console.error('loadInquiries failed', e);
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">⚠️ تعذّر تحميل الاستفسارات.</td></tr>`;
+  }
+}
+document.getElementById('inq-filter').addEventListener('change', loadInquiries);
+document.getElementById('btn-refresh-inq').addEventListener('click', loadInquiries);
+
+async function setInquiryStatus(id, status){
+  try {
+    const { error } = await supa.from('inquiries').update({ status }).eq('id', id);
+    if (error) throw error;
+    showToast('✅ تم التحديث');
+    loadInquiries();
+    loadDashboard();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر التحديث: ' + e.message);
+  }
+}
+
+/* ============================================================================
+   Boot
+   ========================================================================== */
+checkSession();
+</script>
+</body>
+</html>
