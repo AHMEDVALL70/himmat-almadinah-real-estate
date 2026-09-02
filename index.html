@@ -764,7 +764,6 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
     </div>
     <div class="bottom">
       <span>© 2026 <span data-i18n="brand">همة المدينة العقارية</span> · <span data-i18n="footer_license">رخصة فال العقارية: 1200030428</span></span>
-      <span id="lang-credit">Built with an honest AI-labeling policy</span>
     </div>
   </div>
 </footer>
@@ -1944,21 +1943,29 @@ function prefersReducedMotion(){
 
 function animateCounters(){
   document.querySelectorAll('#home .counter').forEach(el=>{
-    const target = parseFloat(el.dataset.target) || 0;
-    const suffix = el.dataset.suffix || '';
-    if (prefersReducedMotion()){
-      el.textContent = target + suffix;
-      return;
+    try {
+      const target = parseFloat(el.dataset.target) || 0;
+      const suffix = el.dataset.suffix || '';
+      if (prefersReducedMotion() || typeof requestAnimationFrame !== 'function' || typeof performance === 'undefined'){
+        el.textContent = target + suffix;
+        return;
+      }
+      const duration = 900;
+      const start = performance.now();
+      function tick(now){
+        try {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(target * eased) + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+        } catch (e) {
+          el.textContent = target + suffix; // guarantee the final value lands even if the animation itself fails mid-flight
+        }
+      }
+      requestAnimationFrame(tick);
+    } catch (e) {
+      console.error('animateCounters: failed for one stat, continuing with the rest.', e);
     }
-    const duration = 900;
-    const start = performance.now();
-    function tick(now){
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = Math.round(target * eased) + suffix;
-      if (progress < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
   });
 }
 
