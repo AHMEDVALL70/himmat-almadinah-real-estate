@@ -22,18 +22,18 @@
   --navy-900:#072a47;
   --navy-800:#0b3d66;
   --navy-700:#124d7d;
-  --gold-500:#c9a227;
+  --gold-500:#E0A96D;
   --gold-100:#f4e9c8;
-  --sand-100:#f7f5ef;
-  --surface:#ffffff;
-  --text-900:#152435;
-  --text-600:#546678;
-  --line:#e3e8ee;
-  --ok:#2f7a4f;
-  --warn:#a5590f;
-  --danger:#b3352c;
+  --sand-100:#1A2238;
+  --surface:#25324E;
+  --text-900:#FFFFFF;
+  --text-600:#8D99AE;
+  --line:rgba(255,255,255,.12);
+  --ok:#4fae76;
+  --warn:#e0a96d;
+  --danger:#e2685c;
   --radius:14px;
-  --shadow:0 10px 30px rgba(7,42,71,.08);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
   --font-display:'Tajawal',sans-serif;
   --font-body:'Almarai',sans-serif;
 }
@@ -52,7 +52,7 @@ section{padding:44px 0 60px}
 .section-head{max-width:640px;margin-bottom:28px}
 .section-head h2{font-size:clamp(26px,3vw,34px);margin:0 0 10px}
 .section-head p{color:var(--text-600);margin:0}
-.eyebrow{color:var(--navy-700);font-weight:700;font-size:14px;margin:0 0 8px}
+.eyebrow{color:var(--gold-500);font-weight:700;font-size:14px;margin:0 0 8px}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:10px;font-weight:700;font-size:15px;transition:transform .15s ease, box-shadow .15s ease}
 .btn:hover{transform:translateY(-2px)}
 .btn-primary{background:var(--gold-500);color:var(--navy-900)}
@@ -78,24 +78,29 @@ section{padding:44px 0 60px}
 .about-card:hover .about-icon{transform:scale(1.12) rotate(-4deg)}
 .about-card:hover{transform:translateY(-6px)}
 
+/* Fade-up on scroll — cards/sections ease in as the visitor scrolls to them */
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity .55s ease,transform .55s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  .fade-up{opacity:1 !important;transform:none !important}
 }
 .grid{display:grid;gap:24px}
 .badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700}
-.badge-warn{background:#fbe9d7;color:var(--warn)}
-.badge-ok{background:#e1f3e6;color:var(--ok)}
-.badge-info{background:var(--gold-100);color:var(--navy-900)}
+.badge-warn{background:rgba(224,169,109,.15);color:#E0A96D}
+.badge-ok{background:rgba(79,174,118,.18);color:#6fd99a}
+.badge-info{background:var(--gold-100);color:#0B132B}
 .notice{border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.6}
-.notice-warn{background:#fdf3e7;color:#7a4a0c;border:1px solid #f2d9ae}
-.notice-info{background:#eaf1f8;color:var(--navy-800);border:1px solid #cfe0ee}
+.notice-warn{background:rgba(224,169,109,.12);color:#E0A96D;border:1px solid rgba(224,169,109,.35)}
+.notice-info{background:rgba(37,50,78,.6);color:var(--text-600);border:1px solid var(--line)}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .field label{font-size:13px;font-weight:700;color:var(--text-600)}
 .field input,.field select,.field textarea{
   padding:11px 13px;border-radius:9px;border:1.5px solid var(--line);
-  font-family:inherit;font-size:15px;background:#fff;color:var(--text-900)
+  font-family:inherit;font-size:15px;background:var(--surface);color:var(--text-900)
 }
-.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--navy-700);outline-offset:1px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--gold-500);outline-offset:1px}
 .grid-2{grid-template-columns:repeat(2,1fr)}
 .grid-3{grid-template-columns:repeat(3,1fr)}
 .grid-4{grid-template-columns:repeat(4,1fr)}
@@ -105,23 +110,23 @@ th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line)}
 th{color:var(--text-600);font-weight:700}
 
 /* Header */
-header.site{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.site{position:sticky;top:0;z-index:50;background:rgba(26,34,56,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .nav-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;flex-wrap:wrap;row-gap:10px}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:900;font-size:17px;color:var(--navy-900);white-space:nowrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:900;font-size:17px;color:var(--text-900);white-space:nowrap}
 .brand img{width:38px;height:38px;border-radius:8px;object-fit:cover;flex-shrink:0}
 
 nav.links{display:flex;gap:16px;font-size:13px;font-weight:700;color:var(--text-600);flex-wrap:wrap;align-items:center;padding-inline-start:18px;border-inline-start:1px solid var(--line);margin-inline-start:4px}
 nav.links a{white-space:nowrap}
-nav.links a:hover{color:var(--navy-900)}
+nav.links a:hover{color:var(--gold-500)}
 nav.links a.active{color:var(--gold-500);position:relative}
 nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16px;height:2px;background:var(--gold-500)}
 .nav-actions{display:flex;align-items:center;gap:10px}
 
-#mobile-menu-toggle{display:none;width:38px;height:38px;border-radius:8px;background:var(--sand-100);align-items:center;justify-content:center;color:var(--navy-900);flex-shrink:0}
+#mobile-menu-toggle{display:none;width:38px;height:38px;border-radius:8px;background:var(--surface);align-items:center;justify-content:center;color:var(--text-900);flex-shrink:0}
 #mobile-menu-toggle:hover{background:var(--line)}
 #mobile-menu{display:none;flex-direction:column;gap:0;padding:6px 0;border-top:1px solid var(--line);background:var(--surface)}
 #mobile-menu a{padding:13px 24px;border-bottom:1px solid var(--line);font-size:14px}
-#mobile-menu a.active{color:var(--navy-900);background:var(--sand-100)}
+#mobile-menu a.active{color:var(--gold-500);background:var(--surface)}
 #mobile-menu.open{display:flex}
 
 @media(max-width:680px){
@@ -136,25 +141,36 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .lang-switch button.active{background:var(--navy-900);color:#fff}
 
 /* Hero */
-.hero{background:linear-gradient(160deg,var(--navy-900),var(--navy-700));color:#fff;padding:36px 0 60px;position:relative;overflow:hidden}
+.hero{
+  background:
+    radial-gradient(ellipse at 75% 25%, rgba(224,169,109,.14) 0%, transparent 55%),
+    #0B132B;
+  color:#fff;padding:36px 0 60px;position:relative;overflow:hidden
+}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.05;
+  background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+  background-size:56px 56px}
 .hero-skyline{position:absolute;inset-inline-start:0;bottom:0;width:100%;height:140px;opacity:.06;pointer-events:none}
 .hero .container{max-width:980px}
 .hero-grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:28px}
-.hero-grid > *:first-child{flex:1 1 460px;min-width:280px}
+.hero-grid > *:first-child{flex:1 1 460px;min-width:280px;text-align:center}
 .hero h1{font-size:clamp(30px,4.4vw,46px);margin:0 0 8px}
-.hero .sub-en{color:var(--gold-100);font-weight:700;margin:0 0 18px;font-size:clamp(17px,2vw,22px);letter-spacing:.3px}
+.hero .sub-en{color:#E0A96D;font-weight:700;margin:0 0 18px;font-size:clamp(17px,2vw,22px);letter-spacing:.3px}
 .eyebrow.hero-eyebrow{margin:0 0 10px}
-.hero p.desc{color:#dce8f2;max-width:520px;margin:0 0 26px}
-.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.license-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 14px;font-size:12.5px;color:#dce8f2;margin-bottom:22px}
-.stats-row{display:flex;gap:28px;flex-wrap:wrap}
-.stat b{display:block;font-size:26px;font-family:var(--font-display)}
-.stat span{font-size:13px;color:#c9d8e6}
-.hero-panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:22px;width:100%;max-width:300px;flex:0 0 auto}
-.hero-panel img{max-width:220px;max-height:280px;width:auto;height:auto;display:block;margin:0 auto 16px;border-radius:14px;border:1px solid rgba(255,255,255,.25);object-fit:contain}
+.hero p.desc{color:#8D99AE;max-width:520px;margin:0 auto 26px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;justify-content:center}
+.hero .btn-primary{background:#E0A96D;color:#0B132B}
+.hero .btn-primary:hover{background:#eabd8c}
+.hero .btn-outline{border-color:#E0A96D;color:#E0A96D}
+.license-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 14px;font-size:12.5px;color:#8D99AE;margin-bottom:22px}
+.stats-row{display:flex;gap:28px;flex-wrap:wrap;justify-content:center}
+.stat b{display:block;font-size:26px;font-family:var(--font-display);color:#E0A96D}
+.stat span{font-size:13px;color:#8D99AE}
+.hero-panel{background:#1C2541;border:1px solid rgba(224,169,109,.25);border-radius:20px;padding:22px;width:100%;max-width:300px;flex:0 0 auto}
+.hero-panel img{max-width:220px;max-height:280px;width:auto;height:auto;display:block;margin:0 auto 16px;border-radius:14px;border:1px solid rgba(224,169,109,.3);object-fit:contain}
 .hero-panel h3{margin:0 0 6px;font-size:18px}
-.hero-panel p{color:#cfe0ee;font-size:14px;margin:0}
-.hero-panel-link{display:inline-block;margin-top:14px;color:var(--gold-100);font-weight:700;font-size:13.5px}
+.hero-panel p{color:#8D99AE;font-size:14px;margin:0}
+.hero-panel-link{display:inline-block;margin-top:14px;color:#E0A96D;font-weight:700;font-size:13.5px}
 .hero-panel-link:hover{color:#fff}
 
 /* Offers */
@@ -165,10 +181,10 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .offer-body{padding:18px}
 .offer-body h4{margin:0 0 4px}
 .offer-body .loc{color:var(--text-600);font-size:13px;margin-bottom:10px}
-.offer-body .price{font-weight:900;font-size:18px;color:var(--navy-900)}
+.offer-body .price{font-weight:900;font-size:18px;color:var(--gold-500)}
 .offer-body .price s{color:var(--text-600);font-weight:400;font-size:14px;margin-inline-start:8px}
-.offer-details-btn{display:block;width:100%;margin-top:14px;padding:10px;border-radius:9px;background:var(--sand-100);color:var(--navy-900);font-weight:700;font-size:13px;text-align:center;transition:background .15s ease}
-.offer-card:hover .offer-details-btn{background:var(--gold-500)}
+.offer-details-btn{display:block;width:100%;margin-top:14px;padding:10px;border-radius:9px;background:rgba(224,169,109,.12);color:var(--gold-500);font-weight:700;font-size:13px;text-align:center;transition:background .15s ease}
+.offer-card:hover .offer-details-btn{background:var(--gold-500);color:#0B132B}
 
 /* Services */
 .service-card{padding:24px}
@@ -186,13 +202,13 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 /* Valuation result */
 .result-box{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:18px}
 .result-box .card{padding:18px;text-align:center}
-.result-box .card b{display:block;font-size:22px;color:var(--navy-900);font-family:var(--font-display)}
+.result-box .card b{display:block;font-size:22px;color:var(--gold-500);font-family:var(--font-display)}
 .result-box .card span{font-size:13px;color:var(--text-600)}
 
 /* Assistant */
 /* Amenity toggles */
 .amenity-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-.amenity-toggle{display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-size:13px;font-weight:700;color:var(--text-600);transition:all .15s ease}
+.amenity-toggle{display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-size:13px;font-weight:700;color:var(--text-600);transition:all .15s ease}
 .amenity-toggle .ic{font-size:15px}
 .amenity-toggle:hover{border-color:var(--gold-500)}
 .amenity-toggle.active{background:var(--gold-500);border-color:var(--gold-500);color:var(--navy-900)}
@@ -200,7 +216,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 /* Detail modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(7,20,33,.55);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:40px 16px;overflow-y:auto}
 .modal-overlay.open{display:flex}
-.modal-box{background:#fff;border-radius:16px;width:100%;max-width:640px;position:relative;box-shadow:0 30px 70px rgba(0,0,0,.3)}
+.modal-box{background:var(--surface);border-radius:16px;width:100%;max-width:640px;position:relative;box-shadow:0 30px 70px rgba(0,0,0,.5)}
 .modal-close-btn{position:absolute;inset-inline-end:14px;top:14px;width:34px;height:34px;border-radius:50%;background:var(--sand-100);color:var(--text-900);font-size:15px;z-index:2}
 .modal-close-btn:hover{background:var(--line)}
 .detail-box{padding:0 28px 28px}
@@ -210,11 +226,11 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .detail-header .discount{background:var(--gold-500);color:var(--navy-900);font-weight:900;padding:4px 12px;border-radius:8px;font-size:13px}
 .detail-title{font-size:20px;margin:0 0 4px}
 .detail-loc{color:var(--text-600);font-size:14px;margin:0 0 16px}
-.detail-price{font-size:24px;font-weight:900;color:var(--navy-900);font-family:var(--font-display);margin:0 0 20px}
+.detail-price{font-size:24px;font-weight:900;color:var(--gold-500);font-family:var(--font-display);margin:0 0 20px}
 .detail-price s{color:var(--text-600);font-weight:400;font-size:15px;margin-inline-start:10px}
 .detail-specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
 .detail-spec{background:var(--sand-100);border-radius:10px;padding:10px 12px;text-align:center}
-.detail-spec b{display:block;font-size:15px;color:var(--navy-900)}
+.detail-spec b{display:block;font-size:15px;color:var(--text-900)}
 .detail-spec span{font-size:11.5px;color:var(--text-600)}
 .detail-desc{white-space:pre-wrap;line-height:1.9;font-size:14.5px;color:var(--text-900);margin-bottom:22px;background:var(--sand-100);border-radius:10px;padding:16px}
 .detail-meta{border-top:1px solid var(--line);padding-top:16px;margin-top:6px}
@@ -222,7 +238,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .detail-meta-row b{color:var(--text-900);font-weight:700}
 .detail-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
 .offer-card{cursor:pointer}
-.offer-card:hover .offer-body h4{color:var(--navy-700)}
+.offer-card:hover .offer-body h4{color:var(--gold-500)}
 
 /* Social row */
 .social-row{display:flex;gap:14px;align-items:center;margin-top:14px;flex-wrap:wrap}
@@ -245,7 +261,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 @keyframes wa-pulse{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.6);opacity:0}}
 @media(max-width:900px){#whatsapp-float{inset-inline-start:16px;bottom:16px;width:50px;height:50px}#assistant-toggle{inset-inline-end:16px;bottom:16px;width:50px;height:50px}}
 
-#assistant-panel{position:fixed;inset-inline-end:22px;bottom:88px;width:370px;height:min(560px,72vh);background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(7,20,33,.28);display:none;flex-direction:column;overflow:hidden;z-index:80;border:1px solid var(--line);opacity:0;transform:translateY(12px) scale(.97);transition:opacity .18s ease, transform .18s ease}
+#assistant-panel{position:fixed;inset-inline-end:22px;bottom:88px;width:370px;height:min(560px,72vh);background:var(--surface);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden;z-index:80;border:1px solid var(--line);opacity:0;transform:translateY(12px) scale(.97);transition:opacity .18s ease, transform .18s ease}
 #assistant-panel.open{display:flex;opacity:1;transform:translateY(0) scale(1)}
 @media(max-width:480px){#assistant-panel{inset-inline-end:12px;inset-inline-start:12px;width:auto;bottom:82px;height:min(70vh,520px)}}
 
@@ -256,37 +272,38 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .assist-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#8be3a8;margin-top:3px}
 .assist-status i{width:6px;height:6px;border-radius:50%;background:#3ddc72;display:inline-block}
 
-.assist-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;font-size:13.5px;background:linear-gradient(180deg,#fbfbf9,var(--sand-100))}
+.assist-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;font-size:13.5px;background:var(--surface)}
 .assist-row{display:flex;gap:8px;align-items:flex-end;max-width:92%}
 .assist-row.user{align-self:flex-end;flex-direction:row-reverse}
 .assist-mini-avatar{width:26px;height:26px;border-radius:50%;background:var(--navy-900);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
 .assist-row.user .assist-mini-avatar{background:var(--gold-500);color:var(--navy-900)}
-.assist-msg{background:#fff;border:1px solid var(--line);border-radius:14px;border-start-end-radius:4px;padding:10px 13px;line-height:1.6;box-shadow:0 2px 6px rgba(7,20,33,.04)}
-.assist-row.user .assist-msg{background:var(--navy-900);color:#fff;border-color:var(--navy-900);border-start-end-radius:14px;border-end-start-radius:4px}
-.assist-typing{display:flex;gap:4px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;border-start-end-radius:4px;width:fit-content}
+.assist-msg{background:var(--sand-100);color:var(--text-900);border:1px solid var(--line);border-radius:14px;border-start-end-radius:4px;padding:10px 13px;line-height:1.6;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.assist-row.user .assist-msg{background:var(--gold-500);color:#0B132B;border-color:var(--gold-500);border-start-end-radius:14px;border-end-start-radius:4px}
+.assist-typing{display:flex;gap:4px;padding:12px 14px;background:var(--sand-100);border:1px solid var(--line);border-radius:14px;border-start-end-radius:4px;width:fit-content}
 .assist-typing span{width:6px;height:6px;border-radius:50%;background:var(--text-600);animation:assist-bounce 1.2s infinite ease-in-out}
 .assist-typing span:nth-child(2){animation-delay:.15s}
 .assist-typing span:nth-child(3){animation-delay:.3s}
 @keyframes assist-bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
 
-.assist-result-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:6px}
-.assist-result-card b{display:block;font-size:13px;color:var(--navy-900)}
+.assist-result-card{background:var(--sand-100);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:6px}
+.assist-result-card b{display:block;font-size:13px;color:var(--text-900)}
 .assist-result-card .meta{font-size:11.5px;color:var(--text-600);margin-top:2px}
-.assist-result-card .price{font-size:13px;font-weight:800;color:var(--navy-800);margin-top:4px;display:block}
+.assist-result-card .price{font-size:13px;font-weight:800;color:var(--gold-500);margin-top:4px;display:block}
 
 .assist-quick{display:flex;gap:6px;padding:0 14px 10px;flex-wrap:wrap}
-.assist-chip{background:var(--sand-100);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:var(--navy-800);font-weight:700;white-space:nowrap}
-.assist-chip:hover{background:var(--gold-100)}
+.assist-chip{background:var(--sand-100);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:var(--gold-500);font-weight:700;white-space:nowrap}
+.assist-chip:hover{background:var(--gold-100);color:#0B132B}
 
-.assist-input{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:10px 12px;background:#fff}
-.assist-input input{flex:1;border:1px solid var(--line);border-radius:999px;padding:10px 16px;font-family:inherit;font-size:13px;background:var(--sand-100)}
-.assist-input input:focus{outline:none;border-color:var(--navy-700);background:#fff}
+.assist-input{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:10px 12px;background:var(--surface)}
+.assist-input input{flex:1;border:1px solid var(--line);border-radius:999px;padding:10px 16px;font-family:inherit;font-size:13px;background:var(--sand-100);color:var(--text-900)}
+.assist-input input:focus{outline:none;border-color:var(--gold-500);background:var(--sand-100)}
 .assist-input button{width:38px;height:38px;border-radius:50%;background:var(--navy-900);color:#fff;font-size:15px;flex-shrink:0}
 .assist-input button:hover{background:var(--navy-700)}
 
-footer.site{background:var(--navy-900);color:#cfe0ee;padding:48px 0 20px;margin-top:40px}
+footer.site{background:#141b30;color:var(--text-600);padding:48px 0 20px;margin-top:40px}
 footer.site h4{color:#fff;margin:0 0 10px}
-footer.site a{color:#cfe0ee}
+footer.site a{color:var(--text-600);transition:color .15s ease}
+footer.site a:hover{color:var(--gold-500)}
 footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;padding-top:16px;font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 
 .faq-item{border-bottom:1px solid var(--line);padding:16px 0}
@@ -555,7 +572,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
     <div class="card" style="padding:20px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div>
         <span style="color:var(--text-600);font-size:13px" data-i18n="finance_result_label">القسط الشهري التقريبي</span>
-        <div id="finance-result" style="font-size:26px;font-weight:900;font-family:var(--font-display);color:var(--navy-900)">—</div>
+        <div id="finance-result" style="font-size:26px;font-weight:900;font-family:var(--font-display);color:var(--gold-500)">—</div>
       </div>
       <span class="badge badge-info" data-i18n="finance_note">حساب إرشادي، يختلف حسب جهة التمويل</span>
     </div>
@@ -709,17 +726,17 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       <h2 data-i18n="about_title">عنّا</h2>
     </div>
     <div class="grid grid-3">
-      <div class="card about-card" style="padding:22px;text-align:center">
+      <div class="card about-card fade-up" style="padding:22px;text-align:center">
         <div class="about-icon">🤝</div>
         <h4 data-i18n="mission_title">رسالتنا</h4>
         <p style="color:var(--text-600);font-size:14px" data-i18n="mission_text">أن نجعل التعامل العقاري أوضح وأسهل وأكثر ثقة، من خلال فهم احتياج العميل، ودراسة الخيارات بعناية، وتقديم خدمات عقارية احترافية في التسويق وإدارة الأملاك وكتابة العقود.</p>
       </div>
-      <div class="card about-card" style="padding:22px;text-align:center">
+      <div class="card about-card fade-up" style="padding:22px;text-align:center">
         <div class="about-icon">👁️</div>
         <h4 data-i18n="vision_title">رؤيتنا</h4>
         <p style="color:var(--text-600);font-size:14px" data-i18n="vision_text">أن نكون مرجعاً عقارياً موثوقاً في المدينة المنورة، نختصر على العميل طريق البحث والحيرة، ونضع أمامه المعلومة الواضحة والفرصة المناسبة.</p>
       </div>
-      <div class="card about-card" style="padding:22px;text-align:center">
+      <div class="card about-card fade-up" style="padding:22px;text-align:center">
         <div class="about-icon">🎯</div>
         <h4 data-i18n="goal_title">هدفنا</h4>
         <p style="color:var(--text-600);font-size:14px" data-i18n="goal_text">هدفنا ليس إتمام صفقة فحسب، بل بناء علاقة تبدأ بالثقة وتستمر بجودة الخدمة.</p>
@@ -756,9 +773,9 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="social-row" id="social-row">
           <!-- عدّل الروابط أدناه بحساباتك الفعلية. رقم واتساب معبّأ مسبقاً لأنه معروف من باقي الموقع. -->
           <a href="https://wa.me/966530500906" target="_blank" rel="noopener" aria-label="WhatsApp" class="social-icon-link">
-            <svg viewBox="0 0 32 32" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
               <circle cx="16" cy="16" r="16" fill="#25D366"/>
-              <path d="M23.27 22.733c-.356 1.002-2.072 1.838-2.85 1.917-.745.076-1.688.136-2.732-.216-1.042-.351-2.378-.857-3.905-1.93-3.037-2.146-5.02-4.896-5.244-5.202-.224-.306-1.228-1.637-1.228-3.123 0-1.486.777-2.217 1.053-2.518.275-.301.6-.376.8-.376.2 0 .4.002.574.01.185.008.434-.07.679.506.244.576.837 2.04.91 2.191.074.151.124.327.025.528-.099.201-.15.326-.3.502-.15.176-.316.393-.45.528-.15.15-.307.314-.132.614.175.3 0 .779-.475 1.482-.697 1.025-1.303 1.708-1.483 2.009-.18.3-.019.462.126.612.13.136.29.352.435.529.145.176.195.302.295.503.1.201.05.377-.025.528-.075.151-.673 1.621-.922 2.215z" fill="#FFF"/>
+              <path fill="#FFF" d="M16.04 8.02c-4.42 0-8 3.58-8 8 0 1.41.37 2.73 1.02 3.87l-1.08 3.95 4.05-1.06a7.96 7.96 0 0 0 4.01 1.08h.01c4.41 0 7.99-3.58 7.99-8 0-4.41-3.58-7.84-8-7.84zm4.7 11.44c-.2.56-1.16 1.07-1.62 1.14-.41.06-.94.09-1.51-.1-.35-.11-.8-.26-1.37-.5-2.42-1.05-4-3.48-4.12-3.64-.12-.16-.98-1.3-.98-2.49s.62-1.77.84-2.01c.22-.24.48-.3.64-.3l.46.01c.15.01.35-.06.54.41.2.48.68 1.66.74 1.78.06.12.1.26.02.42-.08.16-.12.26-.24.4l-.36.42c-.12.12-.24.25-.1.49.14.24.62 1.03 1.34 1.67.92.82 1.69 1.07 1.93 1.19.24.12.38.1.52-.06.14-.16.6-.7.76-.94.16-.24.32-.2.54-.12.22.08 1.4.66 1.64.78.24.12.4.18.46.28.06.1.06.58-.14 1.14z"/>
             </svg>
           </a>
           <a href="#" target="_blank" rel="noopener" aria-label="X" class="social-icon-link">
@@ -812,20 +829,31 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
      ========================================================================== -->
 <footer class="site">
   <div class="container">
-    <div class="grid grid-3">
+    <div class="grid grid-4">
       <div>
         <h4 data-i18n="brand">همة المدينة العقارية</h4>
         <p style="font-size:13px" data-i18n="footer_tag">🕌 شريكك العقاري الموثوق في المدينة المنورة</p>
       </div>
       <div>
-        <h4 data-i18n="footer_legal">قانوني</h4>
-        <p style="font-size:13px"><a href="#privacy" data-i18n="footer_privacy">سياسة الخصوصية</a></p>
-        <p style="font-size:13px"><a href="#terms" data-i18n="footer_terms">شروط الاستخدام</a></p>
+        <h4 data-i18n="footer_quicklinks_title">روابط سريعة</h4>
+        <p style="font-size:13px"><a href="#home" data-i18n="nav_home">الرئيسية</a></p>
+        <p style="font-size:13px"><a href="#offers" data-i18n="nav_offers">العروض</a></p>
+        <p style="font-size:13px"><a href="#valuation" data-i18n="nav_valuation">التقييم</a></p>
+        <p style="font-size:13px"><a href="#contracts" data-i18n="nav_contracts">العقود</a></p>
+      </div>
+      <div>
+        <h4 data-i18n="footer_services_title">الخدمات</h4>
+        <p style="font-size:13px"><a href="#offers" data-i18n="footer_svc_1">البيع والشراء</a></p>
+        <p style="font-size:13px"><a href="#valuation" data-i18n="footer_svc_2">التقييم العقاري</a></p>
+        <p style="font-size:13px"><a href="#contracts" data-i18n="footer_svc_3">صياغة العقود</a></p>
+        <p style="font-size:13px"><a href="#services" data-i18n="footer_svc_4">إدارة الأملاك</a></p>
       </div>
       <div>
         <h4 data-i18n="footer_contact_title">تواصل سريع</h4>
         <p style="font-size:13px"><a href="tel:+966530500906">+966 530 500 906</a></p>
         <p style="font-size:13px"><a href="mailto:ffaaddhheell2323@gmail.com">ffaaddhheell2323@gmail.com</a></p>
+        <p style="font-size:13px"><a href="#privacy" data-i18n="footer_privacy">سياسة الخصوصية</a></p>
+        <p style="font-size:13px"><a href="#terms" data-i18n="footer_terms">شروط الاستخدام</a></p>
       </div>
     </div>
     <div class="bottom">
@@ -872,7 +900,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
   <span class="wa-pulse"></span>
   <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
     <circle cx="16" cy="16" r="16" fill="#25D366"/>
-    <path d="M23.27 22.733c-.356 1.002-2.072 1.838-2.85 1.917-.745.076-1.688.136-2.732-.216-1.042-.351-2.378-.857-3.905-1.93-3.037-2.146-5.02-4.896-5.244-5.202-.224-.306-1.228-1.637-1.228-3.123 0-1.486.777-2.217 1.053-2.518.275-.301.6-.376.8-.376.2 0 .4.002.574.01.185.008.434-.07.679.506.244.576.837 2.04.91 2.191.074.151.124.327.025.528-.099.201-.15.326-.3.502-.15.176-.316.393-.45.528-.15.15-.307.314-.132.614.175.3 0 .779-.475 1.482-.697 1.025-1.303 1.708-1.483 2.009-.18.3-.019.462.126.612.13.136.29.352.435.529.145.176.195.302.295.503.1.201.05.377-.025.528-.075.151-.673 1.621-.922 2.215z" fill="#FFF"/>
+    <path fill="#FFF" d="M16.04 8.02c-4.42 0-8 3.58-8 8 0 1.41.37 2.73 1.02 3.87l-1.08 3.95 4.05-1.06a7.96 7.96 0 0 0 4.01 1.08h.01c4.41 0 7.99-3.58 7.99-8 0-4.41-3.58-7.84-8-7.84zm4.7 11.44c-.2.56-1.16 1.07-1.62 1.14-.41.06-.94.09-1.51-.1-.35-.11-.8-.26-1.37-.5-2.42-1.05-4-3.48-4.12-3.64-.12-.16-.98-1.3-.98-2.49s.62-1.77.84-2.01c.22-.24.48-.3.64-.3l.46.01c.15.01.35-.06.54.41.2.48.68 1.66.74 1.78.06.12.1.26.02.42-.08.16-.12.26-.24.4l-.36.42c-.12.12-.24.25-.1.49.14.24.62 1.03 1.34 1.67.92.82 1.69 1.07 1.93 1.19.24.12.38.1.52-.06.14-.16.6-.7.76-.94.16-.24.32-.2.54-.12.22.08 1.4.66 1.64.78.24.12.4.18.46.28.06.1.06.58-.14 1.14z"/>
   </svg>
 </a>
 
@@ -1011,6 +1039,8 @@ const I18N = {
     f_reach:"جوالك أو بريدك الإلكتروني", hours_label:"ساعات العمل: ", hours_value:"الأحد – الخميس: 9ص – 6م · الجمعة والسبت: مغلق",
     whatsapp_word:"واتساب",
     footer_legal:"قانوني", footer_privacy:"سياسة الخصوصية", footer_terms:"شروط الاستخدام",
+    footer_quicklinks_title:"روابط سريعة", footer_services_title:"الخدمات",
+    footer_svc_1:"البيع والشراء", footer_svc_2:"التقييم العقاري", footer_svc_3:"صياغة العقود", footer_svc_4:"إدارة الأملاك",
     privacy_title:"سياسة الخصوصية", terms_title:"شروط الاستخدام",
     legal_disclaimer:"محتوى عام كنقطة انطلاق وليس استشارة قانونية متخصصة؛ يُنصح بمراجعة مستشار قانوني مرخّص لتخصيصه لنشاطكم.",
     footer_contact_title:"تواصل سريع", footer_license:"رخصة فال العقارية: 1200030428",
@@ -1095,6 +1125,8 @@ const I18N = {
     f_reach:"Your phone or email", hours_label:"Working hours: ", hours_value:"Sun – Thu: 9am – 6pm · Fri & Sat: Closed",
     whatsapp_word:"WhatsApp",
     footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Use",
+    footer_quicklinks_title:"Quick Links", footer_services_title:"Services",
+    footer_svc_1:"Buying & Selling", footer_svc_2:"Property Valuation", footer_svc_3:"Contract Drafting", footer_svc_4:"Property Management",
     privacy_title:"Privacy Policy", terms_title:"Terms of Use",
     legal_disclaimer:"General starting-point content, not specialized legal advice; consult a licensed legal advisor to tailor it to your business.",
     footer_contact_title:"Quick Contact", footer_license:"Fal Real Estate License: 1200030428",
@@ -1179,6 +1211,8 @@ const I18N = {
     f_reach:"Votre téléphone ou e-mail", hours_label:"Horaires : ", hours_value:"Dim – Jeu : 9h – 18h · Ven et Sam : Fermé",
     whatsapp_word:"WhatsApp",
     footer_legal:"Mentions légales", footer_privacy:"Politique de confidentialité", footer_terms:"Conditions d'utilisation",
+    footer_quicklinks_title:"Liens rapides", footer_services_title:"Services",
+    footer_svc_1:"Achat et vente", footer_svc_2:"Évaluation immobilière", footer_svc_3:"Rédaction de contrats", footer_svc_4:"Gestion locative",
     privacy_title:"Politique de confidentialité", terms_title:"Conditions d'utilisation",
     legal_disclaimer:"Contenu général de base, pas un conseil juridique spécialisé ; consultez un conseiller juridique agréé pour l'adapter à votre activité.",
     footer_contact_title:"Contact rapide", footer_license:"Licence immobilière Fal : 1200030428",
@@ -1576,11 +1610,12 @@ const PROPERTY_TYPES = [
 function renderServices(){
   const list = SERVICES_I18N[currentLang] || SERVICES_I18N.ar;
   document.getElementById('services-grid').innerHTML = list.map(s=>`
-    <div class="card service-card">
+    <div class="card service-card fade-up">
       <div class="ic">${s.ic}</div>
       <h4>${s.h}</h4>
       <p>${s.p}</p>
     </div>`).join('');
+  observeFadeUps();
 }
 
 let OFFER_REGISTRY = {};
@@ -1600,7 +1635,7 @@ function offerCardHtml(o){
   const imageHtml = o.image_url
     ? `<img src="${o.image_url}" alt="${escapeHtml(o.title)}" class="offer-img" loading="lazy" onerror="this.remove()">`
     : '';
-  return `<div class="card offer-card" onclick="openDetailModal('${key}')">
+  return `<div class="card offer-card fade-up" onclick="openDetailModal('${key}')">
     ${imageHtml}
     <div class="offer-top"><b>${o.title}</b><span class="offer-discount">-${o.discount_pct}%</span></div>
     <div class="offer-body">
@@ -1710,6 +1745,7 @@ async function renderOffers(filters){
       const { data, error } = await withTimeout(query);
       if (!error && data && data.length){
         grid.innerHTML = data.map(offerCardHtml).join('');
+        observeFadeUps();
         return;
       }
       if (!error && data && !data.length){
@@ -1730,6 +1766,7 @@ async function renderOffers(filters){
   }
   grid.innerHTML = demo.map(offerCardHtml).join('') +
     `<div class="notice notice-warn" style="grid-column:1/-1">${demoLabel}</div>`;
+  observeFadeUps();
 }
 
 async function renderFeatured(){
@@ -1748,6 +1785,7 @@ async function renderFeatured(){
     items = (DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar).slice(0, 3);
   }
   grid.innerHTML = items.map(offerCardHtml).join('');
+  observeFadeUps();
 }
 
 function populateFilterSelects(){
@@ -1778,8 +1816,9 @@ document.getElementById('btn-reset-filters').addEventListener('click', ()=>{
 function renderFaq(){
   const list = FAQ_I18N[currentLang] || FAQ_I18N.ar;
   document.getElementById('faq-list').innerHTML = list.map(f=>`
-    <details class="faq-item"><summary>${f.q} <span>+</span></summary><p>${f.a}</p></details>
+    <details class="faq-item fade-up"><summary>${f.q} <span>+</span></summary><p>${f.a}</p></details>
   `).join('');
+  observeFadeUps();
 }
 
 /* ============================================================================
@@ -2147,6 +2186,31 @@ function prefersReducedMotion(){
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+/* ============================================================================
+   Fade-up on scroll — cards ease in as the visitor scrolls to them. Safe to
+   call repeatedly (idempotent): only newly-added, unobserved elements get
+   picked up each time, so it can be called after every dynamic re-render.
+   ========================================================================== */
+const fadeUpObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if (entry.isIntersecting){
+      entry.target.classList.add('visible');
+      fadeUpObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }) : null;
+
+function observeFadeUps(){
+  if (!fadeUpObserver){
+    document.querySelectorAll('.fade-up:not(.visible)').forEach(el=>el.classList.add('visible'));
+    return;
+  }
+  document.querySelectorAll('.fade-up:not(.fu-observed)').forEach(el=>{
+    el.classList.add('fu-observed');
+    fadeUpObserver.observe(el);
+  });
+}
+
 function animateCounters(){
   document.querySelectorAll('#home .counter').forEach(el=>{
     try {
@@ -2193,6 +2257,7 @@ function showPage(id){
   if (location.hash !== '#' + id) history.pushState(null, '', '#' + id);
   window.scrollTo({ top: 0, behavior: 'auto' });
   if (id === 'home') animateCounters();
+  observeFadeUps();
 }
 
 document.addEventListener('click', (e)=>{
