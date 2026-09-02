@@ -1331,6 +1331,13 @@ function cityLabel(name){
   return (CITY_LABELS[name] && CITY_LABELS[name][currentLang]) || name;
 }
 
+// Formats a number as a price string (e.g. 862400 -> "862,400"). Used
+// everywhere a price/amount is displayed: offer cards, valuation results,
+// the finance calculator, analytics table, contract text, assistant results.
+function money(n){
+  return Math.round(n || 0).toLocaleString('en-US');
+}
+
 const CITY_DISTRICTS = {
   "المدينة المنورة": ["العزيزية","العاقول","العريض","الخالدية","الزهرة","شظاة","الملك فهد","المبعوث","الروابي","الربوة","الإسكان","الدويمة","قربان","العوالي","الهجرة","العصبة","قباء","القصواء","الرانوناء","شوران","مهزور","مذينب","بني حارثة","بني معاوية","بني ظفر","بني خدرة","بني بياضة","السيح","الفتح","القبلتين","الجامعة","أبو كبير","الجرف","البركة","السلام","الدفاع","طيبة","أحد","سيد الشهداء","المصانع","العيون","النصر","الراية","المناخة","المغيسلة","الوبرة","السكب","الخاتم","أبو بريقاء","وادي البطان","الحرة الشرقية"],
   "مكة المكرمة": ["العوالي","الشوقية","الشرائع","النسيم","الزاهر","العتيبية","العمرة","النوارية","التنعيم","الراشدية","بطحاء قريش","الكعكية","ولي العهد","الحمراء وأم الجود","الزهراء","الضيافة","النزهة","الرصيفة","المسفلة","الهجرة","كدي","جرهم","الروابي","الخالدية","الهنداوية","المنصور","الشبيكة","الشامية","جرول","ريع ذاخر","الحجون","المعابدة","العزيزية الشمالية","الملاوي","العدل","العسيلة","وادي جليل","العمرة الجديدة","البحيرات","الشرائع الشمالية","الشرائع الجنوبية","الصفوة","الملك فهد","الحسينية","العكيشية","الليث الجديد"],
@@ -1499,20 +1506,24 @@ async function renderOffers(filters){
   const f = filters || readOfferFilters();
   const grid = document.getElementById('offers-grid');
   if (dbReady){
-    let query = supa.from('offers').select('*').eq('is_published', true).limit(18);
-    if (f.city) query = query.eq('city', f.city);
-    if (f.type) query = query.eq('property_type', f.type);
-    if (f.minPrice) query = query.gte('price_final', f.minPrice);
-    if (f.maxPrice) query = query.lte('price_final', f.maxPrice);
-    if (f.minRooms) query = query.gte('rooms', f.minRooms);
-    const { data, error } = await query;
-    if (!error && data && data.length){
-      grid.innerHTML = data.map(offerCardHtml).join('');
-      return;
-    }
-    if (!error && data && !data.length){
-      grid.innerHTML = `<div class="notice notice-info" style="grid-column:1/-1">${I18N[currentLang].offers_no_match}</div>`;
-      return;
+    try {
+      let query = supa.from('offers').select('*').eq('is_published', true).limit(18);
+      if (f.city) query = query.eq('city', f.city);
+      if (f.type) query = query.eq('property_type', f.type);
+      if (f.minPrice) query = query.gte('price_final', f.minPrice);
+      if (f.maxPrice) query = query.lte('price_final', f.maxPrice);
+      if (f.minRooms) query = query.gte('rooms', f.minRooms);
+      const { data, error } = await query;
+      if (!error && data && data.length){
+        grid.innerHTML = data.map(offerCardHtml).join('');
+        return;
+      }
+      if (!error && data && !data.length){
+        grid.innerHTML = `<div class="notice notice-info" style="grid-column:1/-1">${I18N[currentLang].offers_no_match}</div>`;
+        return;
+      }
+    } catch (e) {
+      console.error('renderOffers: Supabase call failed, falling back to demo data.', e);
     }
   }
   const demo = (DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar).filter(o => matchesFilters(o, f));
@@ -1532,8 +1543,12 @@ async function renderFeatured(){
   if (!grid) return;
   let items = [];
   if (dbReady){
-    const { data, error } = await supa.from('offers').select('*').eq('is_published', true).limit(3);
-    if (!error && data && data.length) items = data;
+    try {
+      const { data, error } = await supa.from('offers').select('*').eq('is_published', true).limit(3);
+      if (!error && data && data.length) items = data;
+    } catch (e) {
+      console.error('renderFeatured: Supabase call failed, falling back to demo data.', e);
+    }
   }
   if (!items.length){
     items = (DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar).slice(0, 3);
@@ -1581,23 +1596,27 @@ function renderFaq(){
    ========================================================================== */
 async function loadCitiesFromDb(){
   if (!dbReady) return;
-  const { data: cities, error: e1 } = await supa.from('cities').select('name, price_per_sqm');
-  if (e1 || !cities || !cities.length) return;
-  const { data: districts, error: e2 } = await supa.from('districts').select('name, cities(name)');
-  if (e2) return;
+  try {
+    const { data: cities, error: e1 } = await supa.from('cities').select('name, price_per_sqm');
+    if (e1 || !cities || !cities.length) return;
+    const { data: districts, error: e2 } = await supa.from('districts').select('name, cities(name)');
+    if (e2) return;
 
-  // Rebuild the shared maps from live data without discarding the local seed
-  // (in case the DB has fewer districts seeded than this file for some city).
-  cities.forEach(c=>{
-    if (!CITY_DISTRICTS[c.name]) CITY_DISTRICTS[c.name] = [];
-    if (c.price_per_sqm) CITY_PRICE_PER_SQM[c.name] = c.price_per_sqm;
-  });
-  (districts || []).forEach(d=>{
-    const cityName = d.cities?.name;
-    if (!cityName) return;
-    if (!CITY_DISTRICTS[cityName]) CITY_DISTRICTS[cityName] = [];
-    if (!CITY_DISTRICTS[cityName].includes(d.name)) CITY_DISTRICTS[cityName].push(d.name);
-  });
+    // Rebuild the shared maps from live data without discarding the local seed
+    // (in case the DB has fewer districts seeded than this file for some city).
+    cities.forEach(c=>{
+      if (!CITY_DISTRICTS[c.name]) CITY_DISTRICTS[c.name] = [];
+      if (c.price_per_sqm) CITY_PRICE_PER_SQM[c.name] = c.price_per_sqm;
+    });
+    (districts || []).forEach(d=>{
+      const cityName = d.cities?.name;
+      if (!cityName) return;
+      if (!CITY_DISTRICTS[cityName]) CITY_DISTRICTS[cityName] = [];
+      if (!CITY_DISTRICTS[cityName].includes(d.name)) CITY_DISTRICTS[cityName].push(d.name);
+    });
+  } catch (e) {
+    console.error('loadCitiesFromDb: Supabase call failed, keeping the built-in seed list.', e);
+  }
 }
 
 function populateCitySelects(){
@@ -1739,13 +1758,19 @@ document.getElementById('btn-add-property').addEventListener('click', async ()=>
     msg.style.color = 'var(--danger)';
     return;
   }
-  const { error } = await supa.from('properties').insert(payload);
-  if (error){
-    msg.textContent = '⚠️ تعذّر الحفظ: ' + error.message;
+  try {
+    const { error } = await supa.from('properties').insert(payload);
+    if (error){
+      msg.textContent = '⚠️ تعذّر الحفظ: ' + error.message;
+      msg.style.color = 'var(--danger)';
+    } else {
+      msg.textContent = '✅ تم الإرسال — سيظهر عقارك في التحليلات بعد المراجعة.';
+      msg.style.color = 'var(--ok)';
+    }
+  } catch (e) {
+    msg.textContent = '⚠️ تعذّر الاتصال بقاعدة البيانات — تحقق من اتصالك وحاول مجدداً.';
     msg.style.color = 'var(--danger)';
-  } else {
-    msg.textContent = '✅ تم الإرسال — سيظهر عقارك في التحليلات بعد المراجعة.';
-    msg.style.color = 'var(--ok)';
+    console.error('btn-add-property: Supabase call failed.', e);
   }
 });
 
@@ -1757,24 +1782,28 @@ async function renderAnalytics(){
   const tbody = document.getElementById('analytics-tbody');
   if (!dbReady) return;
 
-  const { data, error } = await supa.from('properties').select('*').eq('status','approved').order('created_at', {ascending:false}).limit(50);
-  if (error || !data || !data.length) return;
+  try {
+    const { data, error } = await supa.from('properties').select('*').eq('status','approved').order('created_at', {ascending:false}).limit(50);
+    if (error || !data || !data.length) return;
 
-  document.getElementById('stat-live-count').dataset.target = data.length;
-  tbody.innerHTML = data.map(p=>`<tr><td>${cityLabel(p.city)}</td><td>${districtLabel(p.district)}</td><td>${p.property_type}</td><td>${money(p.price)}</td><td>${p.area_sqm}</td></tr>`).join('');
+    document.getElementById('stat-live-count').dataset.target = data.length;
+    tbody.innerHTML = data.map(p=>`<tr><td>${cityLabel(p.city)}</td><td>${districtLabel(p.district)}</td><td>${p.property_type}</td><td>${money(p.price)}</td><td>${p.area_sqm}</td></tr>`).join('');
 
-  const byCity = {};
-  data.forEach(p=>{ byCity[p.city] = byCity[p.city] || []; byCity[p.city].push(p.price / p.area_sqm); });
-  const labels = Object.keys(byCity);
-  const values = labels.map(c => byCity[c].reduce((a,b)=>a+b,0) / byCity[c].length);
+    const byCity = {};
+    data.forEach(p=>{ byCity[p.city] = byCity[p.city] || []; byCity[p.city].push(p.price / p.area_sqm); });
+    const labels = Object.keys(byCity);
+    const values = labels.map(c => byCity[c].reduce((a,b)=>a+b,0) / byCity[c].length);
 
-  if (window.Chart){
-    if (analyticsChart) analyticsChart.destroy();
-    analyticsChart = new Chart(document.getElementById('analytics-chart'), {
-      type: 'bar',
-      data: { labels, datasets: [{ label: 'متوسط سعر المتر', data: values, backgroundColor:'#0b3d66' }] },
-      options: { responsive:true, plugins:{legend:{display:false}} }
-    });
+    if (window.Chart){
+      if (analyticsChart) analyticsChart.destroy();
+      analyticsChart = new Chart(document.getElementById('analytics-chart'), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'متوسط سعر المتر', data: values, backgroundColor:'#0b3d66' }] },
+        options: { responsive:true, plugins:{legend:{display:false}} }
+      });
+    }
+  } catch (e) {
+    console.error('renderAnalytics: Supabase call failed — analytics table stays empty, but the rest of the page still loads.', e);
   }
 }
 
@@ -1822,25 +1851,33 @@ ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_la
     return;
   }
 
-  const { data, error } = await supa.rpc('create_contract_with_schedule', {
-    p_contract_number: contractNumber,
-    p_contract_type: contractType,
-    p_lessor_name: v('c-lessor-name'), p_lessor_id_number: v('c-lessor-id'), p_lessor_phone: v('c-lessor-phone'),
-    p_lessee_name: v('c-lessee-name'), p_lessee_id_number: v('c-lessee-id'), p_lessee_phone: v('c-lessee-phone'),
-    p_city: v('c-city'), p_district: v('c-district'), p_unit_type: v('c-unit-type'),
-    p_area_sqm: parseFloat(v('c-area')) || 0, p_security_deposit: parseFloat(v('c-deposit')) || 0,
-    p_start_date: v('c-start'), p_end_date: v('c-end'), p_annual_rent: rent,
-    p_frequency: parseInt(document.getElementById('c-frequency').value, 10)
-  });
+  try {
+    const { data, error } = await supa.rpc('create_contract_with_schedule', {
+      p_contract_number: contractNumber,
+      p_contract_type: contractType,
+      p_lessor_name: v('c-lessor-name'), p_lessor_id_number: v('c-lessor-id'), p_lessor_phone: v('c-lessor-phone'),
+      p_lessee_name: v('c-lessee-name'), p_lessee_id_number: v('c-lessee-id'), p_lessee_phone: v('c-lessee-phone'),
+      p_city: v('c-city'), p_district: v('c-district'), p_unit_type: v('c-unit-type'),
+      p_area_sqm: parseFloat(v('c-area')) || 0, p_security_deposit: parseFloat(v('c-deposit')) || 0,
+      p_start_date: v('c-start'), p_end_date: v('c-end'), p_annual_rent: rent,
+      p_frequency: parseInt(document.getElementById('c-frequency').value, 10)
+    });
 
-  if (error){
-    msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'تعذّر حفظ العقد: ' : 'Could not save the contract: ') + error.message;
+    if (error){
+      msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'تعذّر حفظ العقد: ' : 'Could not save the contract: ') + error.message;
+      msg.style.color = 'var(--danger)';
+    } else {
+      msg.textContent = '✅ ' + (currentLang==='ar'
+        ? 'تم إنشاء العقد وجدول الدفعات كاملاً في قاعدة البيانات.'
+        : 'The contract and its full payment schedule were saved to the database.');
+      msg.style.color = 'var(--ok)';
+    }
+  } catch (e) {
+    msg.textContent = '⚠️ ' + (currentLang==='ar'
+      ? 'تعذّر الاتصال بقاعدة البيانات — تحقق من اتصالك وحاول مجدداً.'
+      : 'Could not reach the database — check your connection and try again.');
     msg.style.color = 'var(--danger)';
-  } else {
-    msg.textContent = '✅ ' + (currentLang==='ar'
-      ? 'تم إنشاء العقد وجدول الدفعات كاملاً في قاعدة البيانات.'
-      : 'The contract and its full payment schedule were saved to the database.');
-    msg.style.color = 'var(--ok)';
+    console.error('btn-generate-contract: Supabase call failed.', e);
   }
 });
 
@@ -1863,20 +1900,26 @@ document.getElementById('btn-send-contact').addEventListener('click', async ()=>
   }
 
   if (dbReady){
-    const isEmail = reach.includes('@');
-    const { error } = await supa.from('inquiries').insert({
-      full_name: name,
-      email: isEmail ? reach : null,
-      phone: isEmail ? null : reach,
-      inquiry_type: type,
-      message: message,
-    });
-    if (error){
+    try {
+      const isEmail = reach.includes('@');
+      const { error } = await supa.from('inquiries').insert({
+        full_name: name,
+        email: isEmail ? reach : null,
+        phone: isEmail ? null : reach,
+        inquiry_type: type,
+        message: message,
+      });
+      if (error){
+        msg.style.color = 'var(--danger)';
+        msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'تعذّر الحفظ: ' : 'Could not save: ') + error.message;
+      } else {
+        msg.style.color = 'var(--ok)';
+        msg.textContent = '✅ ' + (currentLang==='ar' ? 'تم استلام طلبك، سنتواصل معك قريباً.' : 'Your request was received — we\'ll be in touch soon.');
+      }
+    } catch (e) {
       msg.style.color = 'var(--danger)';
-      msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'تعذّر الحفظ: ' : 'Could not save: ') + error.message;
-    } else {
-      msg.style.color = 'var(--ok)';
-      msg.textContent = '✅ ' + (currentLang==='ar' ? 'تم استلام طلبك، سنتواصل معك قريباً.' : 'Your request was received — we\'ll be in touch soon.');
+      msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'تعذّر الاتصال بقاعدة البيانات — سيُفتح واتساب فقط.' : 'Could not reach the database — opening WhatsApp only.');
+      console.error('btn-send-contact: Supabase call failed.', e);
     }
   } else {
     msg.style.color = 'var(--warn)';
@@ -2072,14 +2115,18 @@ function parseQuery(text){
 async function searchProperties(q){
   let results = [];
   if (dbReady){
-    let query = supa.from('properties').select('*').eq('status', 'approved').limit(5);
-    if (q.city) query = query.eq('city', q.city);
-    if (q.type) query = query.eq('property_type', q.type);
-    if (q.maxPrice) query = query.lte('price', q.maxPrice);
-    if (q.minPrice) query = query.gte('price', q.minPrice);
-    if (q.rooms) query = query.eq('rooms', q.rooms);
-    const { data, error } = await query;
-    if (!error && data) results = data.map(p=>({ city:p.city, district:p.district, property_type:p.property_type, price:p.price, area_sqm:p.area_sqm, rooms:p.rooms }));
+    try {
+      let query = supa.from('properties').select('*').eq('status', 'approved').limit(5);
+      if (q.city) query = query.eq('city', q.city);
+      if (q.type) query = query.eq('property_type', q.type);
+      if (q.maxPrice) query = query.lte('price', q.maxPrice);
+      if (q.minPrice) query = query.gte('price', q.minPrice);
+      if (q.rooms) query = query.eq('rooms', q.rooms);
+      const { data, error } = await query;
+      if (!error && data) results = data.map(p=>({ city:p.city, district:p.district, property_type:p.property_type, price:p.price, area_sqm:p.area_sqm, rooms:p.rooms }));
+    } catch (e) {
+      console.error('searchProperties: Supabase call failed, falling back to demo search.', e);
+    }
   }
   if (!results.length){
     const demo = DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar;
@@ -2206,17 +2253,24 @@ document.getElementById('assist-input').addEventListener('keydown', e=>{
 window.addEventListener('load', async ()=>{
   dbReady = initSupabase();
   renderConfigBanner();
-  await loadCitiesFromDb();
+
+  const safely = async (label, fn) => {
+    try { await fn(); }
+    catch (e) { console.error(`Boot step "${label}" failed — continuing with the rest of the page.`, e); }
+  };
+
+  await safely('loadCitiesFromDb', loadCitiesFromDb);
   populateCitySelects();
   populateTypeSelects();
   populateFilterSelects();
   renderServices();
-  renderOffers();
-  renderFeatured();
+  await safely('renderOffers', () => renderOffers());
+  await safely('renderFeatured', renderFeatured);
   renderFaq();
   renderLegalPages();
-  await renderAnalytics();
+  await safely('renderAnalytics', renderAnalytics);
   runFinance();
+
   const totalDistricts = Object.values(CITY_DISTRICTS).reduce((sum, list) => sum + list.length, 0);
   document.getElementById('stat-district-count').dataset.target = totalDistricts;
   showPage(location.hash.slice(1) || 'home');
