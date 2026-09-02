@@ -1437,6 +1437,18 @@ function money(n){
   return Math.round(n || 0).toLocaleString('en-US');
 }
 
+// Races a Supabase call against a short timeout. Network-level failures
+// (a broken DNS resolution, a hung connection) can otherwise take the
+// browser 10–30+ seconds to give up on — this makes the site fail fast
+// and fall back to demo data almost immediately instead of leaving the
+// visitor staring at a slow page.
+function withTimeout(promise, ms = 4000){
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out')), ms)),
+  ]);
+}
+
 const CITY_DISTRICTS = {
   "المدينة المنورة": ["العزيزية","العاقول","العريض","الخالدية","الزهرة","شظاة","الملك فهد","المبعوث","الروابي","الربوة","الإسكان","الدويمة","قربان","العوالي","الهجرة","العصبة","قباء","القصواء","الرانوناء","شوران","مهزور","مذينب","بني حارثة","بني معاوية","بني ظفر","بني خدرة","بني بياضة","السيح","الفتح","القبلتين","الجامعة","أبو كبير","الجرف","البركة","السلام","الدفاع","طيبة","أحد","سيد الشهداء","المصانع","العيون","النصر","الراية","المناخة","المغيسلة","الوبرة","السكب","الخاتم","أبو بريقاء","وادي البطان","الحرة الشرقية"],
   "مكة المكرمة": ["العوالي","الشوقية","الشرائع","النسيم","الزاهر","العتيبية","العمرة","النوارية","التنعيم","الراشدية","بطحاء قريش","الكعكية","ولي العهد","الحمراء وأم الجود","الزهراء","الضيافة","النزهة","الرصيفة","المسفلة","الهجرة","كدي","جرهم","الروابي","الخالدية","الهنداوية","المنصور","الشبيكة","الشامية","جرول","ريع ذاخر","الحجون","المعابدة","العزيزية الشمالية","الملاوي","العدل","العسيلة","وادي جليل","العمرة الجديدة","البحيرات","الشرائع الشمالية","الشرائع الجنوبية","الصفوة","الملك فهد","الحسينية","العكيشية","الليث الجديد"],
@@ -1683,7 +1695,7 @@ async function renderOffers(filters){
       if (f.minPrice) query = query.gte('price_final', f.minPrice);
       if (f.maxPrice) query = query.lte('price_final', f.maxPrice);
       if (f.minRooms) query = query.gte('rooms', f.minRooms);
-      const { data, error } = await query;
+      const { data, error } = await withTimeout(query);
       if (!error && data && data.length){
         grid.innerHTML = data.map(offerCardHtml).join('');
         return;
@@ -1714,7 +1726,7 @@ async function renderFeatured(){
   let items = [];
   if (dbReady){
     try {
-      const { data, error } = await supa.from('offers').select('*').eq('is_published', true).limit(3);
+      const { data, error } = await withTimeout(supa.from('offers').select('*').eq('is_published', true).limit(3));
       if (!error && data && data.length) items = data;
     } catch (e) {
       console.error('renderFeatured: Supabase call failed, falling back to demo data.', e);
@@ -1767,9 +1779,9 @@ function renderFaq(){
 async function loadCitiesFromDb(){
   if (!dbReady) return;
   try {
-    const { data: cities, error: e1 } = await supa.from('cities').select('name, price_per_sqm');
+    const { data: cities, error: e1 } = await withTimeout(supa.from('cities').select('name, price_per_sqm'));
     if (e1 || !cities || !cities.length) return;
-    const { data: districts, error: e2 } = await supa.from('districts').select('name, cities(name)');
+    const { data: districts, error: e2 } = await withTimeout(supa.from('districts').select('name, cities(name)'));
     if (e2) return;
 
     // Rebuild the shared maps from live data without discarding the local seed
@@ -1957,7 +1969,7 @@ async function renderAnalytics(){
   if (!dbReady) return;
 
   try {
-    const { data, error } = await supa.from('properties').select('*').eq('status','approved').order('created_at', {ascending:false}).limit(50);
+    const { data, error } = await withTimeout(supa.from('properties').select('*').eq('status','approved').order('created_at', {ascending:false}).limit(50));
     if (error || !data || !data.length) return;
 
     document.getElementById('stat-live-count').dataset.target = data.length;
@@ -2304,7 +2316,7 @@ async function searchProperties(q){
       if (q.maxPrice) query = query.lte('price', q.maxPrice);
       if (q.minPrice) query = query.gte('price', q.minPrice);
       if (q.rooms) query = query.eq('rooms', q.rooms);
-      const { data, error } = await query;
+      const { data, error } = await withTimeout(query);
       if (!error && data) results = data.map(p=>({ city:p.city, district:p.district, property_type:p.property_type, price:p.price, area_sqm:p.area_sqm, rooms:p.rooms }));
     } catch (e) {
       console.error('searchProperties: Supabase call failed, falling back to demo search.', e);
