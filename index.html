@@ -116,10 +116,24 @@ nav.links a:hover{color:var(--navy-900)}
 nav.links a.active{color:var(--gold-500);position:relative}
 nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16px;height:2px;background:var(--gold-500)}
 .nav-actions{display:flex;align-items:center;gap:10px}
+
+#mobile-menu-toggle{display:none;width:38px;height:38px;border-radius:8px;background:var(--sand-100);align-items:center;justify-content:center;color:var(--navy-900);flex-shrink:0}
+#mobile-menu-toggle:hover{background:var(--line)}
+#mobile-menu{display:none;flex-direction:column;gap:0;padding:6px 0;border-top:1px solid var(--line);background:var(--surface)}
+#mobile-menu a{padding:13px 24px;border-bottom:1px solid var(--line);font-size:14px}
+#mobile-menu a.active{color:var(--navy-900);background:var(--sand-100)}
+#mobile-menu.open{display:flex}
+
+@media(max-width:680px){
+  .nav-row nav.links{display:none}
+  #mobile-menu-toggle{display:flex}
+}
+@media(min-width:681px){
+  #mobile-menu{display:none !important}
+}
 .lang-switch{display:flex;gap:4px;background:var(--sand-100);border-radius:999px;padding:3px}
 .lang-switch button{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;background:transparent;color:var(--text-600)}
 .lang-switch button.active{background:var(--navy-900);color:#fff}
-@media(max-width:680px){nav.links{display:none}}
 
 /* Hero */
 .hero{background:linear-gradient(160deg,var(--navy-900),var(--navy-700));color:#fff;padding:36px 0 60px;position:relative;overflow:hidden}
@@ -307,8 +321,23 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <button data-lang="en">🇬🇧 EN</button>
         <button data-lang="fr">🇫🇷 FR</button>
       </div>
+      <button id="mobile-menu-toggle" aria-label="menu">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
     </div>
   </div>
+  <nav class="links" id="mobile-menu">
+    <a href="#home" data-i18n="nav_home">الرئيسية</a>
+    <a href="#valuation" data-i18n="nav_valuation">التقييم</a>
+    <a href="#offers" data-i18n="nav_offers">العروض</a>
+    <a href="#contracts" data-i18n="nav_contracts">العقود</a>
+    <a href="#add-property" data-i18n="nav_add">إضافة</a>
+    <a href="#analytics" data-i18n="nav_analytics">التحليلات</a>
+    <a href="#services" data-i18n="nav_services">الخدمات</a>
+    <a href="#faq" data-i18n="nav_faq">الأسئلة</a>
+    <a href="#about" data-i18n="nav_about">عنّا</a>
+    <a href="#contact" data-i18n="nav_contact">تواصل</a>
+  </nav>
 </header>
 
 <!-- ==========================================================================
@@ -1202,6 +1231,17 @@ function applyLang(lang){
 document.getElementById('lang-switch').addEventListener('click', e=>{
   const btn = e.target.closest('button[data-lang]');
   if (btn) applyLang(btn.dataset.lang);
+});
+
+/* ============================================================================
+   1.5) Mobile menu (hamburger) — the desktop nav is hidden below 680px,
+        this is its replacement so mobile visitors can still navigate.
+   ========================================================================== */
+document.getElementById('mobile-menu-toggle').addEventListener('click', ()=>{
+  document.getElementById('mobile-menu').classList.toggle('open');
+});
+document.getElementById('mobile-menu').addEventListener('click', e=>{
+  if (e.target.closest('a')) document.getElementById('mobile-menu').classList.remove('open');
 });
 
 /* ============================================================================
