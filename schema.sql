@@ -371,7 +371,7 @@ select * from (values
      'https://www.google.com/maps/search/حي+أحد+المدينة+المنورة', 'همة المدينة العقارية', '966530500906', '1200030428', true)
 ) as v(title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, image_url, map_url, marketer_name, marketer_phone, real_estate_license, is_published)
 where not exists (
-    select 1 from offers where title = 'فيلا فاخرة بتشطيب راقٍ' and city = 'الرياض'
+    select 1 from offers where price_final = 3542000
 );
 
 -- تحديث الحقول الغنية (الوصف، الصورة، الخريطة، بيانات المسوّق) على العروض
@@ -407,7 +407,7 @@ update offers set
     image_url = 'https://images.pexels.com/photos/16573669/pexels-photo-16573669.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
     map_url = 'https://www.google.com/maps/search/حي+العليا+الرياض',
     marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
-where title = 'فيلا فاخرة بتشطيب راقٍ';
+where price_final = 3542000;
 
 update offers set
     description = 'شقة راقية بالدور السابع، إطلالة مباشرة وكاملة على البحر الأحمر.
@@ -433,7 +433,7 @@ update offers set
     image_url = 'https://images.pexels.com/photos/11631278/pexels-photo-11631278.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
     map_url = 'https://www.google.com/maps/search/حي+الشاطئ+جدة',
     marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
-where title = 'شقة بإطلالة بحرية';
+where price_final = 862400;
 
 update offers set
     description = 'أرض تجارية بموقع استراتيجي، مخطّطة ومرخّصة للبناء التجاري.
@@ -452,7 +452,7 @@ update offers set
     image_url = 'https://images.pexels.com/photos/4525178/pexels-photo-4525178.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
     map_url = 'https://www.google.com/maps/search/حي+قباء+المدينة+المنورة',
     marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
-where title = 'أرض تجارية قريبة من الحرم';
+where price_final = 1425000;
 
 update offers set
     description = 'دبلكس عائلي بتصميم داخلي عصري، دورين مستقلين.
@@ -477,7 +477,7 @@ update offers set
     image_url = 'https://images.pexels.com/photos/10647324/pexels-photo-10647324.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
     map_url = 'https://www.google.com/maps/search/حي+النرجس+الرياض',
     marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
-where title = 'دبلكس عائلي واسع';
+where price_final = 1890000;
 
 update offers set
     description = 'شقة نظيفة وجاهزة للسكن الفوري، بالدور الثالث بعمارة سكنية هادئة.
@@ -501,7 +501,7 @@ update offers set
     image_url = 'https://images.pexels.com/photos/38000582/pexels-photo-38000582.png?auto=compress&cs=tinysrgb&h=650&w=940',
     map_url = 'https://www.google.com/maps/search/العزيزية+الشمالية+مكة',
     marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
-where title = 'شقة اقتصادية جاهزة للسكن';
+where price_final = 669600;
 
 update offers set
     description = 'استراحة عائلية بمساحة واسعة، مناسبة للتجمعات العائلية والمناسبات الصغيرة.
@@ -526,7 +526,7 @@ update offers set
     image_url = 'https://images.pexels.com/photos/8134745/pexels-photo-8134745.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
     map_url = 'https://www.google.com/maps/search/حي+أحد+المدينة+المنورة',
     marketer_name = 'همة المدينة العقارية', marketer_phone = '966530500906', real_estate_license = '1200030428'
-where title = 'استراحة بمساحات خضراء';
+where price_final = 807500;
 
 with seeded_properties as (
     insert into properties (city, district, property_type, price, area_sqm, rooms, age_years, facade, district_grade)
