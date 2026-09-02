@@ -180,6 +180,31 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .amenity-toggle:hover{border-color:var(--gold-500)}
 .amenity-toggle.active{background:var(--gold-500);border-color:var(--gold-500);color:var(--navy-900)}
 
+/* Detail modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(7,20,33,.55);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:40px 16px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:16px;width:100%;max-width:640px;position:relative;box-shadow:0 30px 70px rgba(0,0,0,.3)}
+.modal-close-btn{position:absolute;inset-inline-end:14px;top:14px;width:34px;height:34px;border-radius:50%;background:var(--sand-100);color:var(--text-900);font-size:15px;z-index:2}
+.modal-close-btn:hover{background:var(--line)}
+.detail-box{padding:32px 28px 28px}
+.detail-header{background:var(--navy-900);color:#fff;padding:16px 18px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.detail-header .discount{background:var(--gold-500);color:var(--navy-900);font-weight:900;padding:4px 12px;border-radius:8px;font-size:13px}
+.detail-title{font-size:20px;margin:0 0 4px}
+.detail-loc{color:var(--text-600);font-size:14px;margin:0 0 16px}
+.detail-price{font-size:24px;font-weight:900;color:var(--navy-900);font-family:var(--font-display);margin:0 0 20px}
+.detail-price s{color:var(--text-600);font-weight:400;font-size:15px;margin-inline-start:10px}
+.detail-specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.detail-spec{background:var(--sand-100);border-radius:10px;padding:10px 12px;text-align:center}
+.detail-spec b{display:block;font-size:15px;color:var(--navy-900)}
+.detail-spec span{font-size:11.5px;color:var(--text-600)}
+.detail-desc{white-space:pre-wrap;line-height:1.9;font-size:14.5px;color:var(--text-900);margin-bottom:22px;background:var(--sand-100);border-radius:10px;padding:16px}
+.detail-meta{border-top:1px solid var(--line);padding-top:16px;margin-top:6px}
+.detail-meta-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;color:var(--text-600)}
+.detail-meta-row b{color:var(--text-900);font-weight:700}
+.detail-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.offer-card{cursor:pointer}
+.offer-card:hover .offer-body h4{color:var(--navy-700)}
+
 /* Social row */
 .social-row{display:flex;gap:14px;align-items:center;margin-top:14px;flex-wrap:wrap}
 .social-icon-link{display:inline-flex;transition:transform .15s ease;line-height:0}
@@ -527,6 +552,18 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="field"><label data-i18n="f_contact">وسيلة تواصل (اختياري)</label><input id="add-contact" type="text" placeholder="جوال أو بريد"></div>
       </div>
       <div class="field">
+        <label data-i18n="f_description">وصف تفصيلي (اختياري)</label>
+        <textarea id="add-description" rows="5" data-i18n-placeholder="f_description_ph" placeholder="اكتب تفاصيل الغرف، المرافق، القرب من المعالم..."></textarea>
+      </div>
+      <div class="grid grid-2">
+        <div class="field"><label data-i18n="f_map_url">رابط الموقع على الخريطة (اختياري)</label><input id="add-map-url" type="url" placeholder="https://maps.app.goo.gl/..."></div>
+      </div>
+      <div class="notice notice-info" style="margin-bottom:14px" data-i18n="license_optional_note">الحقلين التاليين للمسوّقين والمكاتب العقارية المرخّصة فقط — اتركهما فارغين إن كنت مالكاً فردياً.</div>
+      <div class="grid grid-2">
+        <div class="field"><label data-i18n="f_re_license">رقم الرخصة العقارية (اختياري)</label><input id="add-re-license" type="text"></div>
+        <div class="field"><label data-i18n="f_ad_license">رقم الترخيص الإعلاني (اختياري)</label><input id="add-ad-license" type="text"></div>
+      </div>
+      <div class="field">
         <label data-i18n="f_amenities">إضافات تؤثر على السعر</label>
         <div class="amenity-row" id="add-amenities">
           <button type="button" class="amenity-toggle" data-amenity="maid_room" data-adj="0.05"><span class="ic">🧹</span><span data-i18n="am_maid_room">غرفة خادمة</span></button>
@@ -784,6 +821,16 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 </section>
 
 <!-- ==========================================================================
+     Property/Offer detail modal — opens when clicking any offer card.
+     ========================================================================== -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal-box detail-box">
+    <button class="modal-close-btn" id="detail-close" aria-label="close">✕</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- ==========================================================================
      WhatsApp — floating & fixed on every page. Same icon used in the
      Contact page's social row, for consistency across the whole site.
      ========================================================================== -->
@@ -896,6 +943,10 @@ const I18N = {
     f_age:"عمر العقار (سنوات)", f_facade:"الواجهة", f_grade:"تصنيف الحي", f_price:"قيمة العقار (ر.س)",
     f_down:"الدفعة المقدمة (ر.س)", f_rate:"النسبة السنوية %", f_years:"المدة (سنوات)", f_contact:"وسيلة تواصل (اختياري)",
     f_amenities:"إضافات تؤثر على السعر", am_maid_room:"غرفة خادمة", am_central_ac:"تكييف مركزي",
+    f_description:"وصف تفصيلي (اختياري)", f_description_ph:"اكتب تفاصيل الغرف، المرافق، القرب من المعالم...",
+    f_map_url:"رابط الموقع على الخريطة (اختياري)",
+    license_optional_note:"الحقلين التاليين للمسوّقين والمكاتب العقارية المرخّصة فقط — اتركهما فارغين إن كنت مالكاً فردياً.",
+    f_re_license:"رقم الرخصة العقارية (اختياري)", f_ad_license:"رقم الترخيص الإعلاني (اختياري)",
     am_furnished:"مفروش", am_driver_room:"غرفة سائق", am_elevator:"مصعد",
     f_min_price:"أقل سعر (ر.س)", f_max_price:"أعلى سعر (ر.س)", f_min_rooms:"أقل عدد غرف",
     filter_apply:"بحث", filter_reset:"إعادة تعيين", filter_all:"الكل", offers_no_match:"لا توجد نتائج مطابقة لبحثك.",
@@ -934,6 +985,9 @@ const I18N = {
     assist_placeholder:"اكتب سؤالك...", assist_send:"إرسال", assist_online:"متصل الآن",
     social_title:"تابعنا عبر منصات التواصل",
     price_on_request:"السعر عند التواصل", rooms_suffix:"غرف",
+    detail_map:"عرض على الخريطة", detail_whatsapp:"تواصل عبر واتساب",
+    detail_marketer:"المسوّق", detail_license:"رقم الرخصة العقارية", detail_ad_license:"رقم الترخيص الإعلاني",
+    detail_no_desc:"لا يوجد وصف تفصيلي لهذا العقار بعد.",
     contract_header:"عقد إيجار", contract_number_label:"رقم العقد",
     contract_lessor_label:"المؤجر", contract_lessee_label:"المستأجر",
     contract_id_label:"هوية", contract_phone_label2:"جوال",
@@ -973,6 +1027,10 @@ const I18N = {
     f_age:"Property age (yrs)", f_facade:"Facade", f_grade:"District grade", f_price:"Property value (SAR)",
     f_down:"Down payment (SAR)", f_rate:"Annual rate %", f_years:"Term (years)", f_contact:"Contact (optional)",
     f_amenities:"Amenities that affect the price", am_maid_room:"Maid's room", am_central_ac:"Central A/C",
+    f_description:"Detailed description (optional)", f_description_ph:"Describe the rooms, amenities, nearby landmarks...",
+    f_map_url:"Map location link (optional)",
+    license_optional_note:"The next two fields are for licensed marketers and real estate offices only — leave blank if you're a private owner.",
+    f_re_license:"Real estate license no. (optional)", f_ad_license:"Ad license no. (optional)",
     am_furnished:"Furnished", am_driver_room:"Driver's room", am_elevator:"Elevator",
     f_min_price:"Min price (SAR)", f_max_price:"Max price (SAR)", f_min_rooms:"Min rooms",
     filter_apply:"Search", filter_reset:"Reset", filter_all:"All", offers_no_match:"No results match your search.",
@@ -1011,6 +1069,9 @@ const I18N = {
     assist_placeholder:"Type your question...", assist_send:"Send", assist_online:"Online now",
     social_title:"Follow us on social media",
     price_on_request:"Price on request", rooms_suffix:"rooms",
+    detail_map:"View on map", detail_whatsapp:"Contact via WhatsApp",
+    detail_marketer:"Marketed by", detail_license:"Real estate license no.", detail_ad_license:"Ad license no.",
+    detail_no_desc:"No detailed description available for this property yet.",
     contract_header:"Lease contract", contract_number_label:"Contract No.",
     contract_lessor_label:"Lessor", contract_lessee_label:"Lessee",
     contract_id_label:"ID", contract_phone_label2:"Phone",
@@ -1050,6 +1111,10 @@ const I18N = {
     f_age:"Âge du bien (ans)", f_facade:"Façade", f_grade:"Standing du quartier", f_price:"Valeur du bien (SAR)",
     f_down:"Apport initial (SAR)", f_rate:"Taux annuel %", f_years:"Durée (ans)", f_contact:"Contact (optionnel)",
     f_amenities:"Équipements qui influencent le prix", am_maid_room:"Chambre de bonne", am_central_ac:"Climatisation centrale",
+    f_description:"Description détaillée (optionnel)", f_description_ph:"Décrivez les pièces, équipements, proximité des lieux...",
+    f_map_url:"Lien de localisation sur la carte (optionnel)",
+    license_optional_note:"Les deux champs suivants sont réservés aux commercialisateurs et agences agréées — laissez vide si vous êtes un propriétaire privé.",
+    f_re_license:"N° de licence immobilière (optionnel)", f_ad_license:"N° de licence publicitaire (optionnel)",
     am_furnished:"Meublé", am_driver_room:"Chambre chauffeur", am_elevator:"Ascenseur",
     f_min_price:"Prix min (SAR)", f_max_price:"Prix max (SAR)", f_min_rooms:"Pièces min",
     filter_apply:"Rechercher", filter_reset:"Réinitialiser", filter_all:"Tous", offers_no_match:"Aucun résultat ne correspond à votre recherche.",
@@ -1088,6 +1153,9 @@ const I18N = {
     assist_placeholder:"Écrivez votre question...", assist_send:"Envoyer", assist_online:"En ligne",
     social_title:"Suivez-nous sur les réseaux sociaux",
     price_on_request:"Prix sur demande", rooms_suffix:"pièces",
+    detail_map:"Voir sur la carte", detail_whatsapp:"Contacter via WhatsApp",
+    detail_marketer:"Commercialisé par", detail_license:"N° de licence immobilière", detail_ad_license:"N° de licence publicitaire",
+    detail_no_desc:"Aucune description détaillée disponible pour ce bien pour le moment.",
     contract_header:"Contrat de location", contract_number_label:"N° du contrat",
     contract_lessor_label:"Bailleur", contract_lessee_label:"Locataire",
     contract_id_label:"ID", contract_phone_label2:"Téléphone",
@@ -1458,12 +1526,21 @@ function renderServices(){
     </div>`).join('');
 }
 
+let OFFER_REGISTRY = {};
+let offerKeyCounter = 0;
+function registerOffer(o){
+  const key = o.id || ('demo-' + (offerKeyCounter++));
+  OFFER_REGISTRY[key] = o;
+  return key;
+}
+
 function offerCardHtml(o){
   const t = I18N[currentLang];
+  const key = registerOffer(o);
   const priceHtml = o.price_original
     ? `<span class="price">${money(o.price_final)} ${currentLang==='ar' ? 'ر.س' : 'SAR'} <s>${money(o.price_original)} ${currentLang==='ar' ? 'ر.س' : 'SAR'}</s></span>`
     : `<span class="price">${t.price_on_request}</span>`;
-  return `<div class="card offer-card">
+  return `<div class="card offer-card" onclick="openDetailModal('${key}')">
     <div class="offer-top"><b>${o.title}</b><span class="offer-discount">-${o.discount_pct}%</span></div>
     <div class="offer-body">
       <h4>${o.property_type} · ${districtLabel(o.district)}</h4>
@@ -1472,6 +1549,68 @@ function offerCardHtml(o){
     </div>
   </div>`;
 }
+
+/* ============================================================================
+   Detail modal — full listing info: description, specs, marketer, licenses.
+   ========================================================================== */
+function openDetailModal(key){
+  const o = OFFER_REGISTRY[key];
+  if (!o) return;
+  const t = I18N[currentLang];
+  const currency = currentLang === 'ar' ? 'ر.س' : 'SAR';
+
+  const priceHtml = o.price_original
+    ? `${money(o.price_final)} ${currency} <s>${money(o.price_original)} ${currency}</s>`
+    : t.price_on_request;
+
+  const specs = [];
+  if (o.area_sqm) specs.push({ v: o.area_sqm + ' م²', l: t.f_area });
+  if (o.rooms) specs.push({ v: o.rooms, l: t.f_rooms });
+  if (o.property_type) specs.push({ v: o.property_type, l: t.f_type });
+  if (o.discount_pct) specs.push({ v: '-' + o.discount_pct + '%', l: currentLang==='ar' ? 'الخصم' : 'Discount' });
+
+  const descHtml = o.description
+    ? escapeHtml(o.description)
+    : t.detail_no_desc;
+
+  const metaRows = [];
+  if (o.marketer_name) metaRows.push([t.detail_marketer, escapeHtml(o.marketer_name)]);
+  if (o.real_estate_license) metaRows.push([t.detail_license, escapeHtml(o.real_estate_license)]);
+  if (o.ad_license) metaRows.push([t.detail_ad_license, escapeHtml(o.ad_license)]);
+  const metaHtml = metaRows.length
+    ? `<div class="detail-meta">${metaRows.map(([l,v])=>`<div class="detail-meta-row"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`
+    : '';
+
+  const contactPhone = o.marketer_phone || '966530500906';
+  const waLink = `https://wa.me/${contactPhone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(o.title + ' — ' + o.city)}`;
+  const mapButton = o.map_url ? `<a href="${o.map_url}" target="_blank" rel="noopener" class="btn btn-ghost">📍 ${t.detail_map}</a>` : '';
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-header">
+      <b>${escapeHtml(o.title)}</b>
+      ${o.discount_pct ? `<span class="discount">-${o.discount_pct}%</span>` : ''}
+    </div>
+    <p class="detail-loc">${districtLabel(o.district)} · ${cityLabel(o.city)}</p>
+    <p class="detail-price">${priceHtml}</p>
+    <div class="detail-specs">${specs.map(s=>`<div class="detail-spec"><b>${s.v}</b><span>${s.l}</span></div>`).join('')}</div>
+    <div class="detail-desc">${descHtml}</div>
+    ${metaHtml}
+    <div class="detail-actions">
+      <a href="${waLink}" target="_blank" rel="noopener" class="btn btn-primary">${t.detail_whatsapp}</a>
+      ${mapButton}
+    </div>
+  `;
+  document.getElementById('detail-modal').classList.add('open');
+}
+document.getElementById('detail-close').addEventListener('click', ()=>{
+  document.getElementById('detail-modal').classList.remove('open');
+});
+document.getElementById('detail-modal').addEventListener('click', e=>{
+  if (e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('open');
+});
+document.addEventListener('keydown', e=>{
+  if (e.key === 'Escape') document.getElementById('detail-modal')?.classList.remove('open');
+});
 
 function readOfferFilters(){
   return {
@@ -1733,6 +1872,10 @@ document.getElementById('btn-add-property').addEventListener('click', async ()=>
     price: parseFloat(document.getElementById('add-price').value) || 0,
     area_sqm: parseFloat(document.getElementById('add-area').value) || 0,
     submitted_by_contact: document.getElementById('add-contact').value || null,
+    description: document.getElementById('add-description').value || null,
+    map_url: document.getElementById('add-map-url').value || null,
+    real_estate_license: document.getElementById('add-re-license').value || null,
+    ad_license: document.getElementById('add-ad-license').value || null,
     has_elevator: amenities.includes('elevator'),
     has_maid_room: amenities.includes('maid_room'),
     has_driver_room: amenities.includes('driver_room'),
