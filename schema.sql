@@ -488,3 +488,46 @@ create policy districts_public_read on districts
 -- (لا سياسات select/insert تُضاف هنا عمداً؛ RLS بدون سياسات = رفض كل شيء)
 
 -- ============================================================================
+-- 9.5) لوحة التحكم الإدارية (admin.html) — صلاحيات authenticated فقط
+-- ============================================================================
+-- هذه الصلاحيات تُمنح فقط لمستخدم مسجَّل دخول عبر Supabase Auth (auth.role() =
+-- 'authenticated')، وليس لمفتاح anon العام المستخدم بموقعك الرئيسي. أنشئ حساب
+-- المدير الوحيد من: Supabase Dashboard → Authentication → Users → Add user
+-- (بريد إلكتروني + كلمة مرور)، ثم سجّل الدخول منه فقط داخل admin.html.
+-- هذا أبسط بكثير من نظام أدوار/جدول مستخدمين مخصّص، لكنه حماية حقيقية على
+-- مستوى قاعدة البيانات نفسها — مو مجرد إخفاء رابط الصفحة.
+
+drop policy if exists properties_admin_update on properties;
+create policy properties_admin_update on properties
+    for update using (auth.role() = 'authenticated');
+drop policy if exists properties_admin_delete on properties;
+create policy properties_admin_delete on properties
+    for delete using (auth.role() = 'authenticated');
+
+drop policy if exists inquiries_admin_read on inquiries;
+create policy inquiries_admin_read on inquiries
+    for select using (auth.role() = 'authenticated');
+drop policy if exists inquiries_admin_update on inquiries;
+create policy inquiries_admin_update on inquiries
+    for update using (auth.role() = 'authenticated');
+
+drop policy if exists offers_admin_write on offers;
+create policy offers_admin_write on offers
+    for all using (auth.role() = 'authenticated')
+    with check (auth.role() = 'authenticated');
+
+-- ============================================================================
+-- 10) جدولة فحص التنبيهات يومياً عبر pg_cron (بديل خادم Python الدائم)
+--     يستدعي Edge Function عبر pg_net، فتبقى منطق الإرسال في مكان واحد آمن
+-- ============================================================================
+-- ملاحظة: يتطلب تفعيل إضافتي pg_cron و pg_net من لوحة Supabase أولاً.
+-- select cron.schedule(
+--     'daily-payment-reminders',
+--     '0 6 * * *',  -- 6 صباحاً بتوقيت السيرفر يومياً
+--     $$
+--     select net.http_post(
+--         url := 'https://<project-ref>.supabase.co/functions/v1/send-reminders',
+--         headers := jsonb_build_object('Authorization', 'Bearer <service_role_key>')
+--     );
+--     $$
+-- );
