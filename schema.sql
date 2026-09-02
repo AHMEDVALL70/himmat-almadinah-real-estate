@@ -209,6 +209,37 @@ create table if not exists inquiries (
 create index if not exists idx_inquiries_status on inquiries(status);
 
 -- ============================================================================
+-- 3.7) بيانات أولية (Seed) — عروض وعقارات واقعية حتى لا يبدو الموقع فارغاً
+--      عند الإطلاق. آمن التكرار (on conflict do nothing عبر تحقق مسبق) —
+--      شغّل هذا القسم مرة واحدة؛ عدّل الأسعار والصور لاحقاً من لوحتكم.
+-- ============================================================================
+insert into offers (title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, is_published)
+select * from (values
+    ('فيلا فاخرة بتشطيب راقٍ', 'الرياض', 'العليا', 'فيلا', 410, 6, 3850000, 8, 3542000, 'فيلا حديثة بتصميم عصري في أحد أرقى أحياء الرياض.', true),
+    ('شقة بإطلالة بحرية', 'جدة', 'الشاطئ', 'شقة في برج', 165, 3, 980000, 12, 862400, 'شقة عصرية بإطلالة مباشرة على البحر الأحمر.', true),
+    ('أرض تجارية قريبة من الحرم', 'المدينة المنورة', 'قباء', 'أرض', 500, null, 1500000, 5, 1425000, 'أرض بموقع استراتيجي قريبة من المسجد النبوي.', true),
+    ('دبلكس عائلي واسع', 'الرياض', 'النرجس', 'دبلكس', 320, 5, 2100000, 10, 1890000, 'دبلكس بتصميم عائلي في حي النرجس الحيوي.', true),
+    ('شقة اقتصادية جاهزة للسكن', 'مكة المكرمة', 'العزيزية الشمالية', 'شقة في عمارة', 140, 3, 720000, 7, 669600, 'شقة نظيفة وجاهزة للسكن الفوري قرب الحرم المكي.', true),
+    ('استراحة بمساحات خضراء', 'المدينة المنورة', 'أحد', 'استراحة', 800, null, 950000, 15, 807500, 'استراحة عائلية بمساحة واسعة ومرافق ترفيهية.', true)
+) as v(title, city, district, property_type, area_sqm, rooms, price_original, discount_pct, price_final, description, is_published)
+where not exists (select 1 from offers limit 1);
+
+with seeded_properties as (
+    insert into properties (city, district, property_type, price, area_sqm, rooms, age_years, facade, district_grade)
+    select * from (values
+        ('المدينة المنورة', 'الروابي', 'شقة في عمارة', 620000, 145, 3, 2, 'شرقية', 'متوسط'),
+        ('مكة المكرمة', 'النسيم', 'فيلا', 2300000, 380, 5, 4, 'شمالية', 'راقي'),
+        ('جدة', 'الصفا', 'شقة في برج', 890000, 160, 3, 1, 'غربية', 'استثماري'),
+        ('الرياض', 'الياسمين', 'دبلكس', 1750000, 300, 4, 3, 'جنوبية', 'راقي'),
+        ('المدينة المنورة', 'العوالي', 'أرض', 480000, 400, null, null, 'شرقية', 'متوسط'),
+        ('جدة', 'أبحر الشمالية', 'شقة في برج', 1050000, 190, 4, 0, 'شمالية', 'راقي')
+    ) as v(city, district, property_type, price, area_sqm, rooms, age_years, facade, district_grade)
+    where not exists (select 1 from properties limit 1)
+    returning id
+)
+update properties set status = 'approved' where id in (select id from seeded_properties);
+
+-- ============================================================================
 -- 4) العقود
 -- ============================================================================
 create table if not exists contracts (
