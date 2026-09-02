@@ -51,6 +51,7 @@ main{padding:24px;max-width:1200px;margin:0 auto}
 .tab-panel.active{display:block}
 
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px}
+.grid-2col{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
 .stat-card{padding:18px}
 .stat-card b{display:block;font-size:26px;font-family:var(--font-display);color:var(--navy-900)}
 .stat-card span{font-size:12.5px;color:var(--text-600)}
@@ -112,6 +113,7 @@ tr:hover td{background:#fafbfc}
   <div class="tabs-row">
     <button class="tab-btn active" data-tab="dashboard">نظرة عامة</button>
     <button class="tab-btn" data-tab="properties">العقارات</button>
+    <button class="tab-btn" data-tab="offers">العروض</button>
     <button class="tab-btn" data-tab="inquiries">الاستفسارات</button>
   </div>
 
@@ -151,6 +153,46 @@ tr:hover td{background:#fafbfc}
             <th>غرف</th><th>الحالة</th><th>وسيلة تواصل</th><th>إجراءات</th>
           </tr></thead>
           <tbody id="properties-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Offers -->
+    <section class="tab-panel" id="panel-offers">
+      <div class="card" style="padding:20px;margin-bottom:20px">
+        <h3 style="margin:0 0 14px" id="offer-form-title">إضافة عرض جديد</h3>
+        <input type="hidden" id="offer-edit-id">
+        <div class="grid-2col">
+          <div class="field"><label>العنوان</label><input id="offer-title" type="text"></div>
+          <div class="field"><label>المدينة</label><input id="offer-city" type="text" placeholder="مثال: المدينة المنورة"></div>
+          <div class="field"><label>الحي</label><input id="offer-district" type="text"></div>
+          <div class="field"><label>نوع العقار</label><input id="offer-type" type="text" placeholder="مثال: شقة في عمارة"></div>
+          <div class="field"><label>المساحة (م²)</label><input id="offer-area" type="number"></div>
+          <div class="field"><label>عدد الغرف</label><input id="offer-rooms" type="number"></div>
+          <div class="field"><label>السعر الأصلي (ر.س)</label><input id="offer-price-original" type="number"></div>
+          <div class="field"><label>نسبة الخصم %</label><input id="offer-discount" type="number" min="0" max="100" value="0"></div>
+          <div class="field"><label>السعر النهائي (ر.س)</label><input id="offer-price-final" type="number"></div>
+          <div class="field"><label>رابط الخريطة</label><input id="offer-map-url" type="url" placeholder="https://maps.app.goo.gl/..."></div>
+          <div class="field"><label>اسم المسوّق</label><input id="offer-marketer-name" type="text"></div>
+          <div class="field"><label>جوال المسوّق</label><input id="offer-marketer-phone" type="text" placeholder="9665xxxxxxxx"></div>
+          <div class="field"><label>رقم الرخصة العقارية</label><input id="offer-re-license" type="text"></div>
+          <div class="field"><label>رقم الترخيص الإعلاني</label><input id="offer-ad-license" type="text"></div>
+        </div>
+        <div class="field"><label>الوصف التفصيلي</label><textarea id="offer-description" rows="6" style="width:100%"></textarea></div>
+        <div class="field"><label><input type="checkbox" id="offer-published" checked style="width:auto;display:inline-block"> منشور (ظاهر للزوار)</label></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" id="btn-save-offer">حفظ العرض</button>
+          <button class="btn btn-ghost" id="btn-cancel-offer-edit" style="display:none">إلغاء التعديل</button>
+        </div>
+        <p id="offer-form-msg" style="font-size:13px;margin-top:8px"></p>
+      </div>
+
+      <div class="card" style="padding:0;overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>العنوان</th><th>المدينة</th><th>الحي</th><th>السعر النهائي</th><th>الخصم</th><th>الحالة</th><th>إجراءات</th>
+          </tr></thead>
+          <tbody id="offers-tbody"></tbody>
         </table>
       </div>
     </section>
@@ -252,6 +294,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.classList.add('active');
     document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
     if (btn.dataset.tab === 'properties') loadProperties();
+    if (btn.dataset.tab === 'offers') loadOffers();
     if (btn.dataset.tab === 'inquiries') loadInquiries();
   });
 });
@@ -350,6 +393,151 @@ async function deleteProperty(id){
     showToast('🗑️ تم الحذف');
     loadProperties();
     loadDashboard();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر الحذف: ' + e.message);
+  }
+}
+
+/* ============================================================================
+   Offers — rich marketing listings (description, map, marketer, licenses)
+   ========================================================================== */
+function readOfferForm(){
+  return {
+    title: document.getElementById('offer-title').value.trim(),
+    city: document.getElementById('offer-city').value.trim(),
+    district: document.getElementById('offer-district').value.trim(),
+    property_type: document.getElementById('offer-type').value.trim(),
+    area_sqm: parseFloat(document.getElementById('offer-area').value) || null,
+    rooms: parseInt(document.getElementById('offer-rooms').value, 10) || null,
+    price_original: parseFloat(document.getElementById('offer-price-original').value) || null,
+    discount_pct: parseInt(document.getElementById('offer-discount').value, 10) || 0,
+    price_final: parseFloat(document.getElementById('offer-price-final').value) || null,
+    map_url: document.getElementById('offer-map-url').value.trim() || null,
+    marketer_name: document.getElementById('offer-marketer-name').value.trim() || null,
+    marketer_phone: document.getElementById('offer-marketer-phone').value.trim() || null,
+    real_estate_license: document.getElementById('offer-re-license').value.trim() || null,
+    ad_license: document.getElementById('offer-ad-license').value.trim() || null,
+    description: document.getElementById('offer-description').value.trim() || null,
+    is_published: document.getElementById('offer-published').checked,
+  };
+}
+function clearOfferForm(){
+  document.getElementById('offer-edit-id').value = '';
+  ['offer-title','offer-city','offer-district','offer-type','offer-area','offer-rooms',
+   'offer-price-original','offer-price-final','offer-map-url','offer-marketer-name',
+   'offer-marketer-phone','offer-re-license','offer-ad-license','offer-description'].forEach(id=>{
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('offer-discount').value = '0';
+  document.getElementById('offer-published').checked = true;
+  document.getElementById('offer-form-title').textContent = 'إضافة عرض جديد';
+  document.getElementById('btn-cancel-offer-edit').style.display = 'none';
+}
+document.getElementById('btn-cancel-offer-edit').addEventListener('click', clearOfferForm);
+
+document.getElementById('btn-save-offer').addEventListener('click', async ()=>{
+  const msg = document.getElementById('offer-form-msg');
+  const payload = readOfferForm();
+  if (!payload.title || !payload.city || !payload.district || !payload.property_type){
+    msg.style.color = 'var(--danger)';
+    msg.textContent = '⚠️ عبّئ العنوان والمدينة والحي ونوع العقار على الأقل.';
+    return;
+  }
+  const editId = document.getElementById('offer-edit-id').value;
+  try {
+    let error;
+    if (editId){
+      ({ error } = await supa.from('offers').update(payload).eq('id', editId));
+    } else {
+      ({ error } = await supa.from('offers').insert(payload));
+    }
+    if (error) throw error;
+    msg.style.color = 'var(--ok)';
+    msg.textContent = editId ? '✅ تم تحديث العرض' : '✅ تم إضافة العرض';
+    clearOfferForm();
+    loadOffers();
+  } catch (e) {
+    console.error(e);
+    msg.style.color = 'var(--danger)';
+    msg.textContent = '⚠️ تعذّر الحفظ: ' + e.message;
+  }
+});
+
+async function loadOffers(){
+  const tbody = document.getElementById('offers-tbody');
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="7">جاري التحميل...</td></tr>`;
+  try {
+    const { data, error } = await supa.from('offers').select('*').order('created_at', { ascending: false }).limit(100);
+    if (error) throw error;
+    if (!data || !data.length){
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">لا توجد عروض بعد.</td></tr>`;
+      return;
+    }
+    window.__OFFERS_CACHE = {};
+    data.forEach(o => window.__OFFERS_CACHE[o.id] = o);
+    tbody.innerHTML = data.map(o => `
+      <tr>
+        <td>${o.title}</td><td>${o.city}</td><td>${o.district}</td>
+        <td>${o.price_final ? money(o.price_final) + ' ر.س' : '—'}</td>
+        <td>${o.discount_pct || 0}%</td>
+        <td><span class="badge ${o.is_published ? 'badge-approved' : 'badge-pending'}">${o.is_published ? 'منشور' : 'مخفي'}</span></td>
+        <td class="actions-cell">
+          <button class="btn btn-ghost" onclick="editOffer('${o.id}')">تعديل</button>
+          <button class="btn btn-ghost" onclick="toggleOfferPublish('${o.id}', ${!o.is_published})">${o.is_published ? 'إخفاء' : 'نشر'}</button>
+          <button class="btn btn-danger" onclick="deleteOffer('${o.id}')">حذف</button>
+        </td>
+      </tr>`).join('');
+  } catch (e) {
+    console.error('loadOffers failed', e);
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">⚠️ تعذّر تحميل العروض.</td></tr>`;
+  }
+}
+
+function editOffer(id){
+  const o = window.__OFFERS_CACHE?.[id];
+  if (!o) return;
+  document.getElementById('offer-edit-id').value = o.id;
+  document.getElementById('offer-title').value = o.title || '';
+  document.getElementById('offer-city').value = o.city || '';
+  document.getElementById('offer-district').value = o.district || '';
+  document.getElementById('offer-type').value = o.property_type || '';
+  document.getElementById('offer-area').value = o.area_sqm || '';
+  document.getElementById('offer-rooms').value = o.rooms || '';
+  document.getElementById('offer-price-original').value = o.price_original || '';
+  document.getElementById('offer-discount').value = o.discount_pct || 0;
+  document.getElementById('offer-price-final').value = o.price_final || '';
+  document.getElementById('offer-map-url').value = o.map_url || '';
+  document.getElementById('offer-marketer-name').value = o.marketer_name || '';
+  document.getElementById('offer-marketer-phone').value = o.marketer_phone || '';
+  document.getElementById('offer-re-license').value = o.real_estate_license || '';
+  document.getElementById('offer-ad-license').value = o.ad_license || '';
+  document.getElementById('offer-description').value = o.description || '';
+  document.getElementById('offer-published').checked = !!o.is_published;
+  document.getElementById('offer-form-title').textContent = 'تعديل العرض';
+  document.getElementById('btn-cancel-offer-edit').style.display = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function toggleOfferPublish(id, newState){
+  try {
+    const { error } = await supa.from('offers').update({ is_published: newState }).eq('id', id);
+    if (error) throw error;
+    showToast(newState ? '✅ تم النشر' : '✅ تم الإخفاء');
+    loadOffers();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر التحديث: ' + e.message);
+  }
+}
+
+async function deleteOffer(id){
+  if (!confirm('حذف هذا العرض نهائياً؟')) return;
+  try {
+    const { error } = await supa.from('offers').delete().eq('id', id);
+    if (error) throw error;
+    showToast('🗑️ تم الحذف');
+    loadOffers();
   } catch (e) {
     console.error(e);
     showToast('⚠️ تعذّر الحذف: ' + e.message);
