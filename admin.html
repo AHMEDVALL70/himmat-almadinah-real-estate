@@ -150,7 +150,7 @@ tr:hover td{background:#fafbfc}
         <table>
           <thead><tr>
             <th>المدينة</th><th>الحي</th><th>النوع</th><th>السعر</th><th>المساحة</th>
-            <th>غرف</th><th>الحالة</th><th>وسيلة تواصل</th><th>إجراءات</th>
+            <th>غرف / أدوار</th><th>الحالة</th><th>وسيلة تواصل</th><th>إجراءات</th>
           </tr></thead>
           <tbody id="properties-tbody"></tbody>
         </table>
@@ -353,10 +353,14 @@ async function loadProperties(){
       tbody.innerHTML = `<tr class="empty-row"><td colspan="9">لا توجد عقارات مطابقة.</td></tr>`;
       return;
     }
-    tbody.innerHTML = data.map(p => `
+    tbody.innerHTML = data.map(p => {
+      const roomsOrFloors = p.property_type === 'عمارة'
+        ? `${p.floors_count ?? '—'} × ${p.units_per_floor ?? '—'}`
+        : (p.rooms ?? '—');
+      return `
       <tr>
         <td>${p.city}</td><td>${p.district}</td><td>${p.property_type}</td>
-        <td>${money(p.price)} ر.س</td><td>${p.area_sqm} م²</td><td>${p.rooms ?? '—'}</td>
+        <td>${money(p.price)} ر.س</td><td>${p.area_sqm} م²</td><td>${roomsOrFloors}</td>
         <td><span class="badge badge-${p.status}">${statusLabel(p.status)}</span></td>
         <td>${p.submitted_by_contact || '—'}</td>
         <td class="actions-cell">
@@ -364,7 +368,8 @@ async function loadProperties(){
           ${p.status !== 'rejected' ? `<button class="btn btn-danger" onclick="setPropertyStatus('${p.id}','rejected')">رفض</button>` : ''}
           <button class="btn btn-ghost" onclick="deleteProperty('${p.id}')">حذف</button>
         </td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
   } catch (e) {
     console.error('loadProperties failed', e);
     tbody.innerHTML = `<tr class="empty-row"><td colspan="9">⚠️ تعذّر تحميل العقارات.</td></tr>`;
