@@ -110,6 +110,11 @@ alter table properties add column if not exists ad_license varchar(50);
 alter table offers add column if not exists image_url text;
 alter table properties add column if not exists image_url text;
 alter table properties add column if not exists floors_count integer;
+alter table properties add column if not exists has_elevator boolean not null default false;
+alter table properties add column if not exists has_maid_room boolean not null default false;
+alter table properties add column if not exists has_driver_room boolean not null default false;
+alter table properties add column if not exists has_central_ac boolean not null default false;
+alter table properties add column if not exists is_furnished boolean not null default false;
 alter table properties add column if not exists units_per_floor integer;
 
 -- ============================================================================
@@ -848,3 +853,9 @@ create policy offers_admin_write on offers
 --     );
 --     $$
 -- );
+
+-- ============================================================================
+-- تحديث ذاكرة الأعمدة (Schema Cache) — يضمن Supabase يتعرّف فوراً على أي
+-- عمود أُضيف بهذا التشغيل، بدل انتظار التحديث التلقائي. آمن يتكرر تشغيله.
+-- ============================================================================
+NOTIFY pgrst, 'reload schema';
