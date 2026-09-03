@@ -2098,13 +2098,13 @@ function runValuation(){
 
   const sourceNote = {
     ar: usingRealPrice
-      ? `سعر المتر (${money(pricePerSqm)} ر.س) مبني على صفقات فعلية موثّقة لحي ${districtVal} (مصدر: وزارة العدل عبر رغدان العقارية).`
+      ? `سعر المتر (${money(pricePerSqm)} ر.س) وسيط صفقات فعلية موثّقة لحي ${districtVal} خلال الفترة 2020–2026 (مصدر: وزارة العدل عبر رغدان العقارية) — قد يختلف عن سعر السوق الحالي بالضبط في الأحياء سريعة الارتفاع.`
       : `سعر المتر (${money(pricePerSqm)} ر.س) هو متوسط تقديري لمدينة ${cityVal} بالكامل (ما فيه بيانات صفقات فعلية موثّقة لحي ${districtVal} بعد)، معدَّل بتصنيف الحي اليدوي.`,
     en: usingRealPrice
-      ? `The per-sqm price (${money(pricePerSqm)} SAR) is based on actual documented transactions for ${districtVal} (source: Ministry of Justice via Raghdan).`
+      ? `The per-sqm price (${money(pricePerSqm)} SAR) is a median of documented transactions for ${districtVal} over 2020–2026 (source: Ministry of Justice via Raghdan) — may differ from the exact current market price in fast-appreciating districts.`
       : `The per-sqm price (${money(pricePerSqm)} SAR) is a citywide estimate for ${cityVal} (no verified transaction data for ${districtVal} yet), adjusted by the manual district grade.`,
     fr: usingRealPrice
-      ? `Le prix au m² (${money(pricePerSqm)} SAR) est basé sur des transactions réelles documentées pour ${districtVal} (source : ministère de la Justice via Raghdan).`
+      ? `Le prix au m² (${money(pricePerSqm)} SAR) est une médiane de transactions documentées pour ${districtVal} sur 2020–2026 (source : ministère de la Justice via Raghdan) — peut différer du prix de marché actuel exact dans les quartiers à forte hausse.`
       : `Le prix au m² (${money(pricePerSqm)} SAR) est une estimation moyenne pour ${cityVal} (pas de données de transactions vérifiées pour ${districtVal} pour l'instant), ajustée par le niveau de quartier manuel.`,
   };
   const priceSourceEl = document.getElementById('v-price-source');
