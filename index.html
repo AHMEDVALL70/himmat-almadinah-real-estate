@@ -93,6 +93,7 @@ section{padding:44px 0 60px}
 .badge-info{background:var(--gold-100);color:#0B132B}
 .notice{border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.6}
 .notice-warn{background:rgba(224,169,109,.12);color:#E0A96D;border:1px solid rgba(224,169,109,.35)}
+.notice-ok-source{background:rgba(79,174,118,.14);color:#6fd99a;border:1px solid rgba(79,174,118,.35)}
 .notice-info{background:rgba(37,50,78,.6);color:var(--text-600);border:1px solid var(--line)}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .field label{font-size:13px;font-weight:700;color:var(--text-600)}
@@ -531,7 +532,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
               <option value="غربية" data-adj="-0.02" data-i18n="opt_west">غربية (-2%)</option>
             </select>
           </div>
-          <div class="field">
+          <div class="field" id="v-grade-wrap">
             <label data-i18n="f_grade">تصنيف الحي</label>
             <select id="v-grade">
               <option value="راقي" data-adj="0.25" data-i18n="opt_upscale">حي راقي (+25%)</option>
@@ -540,6 +541,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
             </select>
           </div>
         </div>
+        <div class="notice" id="v-price-source" style="margin-bottom:14px"></div>
         <div class="field" id="v-amenities-wrap">
           <label data-i18n="f_amenities">إضافات تؤثر على السعر</label>
           <div class="amenity-row" id="v-amenities">
@@ -1510,6 +1512,34 @@ const CITY_DISTRICTS = {
 };
 const CITY_PRICE_PER_SQM = { "المدينة المنورة":4200, "مكة المكرمة":6100, "جدة":5800, "الرياض":6500 };
 
+// أسعار متر حقيقية موثّقة لأحياء محددة — مصدرها صفقات فعلية موثّقة من وزارة
+// العدل السعودية (عبر منصة رغدان raghdan.sa، بيانات 2026). هذي مو كل الأحياء
+// الـ265 — بس الأحياء اللي قدرنا نتحقق من سعرها الفعلي. أي حي مو موجود هنا
+// يستخدم تقدير "متوسط المدينة × تصنيف الحي" القديم بدلاً منه (استرشادي، مو موثّق).
+const DISTRICT_PRICES = {
+  "المدينة المنورة": {
+    "العزيزية": 1522, "المبعوث": 2690, "قباء": 4839, "الرانوناء": 2186,
+    "مذينب": 3593, "طيبة": 2284, "وادي البطان": 863, "أبو بريقاء": 188,
+  },
+  "مكة المكرمة": {
+    "بطحاء قريش": 3519, "العمرة": 1726, "المعابدة": 9431, "الملك فهد": 2881,
+  },
+  "جدة": {
+    "الشاطئ": 6870, "الخالدية": 6667, "المحمدية": 6316, "النهضة": 5930,
+    "السلامة": 5361, "الفيحاء": 4138, "المنار": 3639, "الصفا": 3804,
+    "الواحة": 3646, "الريان": 3132, "مريخ": 2976, "الرحمانية": 2744,
+    "الياقوت": 2883, "القرينية": 2058, "الرياض": 1567,
+  },
+  "الرياض": {
+    "الغدير": 16123, "الصحافة": 12691, "الملقا": 10285, "النرجس": 8559,
+    "المغرزات": 10699, "المعذر": 10667, "الياسمين": 5954, "الرمال": 4075,
+    "الجنادرية": 2874, "بدر": 2293, "نمار": 1548,
+  },
+};
+function realDistrictPrice(city, district){
+  return DISTRICT_PRICES[city] && DISTRICT_PRICES[city][district];
+}
+
 // أسماء الأحياء كما تُنطق بالحروف اللاتينية، تُستخدم في وضعي EN/FR
 const DISTRICT_TRANSLIT = {
   "أبحر الجنوبية":"Obhur Al Janubiyah", "أبحر الشمالية":"Obhur Al Shamaliyah", "أبو بريقاء":"Abu Buraiqa",
@@ -1915,6 +1945,23 @@ document.querySelectorAll('select.city-select').forEach(sel=>{
   sel.addEventListener('change', ()=> populateDistrictSelectFor(sel.id));
 });
 
+// يخفي "تصنيف الحي" اليدوي فقط لما يكون عندنا سعر حي حقيقي موثّق (يصير
+// التصنيف اليدوي زائداً ومربكاً وقتها، لأن السعر الحقيقي أدق منه أصلاً)
+function updateGradeFieldVisibility(){
+  const gradeWrap = document.getElementById('v-grade-wrap');
+  if (!gradeWrap) return;
+  const city = document.getElementById('v-city').value;
+  const district = document.getElementById('v-district').value;
+  gradeWrap.style.display = realDistrictPrice(city, district) ? 'none' : '';
+}
+document.getElementById('v-district')?.addEventListener('change', ()=>{
+  updateGradeFieldVisibility();
+  try { runValuation(); } catch(e){}
+});
+document.getElementById('v-city')?.addEventListener('change', ()=>{
+  setTimeout(updateGradeFieldVisibility, 0); // بعد ما تتحدّث قائمة الأحياء
+});
+
 function populateTypeSelects(){
   document.querySelectorAll('select.type-select').forEach(sel=>{
     const prev = sel.value;
@@ -1972,7 +2019,12 @@ document.getElementById('v-type').addEventListener('change', updateValuationFiel
 
 function runValuation(){
   const citySel = document.getElementById('v-city');
-  const pricePerSqm = parseFloat(citySel.selectedOptions[0].dataset.price);
+  const cityVal = citySel.value;
+  const districtSel = document.getElementById('v-district');
+  const districtVal = districtSel.value;
+  const realPrice = realDistrictPrice(cityVal, districtVal);
+  const usingRealPrice = !!realPrice;
+  const pricePerSqm = usingRealPrice ? realPrice : parseFloat(citySel.selectedOptions[0].dataset.price);
   const typeSel = document.getElementById('v-type');
   const typeVal = typeSel.value;
   const group = propertyGroupFor(typeVal);
@@ -1980,7 +2032,9 @@ function runValuation(){
   const facadeSel = document.getElementById('v-facade');
   const facadeAdj = parseFloat(facadeSel.selectedOptions[0].dataset.adj);
   const gradeSel = document.getElementById('v-grade');
-  const gradeAdj = parseFloat(gradeSel.selectedOptions[0].dataset.adj);
+  // لو عندنا سعر حي حقيقي موثّق، ما نضيف تصنيف الحي التقديري فوقه (يكرر
+  // نفس الأثر مرتين) — السعر الحقيقي أصلاً يعكس خصوصية الحي بدقة أكبر.
+  const gradeAdj = usingRealPrice ? 0 : parseFloat(gradeSel.selectedOptions[0].dataset.adj);
   const area = parseFloat(document.getElementById('v-area').value) || 0;
 
   const base = pricePerSqm * area * typeMult;
@@ -2034,21 +2088,37 @@ function runValuation(){
   };
   const L = pctLabels[currentLang] || pctLabels.ar;
   const fmtPct = v => (v >= 0 ? '+' : '') + (v*100).toFixed(0) + '%';
-  const adjParts = [`${L.facade} ${fmtPct(facadeAdj)}`, `${L.grade} ${fmtPct(gradeAdj)}`];
+  const adjParts = [`${L.facade} ${fmtPct(facadeAdj)}`];
+  if (!usingRealPrice) adjParts.push(`${L.grade} ${fmtPct(gradeAdj)}`);
   if (group !== 'land') adjParts.push(`${L.age} ${fmtPct(ageAdj)}`);
   if (group === 'residential') adjParts.push(`${L.rooms} ${fmtPct(roomsAdj)}`);
   if (group === 'building') adjParts.push(`${L.units} ${fmtPct(unitsAdj)} (${totalUnits} ${currentLang==='ar' ? 'وحدة' : currentLang==='fr' ? 'unités' : 'units'})`);
   if (group !== 'land') adjParts.push(`${L.amenities} ${fmtPct(amenityAdj)}`);
   const adjLine = adjParts.join(' + ');
 
+  const sourceNote = {
+    ar: usingRealPrice
+      ? `سعر المتر (${money(pricePerSqm)} ر.س) مبني على صفقات فعلية موثّقة لحي ${districtVal} (مصدر: وزارة العدل عبر رغدان العقارية).`
+      : `سعر المتر (${money(pricePerSqm)} ر.س) هو متوسط تقديري لمدينة ${cityVal} بالكامل (ما فيه بيانات صفقات فعلية موثّقة لحي ${districtVal} بعد)، معدَّل بتصنيف الحي اليدوي.`,
+    en: usingRealPrice
+      ? `The per-sqm price (${money(pricePerSqm)} SAR) is based on actual documented transactions for ${districtVal} (source: Ministry of Justice via Raghdan).`
+      : `The per-sqm price (${money(pricePerSqm)} SAR) is a citywide estimate for ${cityVal} (no verified transaction data for ${districtVal} yet), adjusted by the manual district grade.`,
+    fr: usingRealPrice
+      ? `Le prix au m² (${money(pricePerSqm)} SAR) est basé sur des transactions réelles documentées pour ${districtVal} (source : ministère de la Justice via Raghdan).`
+      : `Le prix au m² (${money(pricePerSqm)} SAR) est une estimation moyenne pour ${cityVal} (pas de données de transactions vérifiées pour ${districtVal} pour l'instant), ajustée par le niveau de quartier manuel.`,
+  };
+  const priceSourceEl = document.getElementById('v-price-source');
+  priceSourceEl.className = 'notice ' + (usingRealPrice ? 'notice-ok-source' : 'notice-warn');
+  priceSourceEl.innerHTML = (usingRealPrice ? '✅ ' : '⚠️ ') + (sourceNote[currentLang] || sourceNote.ar);
+
   const bd = {
-    ar: `السعر الأساسي = ${pricePerSqm} ر.س/م² × ${area} م² × معامل النوع ${typeMult} = ${money(base)} ر.س<br>
+    ar: `السعر الأساسي = ${money(pricePerSqm)} ر.س/م² × ${area} م² × معامل النوع ${typeMult} = ${money(base)} ر.س<br>
          التعديلات: ${adjLine}<br>
          <b>هذه معادلة حسابية شفافة بالكامل، وليست تنبؤاً من نموذج تعلّم آلي.</b>`,
-    en: `Base price = ${pricePerSqm} SAR/sqm × ${area} sqm × type factor ${typeMult} = ${money(base)} SAR<br>
+    en: `Base price = ${money(pricePerSqm)} SAR/sqm × ${area} sqm × type factor ${typeMult} = ${money(base)} SAR<br>
          Adjustments: ${adjLine}<br>
          <b>This is a fully transparent formula, not a machine-learning prediction.</b>`,
-    fr: `Prix de base = ${pricePerSqm} SAR/m² × ${area} m² × facteur de type ${typeMult} = ${money(base)} SAR<br>
+    fr: `Prix de base = ${money(pricePerSqm)} SAR/m² × ${area} m² × facteur de type ${typeMult} = ${money(base)} SAR<br>
          Ajustements : ${adjLine}<br>
          <b>Formule de calcul entièrement transparente, pas une prédiction d'un modèle d'apprentissage automatique.</b>`,
   };
@@ -2056,6 +2126,17 @@ function runValuation(){
   return estimate;
 }
 document.getElementById('btn-run-valuation').addEventListener('click', runValuation);
+
+// تحديث السعر تلقائياً فور تغيير أي عنصر — بدون حاجة لضغط زر "احسب" يدوياً
+const VALUATION_LIVE_IDS = ['v-city','v-district','v-type','v-area','v-rooms','v-age',
+  'v-floors','v-units-per-floor','v-facade','v-grade'];
+VALUATION_LIVE_IDS.forEach(id=>{
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', ()=>{ try { runValuation(); } catch(e){} });
+});
+document.getElementById('v-amenities').addEventListener('click', ()=>{
+  setTimeout(()=>{ try { runValuation(); } catch(e){} }, 0);
+});
 
 /* Financing calculator */
 function runFinance(){
@@ -2689,6 +2770,8 @@ window.addEventListener('load', async ()=>{
 
   const totalDistricts = Object.values(CITY_DISTRICTS).reduce((sum, list) => sum + list.length, 0);
   document.getElementById('stat-district-count').dataset.target = totalDistricts;
+  updateGradeFieldVisibility();
+  try { runValuation(); } catch(e){}
   showPage(location.hash.slice(1) || 'home');
 });
 </script>
