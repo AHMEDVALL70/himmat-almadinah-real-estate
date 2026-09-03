@@ -506,13 +506,21 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
             <label data-i18n="f_area">المساحة (م²)</label>
             <input id="v-area" type="number" min="10" value="200">
           </div>
-          <div class="field">
+          <div class="field" id="v-rooms-wrap">
             <label data-i18n="f_rooms">عدد الغرف</label>
             <input id="v-rooms" type="number" min="0" value="4">
           </div>
-          <div class="field">
+          <div class="field" id="v-age-wrap">
             <label data-i18n="f_age">عمر العقار (سنوات)</label>
             <input id="v-age" type="number" min="0" value="3">
+          </div>
+          <div class="field" id="v-floors-wrap" style="display:none">
+            <label data-i18n="f_floors">عدد الأدوار</label>
+            <input id="v-floors" type="number" min="1" value="4">
+          </div>
+          <div class="field" id="v-units-wrap" style="display:none">
+            <label data-i18n="f_units_per_floor">عدد الشقق بكل دور</label>
+            <input id="v-units-per-floor" type="number" min="1" value="2">
           </div>
           <div class="field">
             <label data-i18n="f_facade">الواجهة</label>
@@ -532,14 +540,14 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
             </select>
           </div>
         </div>
-        <div class="field">
+        <div class="field" id="v-amenities-wrap">
           <label data-i18n="f_amenities">إضافات تؤثر على السعر</label>
           <div class="amenity-row" id="v-amenities">
-            <button type="button" class="amenity-toggle" data-amenity="maid_room" data-adj="0.05"><span class="ic">🧹</span><span data-i18n="am_maid_room">غرفة خادمة</span></button>
-            <button type="button" class="amenity-toggle" data-amenity="central_ac" data-adj="0.03"><span class="ic">❄️</span><span data-i18n="am_central_ac">تكييف مركزي</span></button>
-            <button type="button" class="amenity-toggle" data-amenity="furnished" data-adj="0.04"><span class="ic">🛋️</span><span data-i18n="am_furnished">مفروش</span></button>
-            <button type="button" class="amenity-toggle" data-amenity="driver_room" data-adj="0.05"><span class="ic">🚗</span><span data-i18n="am_driver_room">غرفة سائق</span></button>
-            <button type="button" class="amenity-toggle" data-amenity="elevator" data-adj="0.06"><span class="ic">🛗</span><span data-i18n="am_elevator">مصعد</span></button>
+            <button type="button" class="amenity-toggle" data-scope="residential" data-amenity="maid_room" data-adj="0.05"><span class="ic">🧹</span><span data-i18n="am_maid_room">غرفة خادمة</span></button>
+            <button type="button" class="amenity-toggle" data-scope="broad" data-amenity="central_ac" data-adj="0.03"><span class="ic">❄️</span><span data-i18n="am_central_ac">تكييف مركزي</span></button>
+            <button type="button" class="amenity-toggle" data-scope="residential" data-amenity="furnished" data-adj="0.04"><span class="ic">🛋️</span><span data-i18n="am_furnished">مفروش</span></button>
+            <button type="button" class="amenity-toggle" data-scope="residential" data-amenity="driver_room" data-adj="0.05"><span class="ic">🚗</span><span data-i18n="am_driver_room">غرفة سائق</span></button>
+            <button type="button" class="amenity-toggle" data-scope="broad" data-amenity="elevator" data-adj="0.06"><span class="ic">🛗</span><span data-i18n="am_elevator">مصعد</span></button>
           </div>
         </div>
         <button class="btn btn-primary" id="btn-run-valuation" style="width:100%;justify-content:center;margin-top:6px" data-i18n="val_run">احسب التقدير</button>
@@ -600,6 +608,10 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         </div>
         <div class="field"><label data-i18n="f_price">السعر (ر.س)</label><input id="add-price" type="number"></div>
         <div class="field"><label data-i18n="f_area">المساحة (م²)</label><input id="add-area" type="number"></div>
+        <div class="field" id="add-rooms-wrap"><label data-i18n="f_rooms">عدد الغرف</label><input id="add-rooms" type="number" min="0"></div>
+        <div class="field" id="add-age-wrap"><label data-i18n="f_age">عمر العقار (سنوات)</label><input id="add-age" type="number" min="0"></div>
+        <div class="field" id="add-floors-wrap" style="display:none"><label data-i18n="f_floors">عدد الأدوار</label><input id="add-floors" type="number" min="1"></div>
+        <div class="field" id="add-units-wrap" style="display:none"><label data-i18n="f_units_per_floor">عدد الشقق بكل دور</label><input id="add-units-per-floor" type="number" min="1"></div>
         <div class="field"><label data-i18n="f_contact">وسيلة تواصل (اختياري)</label><input id="add-contact" type="text" placeholder="جوال أو بريد"></div>
       </div>
       <div class="field">
@@ -614,14 +626,14 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="field"><label data-i18n="f_re_license">رقم الرخصة العقارية (اختياري)</label><input id="add-re-license" type="text"></div>
         <div class="field"><label data-i18n="f_ad_license">رقم الترخيص الإعلاني (اختياري)</label><input id="add-ad-license" type="text"></div>
       </div>
-      <div class="field">
+      <div class="field" id="add-amenities-wrap">
         <label data-i18n="f_amenities">إضافات تؤثر على السعر</label>
         <div class="amenity-row" id="add-amenities">
-          <button type="button" class="amenity-toggle" data-amenity="maid_room" data-adj="0.05"><span class="ic">🧹</span><span data-i18n="am_maid_room">غرفة خادمة</span></button>
-          <button type="button" class="amenity-toggle" data-amenity="central_ac" data-adj="0.03"><span class="ic">❄️</span><span data-i18n="am_central_ac">تكييف مركزي</span></button>
-          <button type="button" class="amenity-toggle" data-amenity="furnished" data-adj="0.04"><span class="ic">🛋️</span><span data-i18n="am_furnished">مفروش</span></button>
-          <button type="button" class="amenity-toggle" data-amenity="driver_room" data-adj="0.05"><span class="ic">🚗</span><span data-i18n="am_driver_room">غرفة سائق</span></button>
-          <button type="button" class="amenity-toggle" data-amenity="elevator" data-adj="0.06"><span class="ic">🛗</span><span data-i18n="am_elevator">مصعد</span></button>
+          <button type="button" class="amenity-toggle" data-scope="residential" data-amenity="maid_room" data-adj="0.05"><span class="ic">🧹</span><span data-i18n="am_maid_room">غرفة خادمة</span></button>
+          <button type="button" class="amenity-toggle" data-scope="broad" data-amenity="central_ac" data-adj="0.03"><span class="ic">❄️</span><span data-i18n="am_central_ac">تكييف مركزي</span></button>
+          <button type="button" class="amenity-toggle" data-scope="residential" data-amenity="furnished" data-adj="0.04"><span class="ic">🛋️</span><span data-i18n="am_furnished">مفروش</span></button>
+          <button type="button" class="amenity-toggle" data-scope="residential" data-amenity="driver_room" data-adj="0.05"><span class="ic">🚗</span><span data-i18n="am_driver_room">غرفة سائق</span></button>
+          <button type="button" class="amenity-toggle" data-scope="broad" data-amenity="elevator" data-adj="0.06"><span class="ic">🛗</span><span data-i18n="am_elevator">مصعد</span></button>
         </div>
       </div>
       <button class="btn btn-primary" id="btn-add-property" style="margin-top:14px" data-i18n="add_submit">إدراج للمراجعة</button>
@@ -1002,7 +1014,7 @@ const I18N = {
     finance_title:"حاسبة التمويل العقاري", finance_result_label:"القسط الشهري التقريبي",
     finance_note:"حساب إرشادي، يختلف حسب جهة التمويل",
     f_city:"المدينة", f_district:"الحي", f_type:"نوع العقار", f_area:"المساحة (م²)", f_rooms:"عدد الغرف",
-    f_age:"عمر العقار (سنوات)", f_facade:"الواجهة", f_grade:"تصنيف الحي", f_price:"قيمة العقار (ر.س)",
+    f_age:"عمر العقار (سنوات)", f_floors:"عدد الأدوار", f_units_per_floor:"عدد الشقق بكل دور", f_facade:"الواجهة", f_grade:"تصنيف الحي", f_price:"قيمة العقار (ر.س)",
     f_down:"الدفعة المقدمة (ر.س)", f_rate:"النسبة السنوية %", f_years:"المدة (سنوات)", f_contact:"وسيلة تواصل (اختياري)",
     f_amenities:"إضافات تؤثر على السعر", am_maid_room:"غرفة خادمة", am_central_ac:"تكييف مركزي",
     f_description:"وصف تفصيلي (اختياري)", f_description_ph:"اكتب تفاصيل الغرف، المرافق، القرب من المعالم...",
@@ -1088,7 +1100,7 @@ const I18N = {
     finance_title:"Mortgage Calculator", finance_result_label:"Approx. monthly payment",
     finance_note:"Indicative only, varies by lender",
     f_city:"City", f_district:"District", f_type:"Property type", f_area:"Area (sqm)", f_rooms:"Rooms",
-    f_age:"Property age (yrs)", f_facade:"Facade", f_grade:"District grade", f_price:"Property value (SAR)",
+    f_age:"Property age (yrs)", f_floors:"Number of floors", f_units_per_floor:"Apartments per floor", f_facade:"Facade", f_grade:"District grade", f_price:"Property value (SAR)",
     f_down:"Down payment (SAR)", f_rate:"Annual rate %", f_years:"Term (years)", f_contact:"Contact (optional)",
     f_amenities:"Amenities that affect the price", am_maid_room:"Maid's room", am_central_ac:"Central A/C",
     f_description:"Detailed description (optional)", f_description_ph:"Describe the rooms, amenities, nearby landmarks...",
@@ -1174,7 +1186,7 @@ const I18N = {
     finance_title:"Calculateur de financement", finance_result_label:"Mensualité approximative",
     finance_note:"Estimation indicative, varie selon le prêteur",
     f_city:"Ville", f_district:"Quartier", f_type:"Type de bien", f_area:"Surface (m²)", f_rooms:"Pièces",
-    f_age:"Âge du bien (ans)", f_facade:"Façade", f_grade:"Standing du quartier", f_price:"Valeur du bien (SAR)",
+    f_age:"Âge du bien (ans)", f_floors:"Nombre d'étages", f_units_per_floor:"Appartements par étage", f_facade:"Façade", f_grade:"Standing du quartier", f_price:"Valeur du bien (SAR)",
     f_down:"Apport initial (SAR)", f_rate:"Taux annuel %", f_years:"Durée (ans)", f_contact:"Contact (optionnel)",
     f_amenities:"Équipements qui influencent le prix", am_maid_room:"Chambre de bonne", am_central_ac:"Climatisation centrale",
     f_description:"Description détaillée (optionnel)", f_description_ph:"Décrivez les pièces, équipements, proximité des lieux...",
@@ -1261,6 +1273,8 @@ function applyLang(lang){
   renderFaq();
   renderLegalPages();
   populateTypeSelects();
+  updateValuationFieldsForType();
+  updateAddPropertyFieldsForType();
   populateCitySelects();
   populateFilterSelects();
   renderOffers();
@@ -1584,23 +1598,40 @@ function districtLabel(name){
 }
 
 const PROPERTY_TYPES = [
-  { v:"فيلا",          mult:1.18, ar:"فيلا",              en:"Villa",                     fr:"Villa" },
-  { v:"شقة في برج",     mult:1.05, ar:"شقة في برج",         en:"Apartment in a tower",       fr:"Appartement en tour" },
-  { v:"شقة في عمارة",   mult:1.00, ar:"شقة في عمارة",       en:"Apartment in a building",    fr:"Appartement en immeuble" },
-  { v:"أرض",           mult:0.85, ar:"أرض",               en:"Land",                       fr:"Terrain" },
-  { v:"دبلكس",         mult:1.10, ar:"دبلكس",             en:"Duplex",                     fr:"Duplex" },
-  { v:"قصر",           mult:1.50, ar:"قصر",               en:"Palace",                     fr:"Palais" },
-  { v:"مزرعة",         mult:0.90, ar:"مزرعة",             en:"Farm",                       fr:"Ferme" },
-  { v:"استراحة",       mult:1.05, ar:"استراحة",           en:"Chalet / Resthouse",         fr:"Chalet" },
-  { v:"محل تجاري",     mult:1.20, ar:"محل تجاري",         en:"Retail shop",                fr:"Local commercial" },
-  { v:"مكتب",          mult:1.05, ar:"مكتب",              en:"Office",                     fr:"Bureau" },
-  { v:"مخزن",          mult:0.75, ar:"مخزن",              en:"Warehouse",                  fr:"Entrepôt" },
-  { v:"منتجع",         mult:1.35, ar:"منتجع",             en:"Resort",                     fr:"Résidence de vacances" },
-  { v:"معرض",          mult:1.15, ar:"معرض",              en:"Showroom",                   fr:"Salle d'exposition" },
-  { v:"عمارة",         mult:1.30, ar:"عمارة",             en:"Building",                   fr:"Immeuble" },
-  { v:"محطة",          mult:1.10, ar:"محطة",              en:"Station",                    fr:"Station" },
-  { v:"دور",           mult:0.95, ar:"دور",               en:"Floor unit",                 fr:"Étage indépendant" },
+  { v:"فيلا",          mult:1.18, group:"residential", ar:"فيلا",              en:"Villa",                     fr:"Villa" },
+  { v:"شقة في برج",     mult:1.05, group:"residential", ar:"شقة في برج",         en:"Apartment in a tower",       fr:"Appartement en tour" },
+  { v:"شقة في عمارة",   mult:1.00, group:"residential", ar:"شقة في عمارة",       en:"Apartment in a building",    fr:"Appartement en immeuble" },
+  { v:"أرض",           mult:0.85, group:"land",        ar:"أرض",               en:"Land",                       fr:"Terrain" },
+  { v:"دبلكس",         mult:1.10, group:"residential", ar:"دبلكس",             en:"Duplex",                     fr:"Duplex" },
+  { v:"قصر",           mult:1.50, group:"residential", ar:"قصر",               en:"Palace",                     fr:"Palais" },
+  { v:"مزرعة",         mult:0.90, group:"land",        ar:"مزرعة",             en:"Farm",                       fr:"Ferme" },
+  { v:"استراحة",       mult:1.05, group:"residential", ar:"استراحة",           en:"Chalet / Resthouse",         fr:"Chalet" },
+  { v:"محل تجاري",     mult:1.20, group:"commercial",  ar:"محل تجاري",         en:"Retail shop",                fr:"Local commercial" },
+  { v:"مكتب",          mult:1.05, group:"commercial",  ar:"مكتب",              en:"Office",                     fr:"Bureau" },
+  { v:"مخزن",          mult:0.75, group:"commercial",  ar:"مخزن",              en:"Warehouse",                  fr:"Entrepôt" },
+  { v:"منتجع",         mult:1.35, group:"residential", ar:"منتجع",             en:"Resort",                     fr:"Résidence de vacances" },
+  { v:"معرض",          mult:1.15, group:"commercial",  ar:"معرض",              en:"Showroom",                   fr:"Salle d'exposition" },
+  { v:"عمارة",         mult:1.30, group:"building",    ar:"عمارة",             en:"Building",                   fr:"Immeuble" },
+  { v:"محطة",          mult:1.10, group:"commercial",  ar:"محطة",              en:"Station",                    fr:"Station" },
+  { v:"دور",           mult:0.95, group:"residential", ar:"دور",               en:"Floor unit",                 fr:"Étage indépendant" },
 ];
+const TYPE_GROUP_MAP = Object.fromEntries(PROPERTY_TYPES.map(t => [t.v, t.group]));
+
+/* ----------------------------------------------------------------------------
+   Property-type groups — a plot of land doesn't have "rooms" or a maid's room,
+   a whole building isn't described by one room count the way a single unit is,
+   and a warehouse doesn't come "furnished". Forms adapt per group so only
+   fields that actually make sense for the selected type are shown/counted.
+   ---------------------------------------------------------------------------- */
+const LAND_TYPES = new Set(["أرض", "مزرعة"]);
+const BUILDING_TYPES = new Set(["عمارة"]);
+const COMMERCIAL_TYPES = new Set(["محل تجاري", "مكتب", "مخزن", "معرض", "محطة"]);
+function propertyGroupFor(type){
+  if (LAND_TYPES.has(type)) return 'land';
+  if (BUILDING_TYPES.has(type)) return 'building';
+  if (COMMERCIAL_TYPES.has(type)) return 'commercial';
+  return 'residential';
+}
 
 /* ============================================================================
    4) Render services / offers / FAQ (all language-aware).
@@ -1915,22 +1946,77 @@ function getAmenityAdj(containerId){
   return { adj, active };
 }
 
+/* ----------------------------------------------------------------------------
+   Shows/hides valuation fields based on the selected property type's group,
+   so a plot of land isn't asked about room count or a maid's room, and a
+   whole building gets floor/unit-count fields instead of one room count.
+   ---------------------------------------------------------------------------- */
+function updateValuationFieldsForType(){
+  const type = document.getElementById('v-type').value;
+  const group = propertyGroupFor(type);
+
+  document.getElementById('v-rooms-wrap').style.display = (group === 'residential') ? '' : 'none';
+  document.getElementById('v-age-wrap').style.display = (group === 'land') ? 'none' : '';
+  document.getElementById('v-floors-wrap').style.display = (group === 'building') ? '' : 'none';
+  document.getElementById('v-units-wrap').style.display = (group === 'building') ? '' : 'none';
+  document.getElementById('v-amenities-wrap').style.display = (group === 'land') ? 'none' : '';
+
+  document.querySelectorAll('#v-amenities .amenity-toggle').forEach(btn=>{
+    const scope = btn.dataset.scope || 'residential';
+    const show = group === 'residential' || (scope === 'broad' && group !== 'land');
+    btn.style.display = show ? '' : 'none';
+    if (!show) btn.classList.remove('active');
+  });
+}
+document.getElementById('v-type').addEventListener('change', updateValuationFieldsForType);
+
 function runValuation(){
   const citySel = document.getElementById('v-city');
   const pricePerSqm = parseFloat(citySel.selectedOptions[0].dataset.price);
   const typeSel = document.getElementById('v-type');
+  const typeVal = typeSel.value;
+  const group = propertyGroupFor(typeVal);
   const typeMult = parseFloat(typeSel.selectedOptions[0].dataset.mult);
   const facadeSel = document.getElementById('v-facade');
   const facadeAdj = parseFloat(facadeSel.selectedOptions[0].dataset.adj);
   const gradeSel = document.getElementById('v-grade');
   const gradeAdj = parseFloat(gradeSel.selectedOptions[0].dataset.adj);
   const area = parseFloat(document.getElementById('v-area').value) || 0;
-  const age = parseFloat(document.getElementById('v-age').value) || 0;
-  const { adj: amenityAdj } = getAmenityAdj('v-amenities');
 
   const base = pricePerSqm * area * typeMult;
-  const ageAdj = age > 15 ? -0.1 : age > 7 ? -0.05 : 0;
-  const totalAdj = 1 + facadeAdj + gradeAdj + ageAdj + amenityAdj;
+
+  // العمر لا يُحسب لقطعة أرض (الأرض لا "تكبر" بنفس منطق المبنى)
+  let ageAdj = 0;
+  if (group !== 'land'){
+    const age = parseFloat(document.getElementById('v-age').value) || 0;
+    ageAdj = age > 15 ? -0.1 : age > 7 ? -0.05 : 0;
+  }
+
+  // عدد الغرف يؤثر فقط على الوحدات السكنية المفردة (فيلا، شقة...) — كان
+  // الحقل موجوداً بالنموذج قبل بدون أي أثر فعلي على السعر، صار فعّالاً الآن
+  let roomsAdj = 0;
+  if (group === 'residential'){
+    const rooms = parseFloat(document.getElementById('v-rooms').value) || 0;
+    roomsAdj = Math.max(-0.10, Math.min(0.15, (rooms - 3) * 0.02));
+  }
+
+  // لمبنى كامل (عمارة): عدد الوحدات المستقلة (أدوار × شقق بكل دور) يعطي
+  // زيادة طفيفة بالقيمة الاستثمارية — كل وحدة إضافية تعني دخل إيجاري مستقل إضافي
+  let unitsAdj = 0;
+  let totalUnits = 0;
+  if (group === 'building'){
+    const floors = parseFloat(document.getElementById('v-floors').value) || 0;
+    const unitsPerFloor = parseFloat(document.getElementById('v-units-per-floor').value) || 0;
+    totalUnits = floors * unitsPerFloor;
+    unitsAdj = totalUnits > 1 ? Math.min(0.15, (totalUnits - 1) * 0.01) : 0;
+  }
+
+  // لا إضافات (مفروش/خادمة/إلخ) تُحسب لقطعة أرض؛ الأنواع الأخرى تستخدم فقط
+  // الإضافات الظاهرة فعلياً لها (getAmenityAdj تقرأ من العناصر المرئية فقط
+  // لأن الأزرار المخفية تُلغى تفعيلها تلقائياً في updateValuationFieldsForType)
+  const amenityAdj = (group === 'land') ? 0 : getAmenityAdj('v-amenities').adj;
+
+  const totalAdj = 1 + facadeAdj + gradeAdj + ageAdj + amenityAdj + roomsAdj + unitsAdj;
   const estimate = base * totalAdj;
 
   const low = estimate * 0.93;
@@ -1938,15 +2024,32 @@ function runValuation(){
 
   document.getElementById('res-low').textContent = money(low);
   document.getElementById('res-high').textContent = money(high);
+
+  // بناء سطر التعديلات ديناميكياً — يعرض فقط العوامل الفعلية المطبّقة لهذا
+  // النوع، بدل عرض "العمر 0% + الإضافات 0%" لعقار ما تنطبق عليه أصلاً
+  const pctLabels = {
+    ar: { facade:'الواجهة', grade:'الحي', age:'العمر', amenities:'الإضافات', rooms:'الغرف', units:'الوحدات' },
+    en: { facade:'facade', grade:'district', age:'age', amenities:'amenities', rooms:'rooms', units:'units' },
+    fr: { facade:'façade', grade:'quartier', age:'âge', amenities:'équipements', rooms:'pièces', units:'unités' },
+  };
+  const L = pctLabels[currentLang] || pctLabels.ar;
+  const fmtPct = v => (v >= 0 ? '+' : '') + (v*100).toFixed(0) + '%';
+  const adjParts = [`${L.facade} ${fmtPct(facadeAdj)}`, `${L.grade} ${fmtPct(gradeAdj)}`];
+  if (group !== 'land') adjParts.push(`${L.age} ${fmtPct(ageAdj)}`);
+  if (group === 'residential') adjParts.push(`${L.rooms} ${fmtPct(roomsAdj)}`);
+  if (group === 'building') adjParts.push(`${L.units} ${fmtPct(unitsAdj)} (${totalUnits} ${currentLang==='ar' ? 'وحدة' : currentLang==='fr' ? 'unités' : 'units'})`);
+  if (group !== 'land') adjParts.push(`${L.amenities} ${fmtPct(amenityAdj)}`);
+  const adjLine = adjParts.join(' + ');
+
   const bd = {
     ar: `السعر الأساسي = ${pricePerSqm} ر.س/م² × ${area} م² × معامل النوع ${typeMult} = ${money(base)} ر.س<br>
-         التعديلات: الواجهة ${(facadeAdj*100).toFixed(0)}% + الحي ${(gradeAdj*100).toFixed(0)}% + العمر ${(ageAdj*100).toFixed(0)}% + الإضافات ${(amenityAdj*100).toFixed(0)}%<br>
+         التعديلات: ${adjLine}<br>
          <b>هذه معادلة حسابية شفافة بالكامل، وليست تنبؤاً من نموذج تعلّم آلي.</b>`,
     en: `Base price = ${pricePerSqm} SAR/sqm × ${area} sqm × type factor ${typeMult} = ${money(base)} SAR<br>
-         Adjustments: facade ${(facadeAdj*100).toFixed(0)}% + district ${(gradeAdj*100).toFixed(0)}% + age ${(ageAdj*100).toFixed(0)}% + amenities ${(amenityAdj*100).toFixed(0)}%<br>
+         Adjustments: ${adjLine}<br>
          <b>This is a fully transparent formula, not a machine-learning prediction.</b>`,
     fr: `Prix de base = ${pricePerSqm} SAR/m² × ${area} m² × facteur de type ${typeMult} = ${money(base)} SAR<br>
-         Ajustements : façade ${(facadeAdj*100).toFixed(0)}% + quartier ${(gradeAdj*100).toFixed(0)}% + âge ${(ageAdj*100).toFixed(0)}% + équipements ${(amenityAdj*100).toFixed(0)}%<br>
+         Ajustements : ${adjLine}<br>
          <b>Formule de calcul entièrement transparente, pas une prédiction d'un modèle d'apprentissage automatique.</b>`,
   };
   document.getElementById('val-breakdown').innerHTML = bd[currentLang] || bd.ar;
@@ -1972,25 +2075,53 @@ function runFinance(){
 /* ============================================================================
    5) Add property → persisted in Supabase (status forced to 'pending' server-side)
    ========================================================================== */
+/* ----------------------------------------------------------------------------
+   Same group-aware field visibility as the valuation form, applied to the
+   Add Property form.
+   ---------------------------------------------------------------------------- */
+function updateAddPropertyFieldsForType(){
+  const type = document.getElementById('add-type').value;
+  const group = propertyGroupFor(type);
+
+  document.getElementById('add-rooms-wrap').style.display = (group === 'residential') ? '' : 'none';
+  document.getElementById('add-age-wrap').style.display = (group === 'land') ? 'none' : '';
+  document.getElementById('add-floors-wrap').style.display = (group === 'building') ? '' : 'none';
+  document.getElementById('add-units-wrap').style.display = (group === 'building') ? '' : 'none';
+  document.getElementById('add-amenities-wrap').style.display = (group === 'land') ? 'none' : '';
+
+  document.querySelectorAll('#add-amenities .amenity-toggle').forEach(btn=>{
+    const scope = btn.dataset.scope || 'residential';
+    const show = group === 'residential' || (scope === 'broad' && group !== 'land');
+    btn.style.display = show ? '' : 'none';
+    if (!show) btn.classList.remove('active');
+  });
+}
+document.getElementById('add-type').addEventListener('change', updateAddPropertyFieldsForType);
+
 document.getElementById('btn-add-property').addEventListener('click', async ()=>{
   const msg = document.getElementById('add-property-msg');
   const { active: amenities } = getAmenityAdj('add-amenities');
+  const group = propertyGroupFor(document.getElementById('add-type').value);
   const payload = {
     city: document.getElementById('add-city').value,
     district: document.getElementById('add-district').value,
     property_type: document.getElementById('add-type').value,
     price: parseFloat(document.getElementById('add-price').value) || 0,
     area_sqm: parseFloat(document.getElementById('add-area').value) || 0,
+    rooms: group === 'residential' ? (parseInt(document.getElementById('add-rooms').value, 10) || null) : null,
+    age_years: group !== 'land' ? (parseInt(document.getElementById('add-age').value, 10) || null) : null,
+    floors_count: group === 'building' ? (parseInt(document.getElementById('add-floors').value, 10) || null) : null,
+    units_per_floor: group === 'building' ? (parseInt(document.getElementById('add-units-per-floor').value, 10) || null) : null,
     submitted_by_contact: document.getElementById('add-contact').value || null,
     description: document.getElementById('add-description').value || null,
     map_url: document.getElementById('add-map-url').value || null,
     real_estate_license: document.getElementById('add-re-license').value || null,
     ad_license: document.getElementById('add-ad-license').value || null,
-    has_elevator: amenities.includes('elevator'),
-    has_maid_room: amenities.includes('maid_room'),
-    has_driver_room: amenities.includes('driver_room'),
-    has_central_ac: amenities.includes('central_ac'),
-    is_furnished: amenities.includes('furnished'),
+    has_elevator: group !== 'land' && amenities.includes('elevator'),
+    has_maid_room: group === 'residential' && amenities.includes('maid_room'),
+    has_driver_room: group === 'residential' && amenities.includes('driver_room'),
+    has_central_ac: group !== 'land' && amenities.includes('central_ac'),
+    is_furnished: group === 'residential' && amenities.includes('furnished'),
   };
   if (!payload.district || !payload.price || !payload.area_sqm){
     msg.textContent = '⚠️ عبّئ الحي والسعر والمساحة على الأقل.';
@@ -2540,6 +2671,8 @@ window.addEventListener('load', async ()=>{
   await safely('loadCitiesFromDb', loadCitiesFromDb);
   populateCitySelects();
   populateTypeSelects();
+  updateValuationFieldsForType();
+  updateAddPropertyFieldsForType();
   populateFilterSelects();
   renderServices();
   renderFaq();
