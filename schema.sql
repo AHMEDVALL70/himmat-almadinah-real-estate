@@ -109,6 +109,8 @@ alter table properties add column if not exists real_estate_license varchar(50);
 alter table properties add column if not exists ad_license varchar(50);
 alter table offers add column if not exists image_url text;
 alter table properties add column if not exists image_url text;
+alter table properties add column if not exists floors_count integer;
+alter table properties add column if not exists units_per_floor integer;
 
 -- ============================================================================
 -- 3.5) المدن والأحياء — مرجع مركزي يغذي كل قوائم المدينة/الحي في الموقع
