@@ -19,21 +19,21 @@
    Design tokens
    ========================================================================== */
 :root{
-  --navy-900:#072a47;
-  --navy-800:#0b3d66;
-  --navy-700:#124d7d;
-  --gold-500:#E0A96D;
-  --gold-100:#f4e9c8;
-  --sand-100:#1A2238;
-  --surface:#25324E;
-  --text-900:#FFFFFF;
-  --text-600:#8D99AE;
-  --line:rgba(255,255,255,.12);
+  --navy-900:#101827;
+  --navy-800:#101827;
+  --navy-700:#1e293b;
+  --gold-500:#c0a16b;
+  --gold-100:#dccba9;
+  --sand-100:#020617;
+  --surface:#1e293b;
+  --text-900:#f1f5f9;
+  --text-600:#94a3b8;
+  --line:#334155;
   --ok:#4fae76;
-  --warn:#e0a96d;
+  --warn:#c0a16b;
   --danger:#e2685c;
   --radius:14px;
-  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --shadow:0 10px 30px rgba(0,0,0,.45);
   --font-display:'Tajawal',sans-serif;
   --font-body:'Almarai',sans-serif;
 }
@@ -60,7 +60,7 @@ section{padding:44px 0 60px}
 .btn-outline{background:transparent;border:1.5px solid var(--surface);color:var(--surface)}
 .btn-ghost{background:var(--surface);border:1.5px solid var(--line);color:var(--text-900)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);transition:transform .22s ease, box-shadow .22s ease}
-.card:hover{transform:translateY(-5px);box-shadow:0 16px 36px rgba(7,42,71,.14)}
+.card:hover{transform:translateY(-5px);box-shadow:0 16px 36px rgba(16,24,39,.14)}
 .card .ic{transition:transform .22s ease}
 .card:hover .ic{transform:scale(1.12)}
 
@@ -88,11 +88,11 @@ section{padding:44px 0 60px}
 }
 .grid{display:grid;gap:24px}
 .badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700}
-.badge-warn{background:rgba(224,169,109,.15);color:#E0A96D}
+.badge-warn{background:rgba(192,161,107,.15);color:#c0a16b}
 .badge-ok{background:rgba(79,174,118,.18);color:#6fd99a}
-.badge-info{background:var(--gold-100);color:#0B132B}
+.badge-info{background:var(--gold-100);color:#020617}
 .notice{border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.6}
-.notice-warn{background:rgba(224,169,109,.12);color:#E0A96D;border:1px solid rgba(224,169,109,.35)}
+.notice-warn{background:rgba(192,161,107,.12);color:#c0a16b;border:1px solid rgba(192,161,107,.35)}
 .notice-ok-source{background:rgba(79,174,118,.14);color:#6fd99a;border:1px solid rgba(79,174,118,.35)}
 .notice-info{background:rgba(37,50,78,.6);color:var(--text-600);border:1px solid var(--line)}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
@@ -121,6 +121,14 @@ nav.links a{white-space:nowrap}
 nav.links a:hover{color:var(--gold-500)}
 nav.links a.active{color:var(--gold-500);position:relative}
 nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16px;height:2px;background:var(--gold-500)}
+.nav-more{position:relative}
+.nav-more-btn{background:none;border:none;color:var(--text-600);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;padding:0}
+.nav-more-btn:hover,.nav-more.open .nav-more-btn{color:var(--gold-500)}
+.nav-more-panel{display:none;position:absolute;top:calc(100% + 16px);inset-inline-end:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;min-width:150px;flex-direction:column;gap:0;box-shadow:0 16px 40px rgba(0,0,0,.4);z-index:60}
+.nav-more-panel a{padding:9px 12px;border-radius:8px;font-size:13.5px}
+.nav-more-panel a:hover{background:var(--sand-100)}
+.nav-more-panel a.active{color:var(--gold-500)}
+.nav-more.open .nav-more-panel{display:flex}
 .nav-actions{display:flex;align-items:center;gap:10px}
 
 #mobile-menu-toggle{display:none;width:38px;height:38px;border-radius:8px;background:var(--surface);align-items:center;justify-content:center;color:var(--text-900);flex-shrink:0}
@@ -144,33 +152,33 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 /* Hero */
 .hero{
   background:
-    radial-gradient(ellipse at 75% 25%, rgba(224,169,109,.14) 0%, transparent 55%),
-    #0B132B;
+    radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.14) 0%, transparent 55%),
+    #020617;
   color:#fff;padding:36px 0 60px;position:relative;overflow:hidden
 }
 .hero .container{position:relative;z-index:2;max-width:980px}
 .hero-grid{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:36px}
 .hero-grid > *:first-child{flex:1 1 460px;min-width:280px;text-align:center}
 .hero h1{font-size:clamp(26px,3.6vw,38px);margin:0 0 6px}
-.hero-tagline{font-size:clamp(24px,3.6vw,38px);font-weight:900;color:#E0A96D;margin:2px 0 16px;line-height:1.3;font-family:var(--font-display)}
+.hero-tagline{font-size:clamp(24px,3.6vw,38px);font-weight:900;color:#c0a16b;margin:2px 0 16px;line-height:1.3;font-family:var(--font-display)}
 .eyebrow.hero-eyebrow{margin:0 0 8px}
 .hero p.desc{color:#c7cedb;max-width:540px;margin:0 auto 26px}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;justify-content:center}
-.hero .btn-primary{background:#E0A96D;color:#0B132B}
-.hero .btn-primary:hover{background:#eabd8c}
-.hero .btn-outline{border-color:#E0A96D;color:#E0A96D}
+.hero .btn-primary{background:#c0a16b;color:#020617}
+.hero .btn-primary:hover{background:#d4bd93}
+.hero .btn-outline{border-color:#c0a16b;color:#c0a16b}
 .license-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 14px;font-size:12.5px;color:#dde2ea;margin-bottom:22px;backdrop-filter:blur(2px)}
 .stats-row{display:flex;gap:28px;flex-wrap:wrap;justify-content:center}
-.stat b{display:block;font-size:26px;font-family:var(--font-display);color:#E0A96D}
+.stat b{display:block;font-size:26px;font-family:var(--font-display);color:#c0a16b}
 .stat span{font-size:13px;color:#c7cedb}
 
 /* Hero image card — contained slideshow of real photos (Masjid an-Nabawi + Madinah) */
 .hero-image-col{flex:1 1 380px;min-width:280px;max-width:460px;display:flex;flex-direction:column;align-items:center;margin-top:-28px}
-.hero-image-card{width:100%;aspect-ratio:4/3;border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.4);border:1px solid rgba(224,169,109,.25)}
+.hero-image-card{width:100%;aspect-ratio:4/3;border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.4);border:1px solid rgba(192,161,107,.25)}
 .hero-bg-slides{position:absolute;inset:0}
 .hero-bg-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.8s ease}
 .hero-bg-slide.active{opacity:1}
-.hero-logo-under{width:96px;height:96px;object-fit:contain;margin-top:18px;border-radius:16px;background:rgba(255,255,255,.06);padding:10px;border:1px solid rgba(224,169,109,.25)}
+.hero-logo-under{width:96px;height:96px;object-fit:contain;margin-top:18px;border-radius:16px;background:rgba(255,255,255,.06);padding:10px;border:1px solid rgba(192,161,107,.25)}
 @media(max-width:680px){.hero-image-col{max-width:100%;margin-top:0}.hero-image-card{aspect-ratio:16/10}}
 @media (prefers-reduced-motion: reduce){
   .hero-bg-slide{transition:none}
@@ -183,11 +191,12 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .offer-discount{background:var(--gold-500);color:var(--navy-900);font-weight:900;padding:3px 10px;border-radius:8px;font-size:13px}
 .offer-body{padding:18px}
 .offer-body h4{margin:0 0 4px}
+.match-badge{display:inline-block;background:rgba(192,161,107,.15);color:var(--gold-500);font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;margin-bottom:8px}
 .offer-body .loc{color:var(--text-600);font-size:13px;margin-bottom:10px}
 .offer-body .price{font-weight:900;font-size:18px;color:var(--gold-500)}
 .offer-body .price s{color:var(--text-600);font-weight:400;font-size:14px;margin-inline-start:8px}
-.offer-details-btn{display:block;width:100%;margin-top:14px;padding:10px;border-radius:9px;background:rgba(224,169,109,.12);color:var(--gold-500);font-weight:700;font-size:13px;text-align:center;transition:background .15s ease}
-.offer-card:hover .offer-details-btn{background:var(--gold-500);color:#0B132B}
+.offer-details-btn{display:block;width:100%;margin-top:14px;padding:10px;border-radius:9px;background:rgba(192,161,107,.12);color:var(--gold-500);font-weight:700;font-size:13px;text-align:center;transition:background .15s ease}
+.offer-card:hover .offer-details-btn{background:var(--gold-500);color:#020617}
 
 /* Services */
 .service-card{padding:24px}
@@ -217,7 +226,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .amenity-toggle.active{background:var(--gold-500);border-color:var(--gold-500);color:var(--navy-900)}
 
 /* Detail modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(7,20,33,.55);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:40px 16px;overflow-y:auto}
+.modal-overlay{position:fixed;inset:0;background:rgba(16,24,39,.55);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:40px 16px;overflow-y:auto}
 .modal-overlay.open{display:flex}
 .modal-box{background:var(--surface);border-radius:16px;width:100%;max-width:640px;position:relative;box-shadow:0 30px 70px rgba(0,0,0,.5)}
 .modal-close-btn{position:absolute;inset-inline-end:14px;top:14px;width:34px;height:34px;border-radius:50%;background:var(--sand-100);color:var(--text-900);font-size:15px;z-index:2}
@@ -253,7 +262,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .assist-close:hover{background:rgba(255,255,255,.15)}
 .assist-head{position:relative;display:flex;align-items:center;gap:10px}
 
-#assistant-toggle{position:fixed;inset-inline-end:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--navy-900),var(--navy-700));color:#fff;box-shadow:0 10px 25px rgba(7,42,71,.35);z-index:80;transition:transform .15s ease;display:flex;align-items:center;justify-content:center}
+#assistant-toggle{position:fixed;inset-inline-end:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--navy-900),var(--navy-700));color:#fff;box-shadow:0 10px 25px rgba(16,24,39,.35);z-index:80;transition:transform .15s ease;display:flex;align-items:center;justify-content:center}
 #assistant-toggle:hover{transform:scale(1.06)}
 
 /* WhatsApp — floating & fixed on every page */
@@ -281,7 +290,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .assist-mini-avatar{width:26px;height:26px;border-radius:50%;background:var(--navy-900);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
 .assist-row.user .assist-mini-avatar{background:var(--gold-500);color:var(--navy-900)}
 .assist-msg{background:var(--sand-100);color:var(--text-900);border:1px solid var(--line);border-radius:14px;border-start-end-radius:4px;padding:10px 13px;line-height:1.6;box-shadow:0 2px 6px rgba(0,0,0,.15)}
-.assist-row.user .assist-msg{background:var(--gold-500);color:#0B132B;border-color:var(--gold-500);border-start-end-radius:14px;border-end-start-radius:4px}
+.assist-row.user .assist-msg{background:var(--gold-500);color:#020617;border-color:var(--gold-500);border-start-end-radius:14px;border-end-start-radius:4px}
 .assist-typing{display:flex;gap:4px;padding:12px 14px;background:var(--sand-100);border:1px solid var(--line);border-radius:14px;border-start-end-radius:4px;width:fit-content}
 .assist-typing span{width:6px;height:6px;border-radius:50%;background:var(--text-600);animation:assist-bounce 1.2s infinite ease-in-out}
 .assist-typing span:nth-child(2){animation-delay:.15s}
@@ -295,7 +304,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 
 .assist-quick{display:flex;gap:6px;padding:0 14px 10px;flex-wrap:wrap}
 .assist-chip{background:var(--sand-100);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:var(--gold-500);font-weight:700;white-space:nowrap}
-.assist-chip:hover{background:var(--gold-100);color:#0B132B}
+.assist-chip:hover{background:var(--gold-100);color:#020617}
 
 .assist-input{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:10px 12px;background:var(--surface)}
 .assist-input input{flex:1;border:1px solid var(--line);border-radius:999px;padding:10px 16px;font-family:inherit;font-size:13px;background:var(--sand-100);color:var(--text-900)}
@@ -303,7 +312,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .assist-input button{width:38px;height:38px;border-radius:50%;background:var(--navy-900);color:#fff;font-size:15px;flex-shrink:0}
 .assist-input button:hover{background:var(--navy-700)}
 
-footer.site{background:#141b30;color:var(--text-600);padding:48px 0 20px;margin-top:40px}
+footer.site{background:#101827;color:var(--text-600);padding:48px 0 20px;margin-top:40px}
 footer.site h4{color:#fff;margin:0 0 10px}
 footer.site a{color:var(--text-600);transition:color .15s ease}
 footer.site a:hover{color:var(--gold-500)}
@@ -332,13 +341,18 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       <a href="#home" class="active" data-i18n="nav_home">الرئيسية</a>
       <a href="#valuation" data-i18n="nav_valuation">التقييم</a>
       <a href="#offers" data-i18n="nav_offers">العروض</a>
+      <a href="#services" data-i18n="nav_services">الخدمات</a>
       <a href="#contracts" data-i18n="nav_contracts">العقود</a>
       <a href="#add-property" data-i18n="nav_add">إضافة</a>
-      <a href="#analytics" data-i18n="nav_analytics">التحليلات</a>
-      <a href="#services" data-i18n="nav_services">الخدمات</a>
-      <a href="#faq" data-i18n="nav_faq">الأسئلة</a>
-      <a href="#about" data-i18n="nav_about">عنّا</a>
-      <a href="#contact" data-i18n="nav_contact">تواصل</a>
+      <div class="nav-more" id="nav-more">
+        <button type="button" class="nav-more-btn" id="nav-more-btn" data-i18n="nav_more">المزيد ▾</button>
+        <div class="nav-more-panel links" id="nav-more-panel">
+          <a href="#analytics" data-i18n="nav_analytics">التحليلات</a>
+          <a href="#faq" data-i18n="nav_faq">الأسئلة</a>
+          <a href="#about" data-i18n="nav_about">عنّا</a>
+          <a href="#contact" data-i18n="nav_contact">تواصل</a>
+        </div>
+      </div>
     </nav>
     <div class="nav-actions">
       <div class="lang-switch" id="lang-switch">
@@ -987,7 +1001,7 @@ const I18N = {
   ar: {
     brand:"همة المدينة العقارية", nav_home:"الرئيسية", nav_valuation:"التقييم", nav_offers:"العروض",
     nav_contracts:"العقود", nav_add:"إضافة", nav_analytics:"التحليلات", nav_services:"الخدمات",
-    nav_faq:"الأسئلة", nav_about:"عنّا", nav_contact:"تواصل",
+    nav_faq:"الأسئلة", nav_about:"عنّا", nav_contact:"تواصل", nav_more:"المزيد ▾",
     hero_eyebrow:"🇸🇦 المدينة المنورة", hero_title:"همة المدينة العقارية", hero_sub:"Himmat Al Madinah Real Estate",
     hero_tagline:"قرارك العقاري يبدأ من معرفة القيمة العادلة",
     hero_desc:"من تقييم استرشادي شفاف، إلى عقد جاهز خلال دقائق — همة المدينة معك في كل خطوة من رحلتك العقارية.",
@@ -1019,6 +1033,7 @@ const I18N = {
     am_furnished:"مفروش", am_driver_room:"غرفة سائق", am_elevator:"مصعد",
     f_min_price:"أقل سعر (ر.س)", f_max_price:"أعلى سعر (ر.س)", f_min_rooms:"أقل عدد غرف",
     filter_apply:"بحث", filter_reset:"إعادة تعيين", filter_all:"الكل", offers_no_match:"لا توجد نتائج مطابقة لبحثك.",
+    match_badge_label:"مطابقة", match_badge_hint:"نسبة توافق العرض مع تفضيلاتك — نظام ترجيح شفاف بسيط، وليس نموذج ذكاء اصطناعي",
     add_eyebrow:"إضافة عقار جديد", add_title:"اعرض عقارك أمام الباحثين الجادين",
     add_desc:"يراجع فريقنا عقارك بسرعة، ثم يظهر مباشرة لكل زوار الموقع.",
     add_submit:"إدراج للمراجعة",
@@ -1074,7 +1089,7 @@ const I18N = {
   en: {
     brand:"Himmat Al Madinah Real Estate", nav_home:"Home", nav_valuation:"Valuation", nav_offers:"Offers",
     nav_contracts:"Contracts", nav_add:"List Property", nav_analytics:"Analytics", nav_services:"Services",
-    nav_faq:"FAQ", nav_about:"About", nav_contact:"Contact",
+    nav_faq:"FAQ", nav_about:"About", nav_contact:"Contact", nav_more:"More ▾",
     hero_eyebrow:"🇸🇦 Madinah", hero_title:"Himmat Al Madinah Real Estate", hero_sub:"همة المدينة العقارية",
     hero_tagline:"Your real estate decision starts with knowing the fair value",
     hero_desc:"From a transparent guided valuation to a ready contract in minutes — Himmat Al Madinah is with you at every step of your real estate journey.",
@@ -1106,6 +1121,7 @@ const I18N = {
     am_furnished:"Furnished", am_driver_room:"Driver's room", am_elevator:"Elevator",
     f_min_price:"Min price (SAR)", f_max_price:"Max price (SAR)", f_min_rooms:"Min rooms",
     filter_apply:"Search", filter_reset:"Reset", filter_all:"All", offers_no_match:"No results match your search.",
+    match_badge_label:"match", match_badge_hint:"How well this listing fits your preferences — a simple transparent weighting, not an AI model",
     add_eyebrow:"List a new property", add_title:"Put Your Property in Front of Serious Buyers",
     add_desc:"Our team reviews your listing quickly, then it goes live to every visitor.",
     add_submit:"Submit for review",
@@ -1161,7 +1177,7 @@ const I18N = {
   fr: {
     brand:"Himmat Al Madinah Immobilier", nav_home:"Accueil", nav_valuation:"Évaluation", nav_offers:"Offres",
     nav_contracts:"Contrats", nav_add:"Ajouter", nav_analytics:"Analyses", nav_services:"Services",
-    nav_faq:"FAQ", nav_about:"À propos", nav_contact:"Contact",
+    nav_faq:"FAQ", nav_about:"À propos", nav_contact:"Contact", nav_more:"Plus ▾",
     hero_eyebrow:"🇸🇦 Médine", hero_title:"Himmat Al Madinah Immobilier", hero_sub:"همة المدينة العقارية",
     hero_tagline:"Votre décision immobilière commence par connaître la juste valeur",
     hero_desc:"D'une évaluation indicative transparente à un contrat prêt en quelques minutes — Himmat Al Madinah vous accompagne à chaque étape.",
@@ -1193,6 +1209,7 @@ const I18N = {
     am_furnished:"Meublé", am_driver_room:"Chambre chauffeur", am_elevator:"Ascenseur",
     f_min_price:"Prix min (SAR)", f_max_price:"Prix max (SAR)", f_min_rooms:"Pièces min",
     filter_apply:"Rechercher", filter_reset:"Réinitialiser", filter_all:"Tous", offers_no_match:"Aucun résultat ne correspond à votre recherche.",
+    match_badge_label:"correspondance", match_badge_hint:"Adéquation de l'annonce à vos préférences — pondération simple et transparente, pas un modèle d'IA",
     add_eyebrow:"Ajouter un bien", add_title:"Présentez votre bien à des acheteurs sérieux",
     add_desc:"Notre équipe examine votre annonce rapidement, puis elle est visible par tous les visiteurs.",
     add_submit:"Soumettre pour examen",
@@ -1292,6 +1309,21 @@ document.getElementById('mobile-menu-toggle').addEventListener('click', ()=>{
 });
 document.getElementById('mobile-menu').addEventListener('click', e=>{
   if (e.target.closest('a')) document.getElementById('mobile-menu').classList.remove('open');
+});
+
+/* "المزيد" dropdown in the desktop nav */
+document.getElementById('nav-more-btn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  document.getElementById('nav-more').classList.toggle('open');
+});
+document.getElementById('nav-more-panel').addEventListener('click', e=>{
+  if (e.target.closest('a')) document.getElementById('nav-more').classList.remove('open');
+});
+document.addEventListener('click', (e)=>{
+  const navMore = document.getElementById('nav-more');
+  if (navMore.classList.contains('open') && !navMore.contains(e.target)){
+    navMore.classList.remove('open');
+  }
 });
 
 /* ============================================================================
@@ -1682,7 +1714,7 @@ function registerOffer(o){
   return key;
 }
 
-function offerCardHtml(o){
+function offerCardHtml(o, matchScore){
   const t = I18N[currentLang];
   const key = registerOffer(o);
   const priceHtml = o.price_original
@@ -1691,10 +1723,14 @@ function offerCardHtml(o){
   const imageHtml = o.image_url
     ? `<img src="${o.image_url}" alt="${escapeHtml(o.title)}" class="offer-img" loading="lazy" onerror="this.remove()">`
     : '';
+  const matchBadge = (matchScore !== null && matchScore !== undefined)
+    ? `<span class="match-badge" title="${t.match_badge_hint}">🎯 ${matchScore}% ${t.match_badge_label}</span>`
+    : '';
   return `<div class="card offer-card fade-up" onclick="openDetailModal('${key}')">
     ${imageHtml}
     <div class="offer-top"><b>${o.title}</b><span class="offer-discount">-${o.discount_pct}%</span></div>
     <div class="offer-body">
+      ${matchBadge}
       <h4>${o.property_type} · ${districtLabel(o.district)}</h4>
       <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} ${t.rooms_suffix}</div>
       ${priceHtml}
@@ -1787,20 +1823,65 @@ function matchesFilters(o, f){
   return true;
 }
 
+/**
+ * محرك مطابقة بسيط وشفاف (بدون ذكاء اصطناعي) — يعطي كل عرض نسبة توافق
+ * مبنية على أوزان واضحة، بدل الاستبعاد الصارم. عرض قريب من الميزانية أو
+ * ناقص غرفة واحدة يبقى يظهر (بترتيب أدنى)، بدل ما يختفي كلياً.
+ * يرجع null لو المستخدم ما حدد أي تفضيل (يعني ما فيه داعي لعرض نسبة).
+ */
+function computeMatchScore(o, f){
+  const hasAnyPref = f.type || f.minPrice || f.maxPrice || f.minRooms;
+  if (!hasAnyPref) return null;
+
+  const price = o.price_final ?? o.price ?? o.price_original ?? 0;
+  let score = 0, max = 0;
+
+  // نوع العقار — وزن 25
+  max += 25;
+  score += f.type ? (o.property_type === f.type ? 25 : 0) : 25;
+
+  // نطاق السعر — وزن 45 (الأهم عادة لمعظم المشترين)
+  max += 45;
+  if (f.minPrice || f.maxPrice){
+    const lo = f.minPrice || 0, hi = f.maxPrice || Infinity;
+    if (price >= lo && price <= hi){
+      score += 45;
+    } else {
+      const ref = price < lo ? lo : hi;
+      const diffRatio = ref ? Math.abs(price - ref) / ref : 1;
+      score += Math.max(0, 45 * (1 - diffRatio * 1.5));
+    }
+  } else {
+    score += 45;
+  }
+
+  // عدد الغرف — وزن 30
+  max += 30;
+  if (f.minRooms){
+    if (o.rooms == null) score += 15; // أرض مثلاً — ما ينطبق عليها، نصف درجة محايدة
+    else if (o.rooms >= f.minRooms) score += 30;
+    else score += Math.max(0, 30 - (f.minRooms - o.rooms) * 8);
+  } else {
+    score += 30;
+  }
+
+  return Math.round((score / max) * 100);
+}
+
 async function renderOffers(filters){
   const f = filters || readOfferFilters();
   const grid = document.getElementById('offers-grid');
   if (dbReady){
     try {
-      let query = supa.from('offers').select('*').eq('is_published', true).limit(18);
+      // نُبقي فلترة المدينة صارمة (أغلب المشترين ما يفكرون بمدينة ثانية)،
+      // وبقية التفضيلات (نوع، سعر، غرف) تُحسب كنسبة توافق بدل استبعاد صارم
+      let query = supa.from('offers').select('*').eq('is_published', true).limit(30);
       if (f.city) query = query.eq('city', f.city);
-      if (f.type) query = query.eq('property_type', f.type);
-      if (f.minPrice) query = query.gte('price_final', f.minPrice);
-      if (f.maxPrice) query = query.lte('price_final', f.maxPrice);
-      if (f.minRooms) query = query.gte('rooms', f.minRooms);
       const { data, error } = await withTimeout(query);
       if (!error && data && data.length){
-        grid.innerHTML = data.map(offerCardHtml).join('');
+        const scored = data.map(o => ({ o, score: computeMatchScore(o, f) }));
+        if (scored[0].score !== null) scored.sort((a, b) => b.score - a.score);
+        grid.innerHTML = scored.map(({o, score}) => offerCardHtml(o, score)).join('');
         observeFadeUps();
         return;
       }
@@ -1812,15 +1893,18 @@ async function renderOffers(filters){
       console.error('renderOffers: Supabase call failed, falling back to demo data.', e);
     }
   }
-  const demo = (DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar).filter(o => matchesFilters(o, f));
+  const demoAll = (DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar)
+    .filter(o => !f.city || o.city === cityLabel(f.city) || o.city === f.city);
   const demoLabel = { ar:"عروض توضيحية — اربط قاعدة البيانات لعرض العروض الفعلية.",
                        en:"Demo offers — connect the database to show real offers.",
                        fr:"Offres de démonstration — connectez la base de données." }[currentLang];
-  if (!demo.length){
+  if (!demoAll.length){
     grid.innerHTML = `<div class="notice notice-info" style="grid-column:1/-1">${I18N[currentLang].offers_no_match}</div>`;
     return;
   }
-  grid.innerHTML = demo.map(offerCardHtml).join('') +
+  const demoScored = demoAll.map(o => ({ o, score: computeMatchScore(o, f) }));
+  if (demoScored[0].score !== null) demoScored.sort((a, b) => b.score - a.score);
+  grid.innerHTML = demoScored.map(({o, score}) => offerCardHtml(o, score)).join('') +
     `<div class="notice notice-warn" style="grid-column:1/-1">${demoLabel}</div>`;
   observeFadeUps();
 }
@@ -1840,7 +1924,7 @@ async function renderFeatured(){
   if (!items.length){
     items = (DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar).slice(0, 3);
   }
-  grid.innerHTML = items.map(offerCardHtml).join('');
+  grid.innerHTML = items.map(o => offerCardHtml(o)).join('');
   observeFadeUps();
 }
 
@@ -2249,7 +2333,7 @@ async function renderAnalytics(){
       if (analyticsChart) analyticsChart.destroy();
       analyticsChart = new Chart(document.getElementById('analytics-chart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'متوسط سعر المتر', data: values, backgroundColor:'#0b3d66' }] },
+        data: { labels, datasets: [{ label: 'متوسط سعر المتر', data: values, backgroundColor:'#c0a16b' }] },
         options: { responsive:true, plugins:{legend:{display:false}} }
       });
     }
@@ -2488,7 +2572,7 @@ function showPage(id){
     void active.offsetWidth; // force reflow so the animation restarts every visit
     active.classList.add('page-enter');
   }
-  document.querySelectorAll('nav.links a[href^="#"]').forEach(a=>{
+  document.querySelectorAll('.links a[href^="#"]').forEach(a=>{
     a.classList.toggle('active', a.getAttribute('href') === '#' + id);
   });
   if (location.hash !== '#' + id) history.pushState(null, '', '#' + id);
