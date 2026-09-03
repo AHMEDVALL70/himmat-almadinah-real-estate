@@ -148,31 +148,33 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
     #0B132B;
   color:#fff;padding:36px 0 60px;position:relative;overflow:hidden
 }
-.hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.05;
-  background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
-  background-size:56px 56px}
-.hero-skyline{position:absolute;inset-inline-start:0;bottom:0;width:100%;height:140px;opacity:.06;pointer-events:none}
-.hero .container{max-width:980px}
-.hero-grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:28px}
+.hero .container{position:relative;z-index:2;max-width:980px}
+.hero-grid{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:36px}
 .hero-grid > *:first-child{flex:1 1 460px;min-width:280px;text-align:center}
-.hero h1{font-size:clamp(30px,4.4vw,46px);margin:0 0 8px}
-.hero .sub-en{color:#E0A96D;font-weight:700;margin:0 0 18px;font-size:clamp(17px,2vw,22px);letter-spacing:.3px}
-.eyebrow.hero-eyebrow{margin:0 0 10px}
-.hero p.desc{color:#8D99AE;max-width:520px;margin:0 auto 26px}
+.hero h1{font-size:clamp(26px,3.6vw,38px);margin:0 0 6px}
+.hero-tagline{font-size:clamp(24px,3.6vw,38px);font-weight:900;color:#E0A96D;margin:2px 0 16px;line-height:1.3;font-family:var(--font-display)}
+.eyebrow.hero-eyebrow{margin:0 0 8px}
+.hero p.desc{color:#c7cedb;max-width:540px;margin:0 auto 26px}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;justify-content:center}
 .hero .btn-primary{background:#E0A96D;color:#0B132B}
 .hero .btn-primary:hover{background:#eabd8c}
 .hero .btn-outline{border-color:#E0A96D;color:#E0A96D}
-.license-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 14px;font-size:12.5px;color:#8D99AE;margin-bottom:22px}
+.license-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 14px;font-size:12.5px;color:#dde2ea;margin-bottom:22px;backdrop-filter:blur(2px)}
 .stats-row{display:flex;gap:28px;flex-wrap:wrap;justify-content:center}
 .stat b{display:block;font-size:26px;font-family:var(--font-display);color:#E0A96D}
-.stat span{font-size:13px;color:#8D99AE}
-.hero-panel{background:#1C2541;border:1px solid rgba(224,169,109,.25);border-radius:20px;padding:22px;width:100%;max-width:300px;flex:0 0 auto}
-.hero-panel img{max-width:220px;max-height:280px;width:auto;height:auto;display:block;margin:0 auto 16px;border-radius:14px;border:1px solid rgba(224,169,109,.3);object-fit:contain}
-.hero-panel h3{margin:0 0 6px;font-size:18px}
-.hero-panel p{color:#8D99AE;font-size:14px;margin:0}
-.hero-panel-link{display:inline-block;margin-top:14px;color:#E0A96D;font-weight:700;font-size:13.5px}
-.hero-panel-link:hover{color:#fff}
+.stat span{font-size:13px;color:#c7cedb}
+
+/* Hero image card — contained slideshow of real photos (Masjid an-Nabawi + Madinah) */
+.hero-image-col{flex:1 1 380px;min-width:280px;max-width:460px;display:flex;flex-direction:column;align-items:center;margin-top:-28px}
+.hero-image-card{width:100%;aspect-ratio:4/3;border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.4);border:1px solid rgba(224,169,109,.25)}
+.hero-bg-slides{position:absolute;inset:0}
+.hero-bg-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.8s ease}
+.hero-bg-slide.active{opacity:1}
+.hero-logo-under{width:96px;height:96px;object-fit:contain;margin-top:18px;border-radius:16px;background:rgba(255,255,255,.06);padding:10px;border:1px solid rgba(224,169,109,.25)}
+@media(max-width:680px){.hero-image-col{max-width:100%;margin-top:0}.hero-image-card{aspect-ratio:16/10}}
+@media (prefers-reduced-motion: reduce){
+  .hero-bg-slide{transition:none}
+}
 
 /* Offers */
 .offer-card{overflow:hidden;position:relative}
@@ -368,22 +370,12 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
      ========================================================================== -->
 <div id="home">
 <section class="hero">
-  <svg class="hero-skyline" viewBox="0 0 800 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0 220 L0 190 L40 190 L40 170 L60 170 L60 190 L100 190 L100 150 L120 150 L120 190
-             L170 190 L170 120 Q170 90 200 90 Q230 90 230 120 L230 190
-             L260 190 L260 160 L280 160 L280 190 L340 190 L340 100 L360 100 L360 80 L380 80 L380 100 L400 100 L400 190
-             L440 190 L440 140 Q440 100 480 100 Q520 100 520 140 L520 190
-             L560 190 L560 165 L580 165 L580 190 L640 190 L640 110 L660 110 L660 90 L680 90 L680 110 L700 110 L700 190
-             L740 190 L740 160 L760 160 L760 190 L800 190 L800 220 Z" fill="#fff"/>
-    <circle cx="480" cy="80" r="14" fill="#fff"/>
-    <circle cx="200" cy="72" r="10" fill="#fff"/>
-  </svg>
   <div class="container hero-grid">
     <div>
       <p class="eyebrow hero-eyebrow" style="color:var(--gold-100)" data-i18n="hero_eyebrow">🇸🇦 المدينة المنورة</p>
       <h1 data-i18n="hero_title">همة المدينة العقارية</h1>
-      <p class="sub-en" data-i18n="hero_sub">Himmat Al Madinah Real Estate</p>
-      <p class="desc" data-i18n="hero_desc">نعمل في المدينة المنورة لنقدم خدمات عقارية مبنية على المعرفة بالسوق، ودقة المعلومة، ووضوح التعامل.</p>
+      <p class="hero-tagline" data-i18n="hero_tagline">قرارك العقاري يبدأ من معرفة القيمة العادلة</p>
+      <p class="desc" data-i18n="hero_desc">نعمل في المدينة المنورة لنقدم خدمات عقارية مبنية على المعرفة بالسوق، ودقة المعلومة، ووضوح التعامل، لنساعد عملاءنا على اتخاذ القرار الأنسب؛ سواء كان الهدف السكن، الاستثمار، البيع أو إدارة الأملاك.</p>
       <div class="hero-cta">
         <a href="#offers" class="btn btn-primary" data-i18n="hero_cta_browse">تصفح العقارات</a>
         <a href="#add-property" class="btn btn-outline" data-i18n="hero_cta_list">أضف عقارك</a>
@@ -396,11 +388,11 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="stat"><b class="counter" id="stat-live-count" data-target="0" data-suffix="">0</b><span data-i18n="stat3">عقار مسجَّل فعلياً</span></div>
       </div>
     </div>
-    <div class="hero-panel">
-      <img src="Himmat-Almedina.png" alt="همة المدينة العقارية" onerror="this.remove()">
-      <h3 data-i18n="hero_panel_title">قاعدة بيانات مشتركة وحقيقية</h3>
-      <p data-i18n="hero_panel_desc">كل عقار وعقد تضيفه يُخزَّن مركزياً ويبقى محفوظاً — وليس فقط على متصفحك.</p>
-      <a href="#valuation" class="hero-panel-link" data-i18n="hero_cta1">ابدأ التقييم الآن ←</a>
+    <div class="hero-image-col">
+      <div class="hero-image-card">
+        <div class="hero-bg-slides" id="hero-bg-slides" aria-hidden="true"></div>
+      </div>
+      <img src="Himmat-Almedina.png" alt="همة المدينة العقارية" class="hero-logo-under" onerror="this.remove()">
     </div>
   </div>
 </section>
@@ -997,6 +989,7 @@ const I18N = {
     nav_contracts:"العقود", nav_add:"إضافة", nav_analytics:"التحليلات", nav_services:"الخدمات",
     nav_faq:"الأسئلة", nav_about:"عنّا", nav_contact:"تواصل",
     hero_eyebrow:"🇸🇦 المدينة المنورة", hero_title:"همة المدينة العقارية", hero_sub:"Himmat Al Madinah Real Estate",
+    hero_tagline:"قرارك العقاري يبدأ من معرفة القيمة العادلة",
     hero_desc:"من تقييم استرشادي شفاف، إلى عقد جاهز خلال دقائق — همة المدينة معك في كل خطوة من رحلتك العقارية.",
     hero_cta1:"ابدأ التقييم الآن", hero_cta_browse:"تصفح العقارات", hero_cta_list:"أضف عقارك",
     license_badge:"مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428",
@@ -1083,6 +1076,7 @@ const I18N = {
     nav_contracts:"Contracts", nav_add:"List Property", nav_analytics:"Analytics", nav_services:"Services",
     nav_faq:"FAQ", nav_about:"About", nav_contact:"Contact",
     hero_eyebrow:"🇸🇦 Madinah", hero_title:"Himmat Al Madinah Real Estate", hero_sub:"همة المدينة العقارية",
+    hero_tagline:"Your real estate decision starts with knowing the fair value",
     hero_desc:"From a transparent guided valuation to a ready contract in minutes — Himmat Al Madinah is with you at every step of your real estate journey.",
     hero_cta1:"Start Valuation", hero_cta_browse:"Browse Properties", hero_cta_list:"List Your Property",
     license_badge:"Licensed by the General Real Estate Authority — Fal License: 1200030428",
@@ -1169,6 +1163,7 @@ const I18N = {
     nav_contracts:"Contrats", nav_add:"Ajouter", nav_analytics:"Analyses", nav_services:"Services",
     nav_faq:"FAQ", nav_about:"À propos", nav_contact:"Contact",
     hero_eyebrow:"🇸🇦 Médine", hero_title:"Himmat Al Madinah Immobilier", hero_sub:"همة المدينة العقارية",
+    hero_tagline:"Votre décision immobilière commence par connaître la juste valeur",
     hero_desc:"D'une évaluation indicative transparente à un contrat prêt en quelques minutes — Himmat Al Madinah vous accompagne à chaque étape.",
     hero_cta1:"Commencer l'évaluation", hero_cta_browse:"Parcourir les biens", hero_cta_list:"Ajouter votre bien",
     license_badge:"Agréé par l'Autorité générale de l'immobilier — Licence Fal : 1200030428",
@@ -2412,6 +2407,36 @@ const fadeUpObserver = ('IntersectionObserver' in window) ? new IntersectionObse
   });
 }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }) : null;
 
+/* ============================================================================
+   Hero image card slideshow — real photos of the Prophet's Mosque and
+   Madinah, cross-fading automatically inside the contained image card.
+   ========================================================================== */
+const HERO_BG_IMAGES = [
+  "https://images.pexels.com/photos/4321694/pexels-photo-4321694.jpeg?auto=compress&cs=tinysrgb&h=900&w=1200",
+  "https://images.pexels.com/photos/34246953/pexels-photo-34246953.jpeg?auto=compress&cs=tinysrgb&h=900&w=1200",
+  "https://images.pexels.com/photos/35017416/pexels-photo-35017416.jpeg?auto=compress&cs=tinysrgb&h=900&w=1200",
+  "https://images.pexels.com/photos/34246946/pexels-photo-34246946.jpeg?auto=compress&cs=tinysrgb&h=900&w=1200",
+  "https://images.pexels.com/photos/34845465/pexels-photo-34845465.jpeg?auto=compress&cs=tinysrgb&h=900&w=1200",
+];
+
+function initHeroSlideshow(){
+  const wrap = document.getElementById('hero-bg-slides');
+  if (!wrap) return;
+  wrap.innerHTML = HERO_BG_IMAGES.map((url, i) =>
+    `<div class="hero-bg-slide${i===0 ? ' active' : ''}" style="background-image:url('${url}')"></div>`
+  ).join('');
+
+  if (prefersReducedMotion()) return; // صورة واحدة ثابتة تكفي لمن يفضّل تقليل الحركة
+
+  let current = 0;
+  const slides = wrap.querySelectorAll('.hero-bg-slide');
+  setInterval(()=>{
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+  }, 5000);
+}
+
 function observeFadeUps(){
   if (!fadeUpObserver){
     document.querySelectorAll('.fade-up:not(.visible)').forEach(el=>el.classList.add('visible'));
@@ -2772,6 +2797,7 @@ window.addEventListener('load', async ()=>{
   document.getElementById('stat-district-count').dataset.target = totalDistricts;
   updateGradeFieldVisibility();
   try { runValuation(); } catch(e){}
+  initHeroSlideshow();
   showPage(location.hash.slice(1) || 'home');
 });
 </script>
