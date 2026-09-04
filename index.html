@@ -1841,7 +1841,7 @@ async function renderOffers(filters){
     try {
       // نُبقي فلترة المدينة صارمة (أغلب المشترين ما يفكرون بمدينة ثانية)،
       // وبقية التفضيلات (نوع، سعر، غرف) تُحسب كنسبة توافق بدل استبعاد صارم
-      let query = supa.from('offers').select('*').eq('is_published', true).limit(30);
+      let query = supa.from('offers').select('*').eq('is_published', true).order('created_at', { ascending: false }).limit(30);
       if (f.city) query = query.eq('city', f.city);
       const { data, error } = await withTimeout(query);
       if (!error && data && data.length){
@@ -1880,7 +1880,7 @@ async function renderFeatured(){
   let items = [];
   if (dbReady){
     try {
-      const { data, error } = await withTimeout(supa.from('offers').select('*').eq('is_published', true).limit(3));
+      const { data, error } = await withTimeout(supa.from('offers').select('*').eq('is_published', true).order('created_at', { ascending: false }).limit(3));
       if (!error && data && data.length) items = data;
     } catch (e) {
       console.error('renderFeatured: Supabase call failed, falling back to demo data.', e);
