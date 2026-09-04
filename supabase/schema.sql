@@ -18,13 +18,18 @@ create extension if not exists pgcrypto;
 -- 1) الأطراف (مؤجر / مستأجر) — بدل نص حر يمنع البحث والربط
 -- ============================================================================
 create table if not exists parties (
-    id            uuid primary key default gen_random_uuid(),
-    full_name     varchar(255) not null,
-    national_id   varchar(20),
-    phone         varchar(20),
-    email         varchar(255),
-    created_at    timestamptz not null default now()
+    id             uuid primary key default gen_random_uuid(),
+    full_name      varchar(255) not null,
+    national_id    varchar(20),
+    phone          varchar(20),
+    email          varchar(255),
+    date_of_birth  date,
+    created_at     timestamptz not null default now()
 );
+
+-- يضمن التقاط العمود حتى لو الجدول كان موجوداً مسبقاً من تشغيل سابق
+-- (create table if not exists يتجاهل تعديلات الأعمدة على جدول موجود)
+alter table parties add column if not exists date_of_birth date;
 
 -- ============================================================================
 -- 2) العقارات المعروضة على الموقع (قسم "إضافة عقار" + "التحليلات")
@@ -570,6 +575,35 @@ where status != 'approved' and (
 );
 
 -- ============================================================================
+-- 3.8) أسعار الأحياء الحقيقية — محدَّثة أسبوعياً تلقائياً من منصة رغدان
+--      (بدل DISTRICT_PRICES الثابتة سابقاً بكود index.html). صف واحد لكل
+--      حي عندنا بالجدول أعلاه، تُحدِّثه Edge Function مجدولة أسبوعياً
+--      (انظر supabase/functions/update-district-prices) — لا تعديل يدوي هنا.
+-- ============================================================================
+create table if not exists district_prices (
+    id                 uuid primary key default gen_random_uuid(),
+    district_id        uuid not null references districts(id) on delete cascade,
+    price_per_sqm      numeric(10,2) not null,
+    transaction_count  integer,
+    -- البيانات بطبيعتها تراكمية (كل الصفقات المسجَّلة منذ تاريخ معيّن)، مو
+    -- سنة واحدة بالضبط — سبب قلة عدد الصفقات بالحي الواحد سنوياً. هذا الحقل
+    -- يوصف الفترة بدقة بدل الادّعاء بسنة واحدة (راجع نص v-price-source بالموقع).
+    period_note        varchar(100) not null default 'تراكمي (منصة رغدان)',
+    source              varchar(50) not null default 'raghdan.sa',
+    updated_at         timestamptz not null default now(),
+    unique (district_id)
+);
+create index if not exists idx_district_prices_district on district_prices(district_id);
+
+alter table district_prices enable row level security;
+
+-- قراءة عامة (يحتاجها التقييم بالموقع العام)؛ الكتابة حصراً من Edge Function
+-- عبر service_role (يتجاوز RLS تلقائياً، فلا داعي لسياسة insert/update هنا).
+drop policy if exists district_prices_public_read on district_prices;
+create policy district_prices_public_read on district_prices
+    for select using (true);
+
+-- ============================================================================
 -- 4) العقود
 -- ============================================================================
 create table if not exists contracts (
@@ -726,7 +760,9 @@ create or replace function create_contract_with_schedule(
     p_start_date       date,
     p_end_date         date,
     p_annual_rent      numeric,
-    p_frequency         int default 1
+    p_frequency         int default 1,
+    p_lessor_dob       date default null,
+    p_lessee_dob       date default null
 ) returns uuid
 security definer
 set search_path = public
@@ -736,12 +772,12 @@ declare
     v_lessee_id  uuid;
     v_contract_id uuid;
 begin
-    insert into parties (full_name, national_id, phone)
-        values (p_lessor_name, p_lessor_id_number, p_lessor_phone)
+    insert into parties (full_name, national_id, phone, date_of_birth)
+        values (p_lessor_name, p_lessor_id_number, p_lessor_phone, p_lessor_dob)
         returning id into v_lessor_id;
 
-    insert into parties (full_name, national_id, phone)
-        values (p_lessee_name, p_lessee_id_number, p_lessee_phone)
+    insert into parties (full_name, national_id, phone, date_of_birth)
+        values (p_lessee_name, p_lessee_id_number, p_lessee_phone, p_lessee_dob)
         returning id into v_lessee_id;
 
     insert into contracts (
@@ -852,6 +888,18 @@ create policy offers_admin_write on offers
 --     $$
 --     select net.http_post(
 --         url := 'https://<project-ref>.supabase.co/functions/v1/send-reminders',
+--         headers := jsonb_build_object('Authorization', 'Bearer <service_role_key>')
+--     );
+--     $$
+-- );
+
+-- تحديث أسعار الأحياء أسبوعياً من رغدان (انظر supabase/functions/update-district-prices)
+-- select cron.schedule(
+--     'weekly-district-prices-update',
+--     '0 3 * * 0',  -- 3 فجراً بتوقيت السيرفر كل أحد
+--     $$
+--     select net.http_post(
+--         url := 'https://<project-ref>.supabase.co/functions/v1/update-district-prices',
 --         headers := jsonb_build_object('Authorization', 'Bearer <service_role_key>')
 --     );
 --     $$
