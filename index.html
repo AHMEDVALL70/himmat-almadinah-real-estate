@@ -779,10 +779,26 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="field"><label data-i18n="f_lessor_id">هوية المؤجر</label><input id="c-lessor-id" type="text"></div>
         <div class="field"><label data-i18n="f_lessor_phone">جوال المؤجر</label><input id="c-lessor-phone" type="text"></div>
         <div class="field"><label data-i18n="f_lessor_dob">تاريخ ميلاد المؤجر</label><input id="c-lessor-dob" type="date"></div>
+        <div class="field"><label data-i18n="f_lessor_id_type">نوع هوية المؤجر</label>
+          <select id="c-lessor-id-type">
+            <option value="national_id" data-i18n="id_type_national">هوية وطنية</option>
+            <option value="iqama" data-i18n="id_type_iqama">إقامة</option>
+            <option value="other" data-i18n="id_type_other">أخرى</option>
+          </select>
+        </div>
+        <div class="field"><label data-i18n="f_lessor_nationality">جنسية المؤجر</label><input id="c-lessor-nationality" type="text"></div>
         <div class="field"><label data-i18n="f_lessee_name">اسم المستأجر</label><input id="c-lessee-name" type="text"></div>
         <div class="field"><label data-i18n="f_lessee_id">هوية المستأجر</label><input id="c-lessee-id" type="text"></div>
         <div class="field"><label data-i18n="f_lessee_phone">جوال المستأجر</label><input id="c-lessee-phone" type="text"></div>
         <div class="field"><label data-i18n="f_lessee_dob">تاريخ ميلاد المستأجر</label><input id="c-lessee-dob" type="date"></div>
+        <div class="field"><label data-i18n="f_lessee_id_type">نوع هوية المستأجر</label>
+          <select id="c-lessee-id-type">
+            <option value="national_id" data-i18n="id_type_national">هوية وطنية</option>
+            <option value="iqama" data-i18n="id_type_iqama">إقامة</option>
+            <option value="other" data-i18n="id_type_other">أخرى</option>
+          </select>
+        </div>
+        <div class="field"><label data-i18n="f_lessee_nationality">جنسية المستأجر</label><input id="c-lessee-nationality" type="text"></div>
         <div class="field"><label data-i18n="f_city">المدينة</label>
           <select id="c-city" class="city-select"></select>
         </div>
@@ -791,6 +807,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
           <select id="c-unit-type" class="type-select"></select>
         </div>
         <div class="field"><label data-i18n="f_area">المساحة (م²)</label><input id="c-area" type="number"></div>
+        <div class="field"><label data-i18n="f_deed_number">رقم الصك (اختياري)</label><input id="c-deed-number" type="text"></div>
         <div class="field"><label data-i18n="f_deposit">الضمان (ر.س)</label><input id="c-deposit" type="number" value="0"></div>
         <div class="field"><label data-i18n="f_start">تاريخ البداية</label><input id="c-start" type="date"></div>
         <div class="field"><label data-i18n="f_end">تاريخ النهاية</label><input id="c-end" type="date"></div>
@@ -1137,6 +1154,10 @@ const I18N = {
     f_unit_type:"نوع الوحدة", f_deposit:"الضمان (ر.س)", f_start:"تاريخ البداية", f_end:"تاريخ النهاية",
     f_rent:"الإيجار السنوي (ر.س)", f_frequency:"عدد الدفعات سنوياً", contract_generate:"توليد العقد وإرسال للوسيط",
     f_lessor_dob:"تاريخ ميلاد المؤجر", f_lessee_dob:"تاريخ ميلاد المستأجر", contract_dob_label:"تاريخ الميلاد",
+    f_lessor_id_type:"نوع هوية المؤجر", f_lessee_id_type:"نوع هوية المستأجر",
+    f_lessor_nationality:"جنسية المؤجر", f_lessee_nationality:"جنسية المستأجر",
+    id_type_national:"هوية وطنية", id_type_iqama:"إقامة", id_type_other:"أخرى",
+    f_deed_number:"رقم الصك (اختياري)",
     faq_eyebrow:"مركز المساعدة", faq_title:"الأسئلة الشائعة",
     about_title:"عنّا", mission_title:"رسالتنا",
     mission_text:"أن نجعل التعامل العقاري أوضح وأسهل وأكثر ثقة.",
@@ -1226,6 +1247,10 @@ const I18N = {
     f_unit_type:"Unit type", f_deposit:"Deposit (SAR)", f_start:"Start date", f_end:"End date",
     f_rent:"Annual rent (SAR)", f_frequency:"Installments per year", contract_generate:"Generate & Send to Broker",
     f_lessor_dob:"Lessor's date of birth", f_lessee_dob:"Lessee's date of birth", contract_dob_label:"Date of birth",
+    f_lessor_id_type:"Lessor's ID type", f_lessee_id_type:"Lessee's ID type",
+    f_lessor_nationality:"Lessor's nationality", f_lessee_nationality:"Lessee's nationality",
+    id_type_national:"National ID", id_type_iqama:"Iqama (residency)", id_type_other:"Other",
+    f_deed_number:"Deed number (optional)",
     faq_eyebrow:"Help Center", faq_title:"Frequently Asked Questions",
     about_title:"About Us", mission_title:"Our Mission",
     mission_text:"To make real estate dealings clearer, easier, and more trustworthy.",
@@ -2414,6 +2439,11 @@ ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_la
       p_lessor_dob: v('c-lessor-dob') || null,
       p_lessee_name: v('c-lessee-name'), p_lessee_id_number: v('c-lessee-id'), p_lessee_phone: v('c-lessee-phone'),
       p_lessee_dob: v('c-lessee-dob') || null,
+      p_lessor_id_type: v('c-lessor-id-type') || null,
+      p_lessor_nationality: v('c-lessor-nationality') || null,
+      p_lessee_id_type: v('c-lessee-id-type') || null,
+      p_lessee_nationality: v('c-lessee-nationality') || null,
+      p_deed_number: v('c-deed-number') || null,
       p_city: v('c-city'), p_district: v('c-district'), p_unit_type: v('c-unit-type'),
       p_area_sqm: parseFloat(v('c-area')) || 0, p_security_deposit: parseFloat(v('c-deposit')) || 0,
       p_start_date: v('c-start'), p_end_date: v('c-end'), p_annual_rent: rent,
