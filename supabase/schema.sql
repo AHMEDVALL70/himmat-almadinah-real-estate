@@ -21,15 +21,21 @@ create table if not exists parties (
     id             uuid primary key default gen_random_uuid(),
     full_name      varchar(255) not null,
     national_id    varchar(20),
+    -- نوع هوية الطرف — تُميّز المواطن (هوية وطنية) عن المقيم (إقامة)، مطلوب
+    -- عادة عند التوثيق الرسمي (تحضير لربط شبكة إيجار مستقبلاً، غير مفعَّل بعد)
+    id_type        varchar(20) check (id_type in ('national_id','iqama','other')),
+    nationality    varchar(100),
     phone          varchar(20),
     email          varchar(255),
     date_of_birth  date,
     created_at     timestamptz not null default now()
 );
 
--- يضمن التقاط العمود حتى لو الجدول كان موجوداً مسبقاً من تشغيل سابق
+-- يضمن التقاط الأعمدة حتى لو الجدول كان موجوداً مسبقاً من تشغيل سابق
 -- (create table if not exists يتجاهل تعديلات الأعمدة على جدول موجود)
 alter table parties add column if not exists date_of_birth date;
+alter table parties add column if not exists id_type varchar(20);
+alter table parties add column if not exists nationality varchar(100);
 
 -- ============================================================================
 -- 2) العقارات المعروضة على الموقع (قسم "إضافة عقار" + "التحليلات")
@@ -617,6 +623,9 @@ create table if not exists contracts (
     district         varchar(100),
     unit_type        varchar(50),
     area_sqm         numeric(10,2),
+    -- رقم صك ملكية العقار — تحضير لربط شبكة إيجار مستقبلاً (تتحقق من العقار
+    -- عبر رقم الصك)، غير إلزامي حالياً وغير مفعَّل بأي منطق تلقائي بعد
+    deed_number      varchar(100),
     security_deposit numeric(12,2) default 0,
     start_date       date not null,
     end_date         date not null,
@@ -625,9 +634,22 @@ create table if not exists contracts (
     vat_amount       numeric(12,2) not null default 0,   -- تُحسب تلقائياً من الدفعات
     status           varchar(50) not null default 'ACTIVE'
                          check (status in ('ACTIVE','EXPIRED','CANCELLED')),
+    -- تتبّع توثيق العقد بشبكة إيجار — الحقول جاهزة الآن، لكن لا يوجد أي
+    -- ربط فعلي بعد (ينتظر إتمام التسجيل الرسمي كمنصة تسويق عقاري لدى إيجار).
+    -- تبقى 'not_submitted' لكل العقود حتى يُبنى الربط الفعلي لاحقاً.
+    ejar_status          varchar(20) not null default 'not_submitted'
+                             check (ejar_status in ('not_submitted','pending','approved','rejected')),
+    ejar_contract_number varchar(100),
+    ejar_submitted_at     timestamptz,
     created_at       timestamptz not null default now(),
     constraint chk_dates check (end_date > start_date)
 );
+
+-- يضمن التقاط الأعمدة الجديدة حتى لو الجدول موجود مسبقاً من تشغيل سابق
+alter table contracts add column if not exists deed_number varchar(100);
+alter table contracts add column if not exists ejar_status varchar(20) not null default 'not_submitted';
+alter table contracts add column if not exists ejar_contract_number varchar(100);
+alter table contracts add column if not exists ejar_submitted_at timestamptz;
 
 create index if not exists idx_contracts_status on contracts(status);
 
@@ -762,7 +784,12 @@ create or replace function create_contract_with_schedule(
     p_annual_rent      numeric,
     p_frequency         int default 1,
     p_lessor_dob       date default null,
-    p_lessee_dob       date default null
+    p_lessee_dob       date default null,
+    p_lessor_id_type    varchar default null,
+    p_lessor_nationality varchar default null,
+    p_lessee_id_type    varchar default null,
+    p_lessee_nationality varchar default null,
+    p_deed_number       varchar default null
 ) returns uuid
 security definer
 set search_path = public
@@ -772,21 +799,21 @@ declare
     v_lessee_id  uuid;
     v_contract_id uuid;
 begin
-    insert into parties (full_name, national_id, phone, date_of_birth)
-        values (p_lessor_name, p_lessor_id_number, p_lessor_phone, p_lessor_dob)
+    insert into parties (full_name, national_id, phone, date_of_birth, id_type, nationality)
+        values (p_lessor_name, p_lessor_id_number, p_lessor_phone, p_lessor_dob, p_lessor_id_type, p_lessor_nationality)
         returning id into v_lessor_id;
 
-    insert into parties (full_name, national_id, phone, date_of_birth)
-        values (p_lessee_name, p_lessee_id_number, p_lessee_phone, p_lessee_dob)
+    insert into parties (full_name, national_id, phone, date_of_birth, id_type, nationality)
+        values (p_lessee_name, p_lessee_id_number, p_lessee_phone, p_lessee_dob, p_lessee_id_type, p_lessee_nationality)
         returning id into v_lessee_id;
 
     insert into contracts (
         contract_number, contract_type, lessor_id, lessee_id,
-        city, district, unit_type, area_sqm, security_deposit,
+        city, district, unit_type, area_sqm, deed_number, security_deposit,
         start_date, end_date, annual_rent
     ) values (
         p_contract_number, p_contract_type, v_lessor_id, v_lessee_id,
-        p_city, p_district, p_unit_type, p_area_sqm, coalesce(p_security_deposit,0),
+        p_city, p_district, p_unit_type, p_area_sqm, p_deed_number, coalesce(p_security_deposit,0),
         p_start_date, p_end_date, p_annual_rent
     ) returning id into v_contract_id;
 
