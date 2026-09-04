@@ -858,6 +858,31 @@ create policy offers_admin_write on offers
 -- );
 
 -- ============================================================================
+-- 11) مخزن الصور (Storage) — رفع صور العقارات/العروض مباشرة من الجهاز
+-- ============================================================================
+-- Bucket عام (Public) — الصور تحتاج تظهر لأي زائر بالموقع، فما فيه داعي
+-- لتوقيع روابط مؤقتة. الحماية من الرفع غير المصرَّح فيه عبر RLS تحت.
+insert into storage.buckets (id, name, public)
+values ('property-images', 'property-images', true)
+on conflict (id) do nothing;
+
+-- أي زائر يقدر "يشاهد" الصور (ضروري لعرضها بالموقع العام)
+drop policy if exists "property_images_public_read" on storage.objects;
+create policy "property_images_public_read" on storage.objects
+    for select using (bucket_id = 'property-images');
+
+-- الرفع والحذف والاستبدال حصراً للمدير المسجَّل دخول (نفس نمط باقي اللوحة)
+drop policy if exists "property_images_admin_insert" on storage.objects;
+create policy "property_images_admin_insert" on storage.objects
+    for insert with check (bucket_id = 'property-images' and auth.role() = 'authenticated');
+drop policy if exists "property_images_admin_update" on storage.objects;
+create policy "property_images_admin_update" on storage.objects
+    for update using (bucket_id = 'property-images' and auth.role() = 'authenticated');
+drop policy if exists "property_images_admin_delete" on storage.objects;
+create policy "property_images_admin_delete" on storage.objects
+    for delete using (bucket_id = 'property-images' and auth.role() = 'authenticated');
+
+-- ============================================================================
 -- تحديث ذاكرة الأعمدة (Schema Cache) — يضمن Supabase يتعرّف فوراً على أي
 -- عمود أُضيف بهذا التشغيل، بدل انتظار التحديث التلقائي. آمن يتكرر تشغيله.
 -- ============================================================================
