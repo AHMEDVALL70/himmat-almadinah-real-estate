@@ -806,6 +806,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="field"><label data-i18n="f_unit_type">نوع الوحدة</label>
           <select id="c-unit-type" class="type-select"></select>
         </div>
+        <div class="field"><label data-i18n="f_floor_number">رقم الدور (اختياري)</label><input id="c-floor-number" type="text" placeholder="مثال: الثالث"></div>
         <div class="field"><label data-i18n="f_area">المساحة (م²)</label><input id="c-area" type="number"></div>
         <div class="field"><label data-i18n="f_deed_number">رقم الصك (اختياري)</label><input id="c-deed-number" type="text"></div>
         <div class="field"><label data-i18n="f_deposit">الضمان (ر.س)</label><input id="c-deposit" type="number" value="0"></div>
@@ -1157,7 +1158,7 @@ const I18N = {
     f_lessor_id_type:"نوع هوية المؤجر", f_lessee_id_type:"نوع هوية المستأجر",
     f_lessor_nationality:"جنسية المؤجر", f_lessee_nationality:"جنسية المستأجر",
     id_type_national:"هوية وطنية", id_type_iqama:"إقامة", id_type_other:"أخرى",
-    f_deed_number:"رقم الصك (اختياري)",
+    f_deed_number:"رقم الصك (اختياري)", f_floor_number:"رقم الدور (اختياري)",
     faq_eyebrow:"مركز المساعدة", faq_title:"الأسئلة الشائعة",
     about_title:"عنّا", mission_title:"رسالتنا",
     mission_text:"أن نجعل التعامل العقاري أوضح وأسهل وأكثر ثقة.",
@@ -1250,7 +1251,7 @@ const I18N = {
     f_lessor_id_type:"Lessor's ID type", f_lessee_id_type:"Lessee's ID type",
     f_lessor_nationality:"Lessor's nationality", f_lessee_nationality:"Lessee's nationality",
     id_type_national:"National ID", id_type_iqama:"Iqama (residency)", id_type_other:"Other",
-    f_deed_number:"Deed number (optional)",
+    f_deed_number:"Deed number (optional)", f_floor_number:"Floor number (optional)",
     faq_eyebrow:"Help Center", faq_title:"Frequently Asked Questions",
     about_title:"About Us", mission_title:"Our Mission",
     mission_text:"To make real estate dealings clearer, easier, and more trustworthy.",
@@ -2411,7 +2412,7 @@ document.getElementById('btn-generate-contract').addEventListener('click', async
 ${t.contract_number_label}: ${contractNumber}
 ${t.contract_lessor_label}: ${v('c-lessor-name')} (${t.contract_id_label}: ${v('c-lessor-id')} — ${t.contract_phone_label2}: ${v('c-lessor-phone')} — ${t.contract_dob_label}: ${v('c-lessor-dob') || '—'})
 ${t.contract_lessee_label}: ${v('c-lessee-name')} (${t.contract_id_label}: ${v('c-lessee-id')} — ${t.contract_phone_label2}: ${v('c-lessee-phone')} — ${t.contract_dob_label}: ${v('c-lessee-dob') || '—'})
-${t.contract_property_label}: ${typeDisplay} — ${districtLabel(v('c-district'))}, ${cityDisplay} — ${v('c-area')} م²
+${t.contract_property_label}: ${typeDisplay} — ${districtLabel(v('c-district'))}, ${cityDisplay} — ${v('c-area')} م²${v('c-floor-number') ? ' — ' + (currentLang==='ar' ? 'الدور' : 'Floor') + ': ' + v('c-floor-number') : ''}
 ${t.contract_term_label}: ${t.contract_term_from} ${v('c-start')} ${t.contract_term_to} ${v('c-end')}
 ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_label}: ${money(parseFloat(v('c-deposit'))||0)} ${currency}`;
 
@@ -2444,6 +2445,7 @@ ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_la
       p_lessee_id_type: v('c-lessee-id-type') || null,
       p_lessee_nationality: v('c-lessee-nationality') || null,
       p_deed_number: v('c-deed-number') || null,
+      p_floor_number: v('c-floor-number') || null,
       p_city: v('c-city'), p_district: v('c-district'), p_unit_type: v('c-unit-type'),
       p_area_sqm: parseFloat(v('c-area')) || 0, p_security_deposit: parseFloat(v('c-deposit')) || 0,
       p_start_date: v('c-start'), p_end_date: v('c-end'), p_annual_rent: rent,
