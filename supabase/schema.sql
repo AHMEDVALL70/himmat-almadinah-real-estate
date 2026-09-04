@@ -819,6 +819,9 @@ create policy districts_public_read on districts
 -- هذا أبسط بكثير من نظام أدوار/جدول مستخدمين مخصّص، لكنه حماية حقيقية على
 -- مستوى قاعدة البيانات نفسها — مو مجرد إخفاء رابط الصفحة.
 
+drop policy if exists properties_admin_read on properties;
+create policy properties_admin_read on properties
+    for select using (auth.role() = 'authenticated');
 drop policy if exists properties_admin_update on properties;
 create policy properties_admin_update on properties
     for update using (auth.role() = 'authenticated');
