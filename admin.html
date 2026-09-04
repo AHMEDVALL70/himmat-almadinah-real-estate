@@ -130,6 +130,7 @@ tr:hover td{background:#fafbfc}
     <button class="tab-btn" data-tab="properties">العقارات</button>
     <button class="tab-btn" data-tab="offers">العروض</button>
     <button class="tab-btn" data-tab="inquiries">الاستفسارات</button>
+    <button class="tab-btn" data-tab="contracts">العقود</button>
   </div>
 
   <main>
@@ -140,6 +141,7 @@ tr:hover td{background:#fafbfc}
         <div class="card stat-card"><b id="s-approved">—</b><span>عقارات معتمدة</span></div>
         <div class="card stat-card"><b id="s-rejected">—</b><span>عقارات مرفوضة</span></div>
         <div class="card stat-card"><b id="s-new-inquiries">—</b><span>استفسارات جديدة</span></div>
+        <div class="card stat-card"><b id="s-contracts">—</b><span>إجمالي العقود</span></div>
       </div>
       <div class="card" style="padding:18px">
         <h3 style="margin:0 0 12px">آخر العقارات المضافة</h3>
@@ -237,6 +239,24 @@ tr:hover td{background:#fafbfc}
             <th>الحالة</th><th>التاريخ</th><th>إجراءات</th>
           </tr></thead>
           <tbody id="inquiries-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Contracts -->
+    <section class="tab-panel" id="panel-contracts">
+      <div class="filter-row">
+        <input id="contracts-search" type="text" placeholder="ابحث برقم العقد أو اسم طرف...">
+        <button class="btn btn-ghost" id="btn-refresh-contracts">تحديث</button>
+      </div>
+      <div class="card" style="padding:0;overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>رقم العقد</th><th>المؤجر</th><th>المستأجر</th><th>المدينة / الحي</th>
+            <th>النوع</th><th>الدور</th><th>المساحة</th><th>الإيجار السنوي</th>
+            <th>عدد الدفعات</th><th>الحالة</th><th>تاريخ الإنشاء</th><th>إجراءات</th>
+          </tr></thead>
+          <tbody id="contracts-tbody"></tbody>
         </table>
       </div>
     </section>
@@ -363,6 +383,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     if (btn.dataset.tab === 'properties') loadProperties();
     if (btn.dataset.tab === 'offers') loadOffers();
     if (btn.dataset.tab === 'inquiries') loadInquiries();
+    if (btn.dataset.tab === 'contracts') loadContracts();
   });
 });
 
@@ -371,17 +392,19 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
    ========================================================================== */
 async function loadDashboard(){
   try {
-    const [pending, approved, rejected, newInq, recent] = await Promise.all([
+    const [pending, approved, rejected, newInq, contractsCount, recent] = await Promise.all([
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'rejected'),
       supa.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+      supa.from('contracts').select('id', { count: 'exact', head: true }),
       supa.from('properties').select('*').order('created_at', { ascending: false }).limit(8),
     ]);
     document.getElementById('s-pending').textContent = pending.count ?? 0;
     document.getElementById('s-approved').textContent = approved.count ?? 0;
     document.getElementById('s-rejected').textContent = rejected.count ?? 0;
     document.getElementById('s-new-inquiries').textContent = newInq.count ?? 0;
+    document.getElementById('s-contracts').textContent = contractsCount.count ?? 0;
 
     const tbody = document.getElementById('dashboard-recent');
     const rows = recent.data || [];
@@ -714,6 +737,113 @@ async function setInquiryStatus(id, status){
   } catch (e) {
     console.error(e);
     showToast('⚠️ تعذّر التحديث: ' + e.message);
+  }
+}
+
+/* ============================================================================
+   Contracts (read-only) — العقد يُنشأ فقط من موقع الزوار (index.html) عبر
+   create_contract_with_schedule، هذا القسم بس للعرض والمتابعة
+   ========================================================================== */
+function contractStatusLabel(s){
+  return { ACTIVE:'ساري', EXPIRED:'منتهي', CANCELLED:'ملغى' }[s] || s;
+}
+function contractStatusBadge(s){
+  return { ACTIVE:'approved', EXPIRED:'pending', CANCELLED:'rejected' }[s] || 'pending';
+}
+
+async function loadContracts(){
+  const tbody = document.getElementById('contracts-tbody');
+  const search = document.getElementById('contracts-search').value.trim().toLowerCase();
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="12">جاري التحميل...</td></tr>`;
+  try {
+    const { data, error } = await supa.from('contracts')
+      .select(`*,
+        lessor:parties!contracts_lessor_id_fkey(full_name, phone),
+        lessee:parties!contracts_lessee_id_fkey(full_name, phone),
+        contract_installments(id)`)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (error) throw error;
+
+    let rows = data || [];
+    if (search){
+      rows = rows.filter(c =>
+        (c.contract_number || '').toLowerCase().includes(search) ||
+        (c.lessor?.full_name || '').toLowerCase().includes(search) ||
+        (c.lessee?.full_name || '').toLowerCase().includes(search)
+      );
+    }
+    if (!rows.length){
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="12">لا توجد عقود مطابقة.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map(c => `
+      <tr>
+        <td>${c.contract_number}</td>
+        <td>${c.lessor?.full_name || '—'}</td>
+        <td>${c.lessee?.full_name || '—'}</td>
+        <td>${c.city || '—'} / ${c.district || '—'}</td>
+        <td>${c.unit_type || '—'}</td>
+        <td>${c.floor_number || '—'}</td>
+        <td>${c.area_sqm ? c.area_sqm + ' م²' : '—'}</td>
+        <td>${money(c.annual_rent)} ر.س</td>
+        <td>${(c.contract_installments || []).length}</td>
+        <td><span class="badge badge-${contractStatusBadge(c.status)}">${contractStatusLabel(c.status)}</span></td>
+        <td>${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
+        <td class="actions-cell">
+          <button class="btn btn-ghost" id="btn-toggle-${c.id}" onclick="toggleInstallments('${c.id}')">عرض الدفعات</button>
+        </td>
+      </tr>
+      <tr class="installments-row" id="installments-${c.id}" style="display:none">
+        <td colspan="12"></td>
+      </tr>`).join('');
+  } catch (e) {
+    console.error('loadContracts failed', e);
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="12">⚠️ تعذّر تحميل العقود.</td></tr>`;
+  }
+}
+document.getElementById('btn-refresh-contracts').addEventListener('click', loadContracts);
+let contractsSearchDebounce;
+document.getElementById('contracts-search').addEventListener('input', ()=>{
+  clearTimeout(contractsSearchDebounce);
+  contractsSearchDebounce = setTimeout(loadContracts, 300);
+});
+
+async function toggleInstallments(contractId){
+  const row = document.getElementById('installments-' + contractId);
+  const btn = document.getElementById('btn-toggle-' + contractId);
+  if (!row) return;
+  if (row.style.display !== 'none'){
+    row.style.display = 'none';
+    if (btn) btn.textContent = 'عرض الدفعات';
+    return;
+  }
+  const cell = row.querySelector('td');
+  cell.innerHTML = 'جاري التحميل...';
+  row.style.display = '';
+  if (btn) btn.textContent = 'إخفاء الدفعات';
+  try {
+    const { data, error } = await supa.from('contract_installments')
+      .select('*')
+      .eq('contract_id', contractId)
+      .order('due_date', { ascending: true });
+    if (error) throw error;
+    const items = data || [];
+    cell.innerHTML = items.length
+      ? `<table style="width:100%;margin:6px 0">
+           <thead><tr><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>حالة السداد</th></tr></thead>
+           <tbody>${items.map(i => `
+             <tr>
+               <td>${new Date(i.due_date).toLocaleDateString('ar-SA')}</td>
+               <td>${money(i.total_installment)} ر.س</td>
+               <td>${i.payment_status === 'PAID' ? '✅ مدفوعة' : '⏳ قيد الانتظار'}</td>
+             </tr>`).join('')}</tbody>
+         </table>`
+      : 'لا توجد دفعات مسجّلة لهذا العقد.';
+  } catch (e) {
+    console.error('toggleInstallments failed', e);
+    cell.innerHTML = '⚠️ تعذّر تحميل جدول الدفعات.';
   }
 }
 
