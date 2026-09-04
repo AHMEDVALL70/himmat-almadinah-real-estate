@@ -622,6 +622,8 @@ create table if not exists contracts (
     city             varchar(100),
     district         varchar(100),
     unit_type        varchar(50),
+    -- رقم الدور (مثلاً: أرضي، أول، ثاني...) — اختياري، يفيد للوحدات بعمارة
+    floor_number     varchar(50),
     area_sqm         numeric(10,2),
     -- رقم صك ملكية العقار — تحضير لربط شبكة إيجار مستقبلاً (تتحقق من العقار
     -- عبر رقم الصك)، غير إلزامي حالياً وغير مفعَّل بأي منطق تلقائي بعد
@@ -647,6 +649,7 @@ create table if not exists contracts (
 
 -- يضمن التقاط الأعمدة الجديدة حتى لو الجدول موجود مسبقاً من تشغيل سابق
 alter table contracts add column if not exists deed_number varchar(100);
+alter table contracts add column if not exists floor_number varchar(50);
 alter table contracts add column if not exists ejar_status varchar(20) not null default 'not_submitted';
 alter table contracts add column if not exists ejar_contract_number varchar(100);
 alter table contracts add column if not exists ejar_submitted_at timestamptz;
@@ -789,7 +792,8 @@ create or replace function create_contract_with_schedule(
     p_lessor_nationality varchar default null,
     p_lessee_id_type    varchar default null,
     p_lessee_nationality varchar default null,
-    p_deed_number       varchar default null
+    p_deed_number       varchar default null,
+    p_floor_number      varchar default null
 ) returns uuid
 security definer
 set search_path = public
@@ -809,11 +813,11 @@ begin
 
     insert into contracts (
         contract_number, contract_type, lessor_id, lessee_id,
-        city, district, unit_type, area_sqm, deed_number, security_deposit,
+        city, district, unit_type, floor_number, area_sqm, deed_number, security_deposit,
         start_date, end_date, annual_rent
     ) values (
         p_contract_number, p_contract_type, v_lessor_id, v_lessee_id,
-        p_city, p_district, p_unit_type, p_area_sqm, p_deed_number, coalesce(p_security_deposit,0),
+        p_city, p_district, p_unit_type, p_floor_number, p_area_sqm, p_deed_number, coalesce(p_security_deposit,0),
         p_start_date, p_end_date, p_annual_rent
     ) returning id into v_contract_id;
 
@@ -903,6 +907,19 @@ drop policy if exists offers_admin_write on offers;
 create policy offers_admin_write on offers
     for all using (auth.role() = 'authenticated')
     with check (auth.role() = 'authenticated');
+
+-- العقود/الأطراف/الدفعات: قراءة إدارية فقط (نفس نمط بقية اللوحة) — كانت
+-- مفقودة تماماً؛ بدونها admin.html يقدر يكتب عقود (عبر create_contract_with_schedule
+-- بصلاحية SECURITY DEFINER) لكن ما يقدر يعرضها أبداً بأي قسم "العقود" مستقبلي.
+drop policy if exists contracts_admin_read on contracts;
+create policy contracts_admin_read on contracts
+    for select using (auth.role() = 'authenticated');
+drop policy if exists parties_admin_read on parties;
+create policy parties_admin_read on parties
+    for select using (auth.role() = 'authenticated');
+drop policy if exists contract_installments_admin_read on contract_installments;
+create policy contract_installments_admin_read on contract_installments
+    for select using (auth.role() = 'authenticated');
 
 -- ============================================================================
 -- 10) جدولة فحص التنبيهات يومياً عبر pg_cron (بديل خادم Python الدائم)
