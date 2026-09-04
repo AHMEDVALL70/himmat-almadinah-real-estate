@@ -169,11 +169,12 @@ section{padding:44px 0 60px}
 .notice-warn{background:rgba(192,161,107,.12);color:#c0a16b;border:1px solid rgba(192,161,107,.35)}
 .notice-ok-source{background:rgba(79,174,118,.14);color:#6fd99a;border:1px solid rgba(79,174,118,.35)}
 .notice-info{background:rgba(37,50,78,.6);color:var(--text-600);border:1px solid var(--line)}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-width:0}
 .field label{font-size:13px;font-weight:700;color:var(--text-600)}
 .field input,.field select,.field textarea{
   padding:11px 13px;border-radius:9px;border:1.5px solid var(--line);
-  font-family:inherit;font-size:15px;background:var(--surface);color:var(--text-900)
+  font-family:inherit;font-size:15px;background:var(--surface);color:var(--text-900);
+  width:100%;min-width:0
 }
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--gold-500);outline-offset:1px}
 .grid-2{grid-template-columns:repeat(2,1fr)}
