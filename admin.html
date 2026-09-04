@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -245,16 +246,27 @@ function showToast(msg){
    ========================================================================== */
 async function checkSession(){
   const { data: { session } } = await supa.auth.getSession();
+  applySessionUI(session);
+}
+
+function applySessionUI(session){
   if (session){
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('admin-email').textContent = session.user.email;
-    await loadDashboard();
+    loadDashboard();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
   }
 }
+
+// يضمن تحديث الواجهة فوراً حتى لو رمز الدخول (من رابط Magic Link أو إعادة
+// تعيين كلمة المرور) اكتمل معالجته بعد لحظات من تحميل الصفحة، بدل ما تفوت
+// اللحظة بفحص واحد فقط عند التحميل.
+supa.auth.onAuthStateChange((_event, session) => {
+  applySessionUI(session);
+});
 
 document.getElementById('btn-login').addEventListener('click', async ()=>{
   const email = document.getElementById('login-email').value.trim();
