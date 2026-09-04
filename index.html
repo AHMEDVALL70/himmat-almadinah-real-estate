@@ -1511,9 +1511,12 @@ const CITY_DISTRICTS = {
 const CITY_PRICE_PER_SQM = { "المدينة المنورة":4200, "مكة المكرمة":6100, "جدة":5800, "الرياض":6500 };
 
 // أسعار متر حقيقية موثّقة لأحياء محددة — مصدرها صفقات فعلية موثّقة من وزارة
-// العدل السعودية (عبر منصة رغدان raghdan.sa، بيانات 2026). هذي مو كل الأحياء
-// الـ265 — بس الأحياء اللي قدرنا نتحقق من سعرها الفعلي. أي حي مو موجود هنا
-// يستخدم تقدير "متوسط المدينة × تصنيف الحي" القديم بدلاً منه (استرشادي، مو موثّق).
+// العدل السعودية (عبر منصة رغدان raghdan.sa). الأرقام هنا "بذرة" احتياطية
+// تُستخدم فقط لو تعذّر الاتصال بقاعدة البيانات؛ بعد الإقلاع تُستبدَل/تُحدَّث
+// تلقائياً من جدول district_prices (يحدّثه Edge Function أسبوعياً). البيانات
+// بطبيعتها تراكمية (كل الصفقات المسجَّلة منذ فترة، مو سنة واحدة بالضبط) —
+// السبب قلة عدد الصفقات بالحي الواحد سنوياً، فما يكفي لمتوسط سنوي موثوق.
+// أي حي مو موجود هنا يستخدم تقدير "متوسط المدينة × تصنيف الحي" (استرشادي).
 const DISTRICT_PRICES = {
   "المدينة المنورة": {
     "العزيزية": 1522, "المبعوث": 2690, "قباء": 4839, "الرانوناء": 2186,
@@ -1534,6 +1537,10 @@ const DISTRICT_PRICES = {
     "الجنادرية": 2874, "بدر": 2293, "نمار": 1548,
   },
 };
+// بيانات إضافية (عدد الصفقات ووصف الفترة) لكل حي عنده سعر حقيقي — فاضية
+// بالبداية، تتعبى من district_prices بعد الاتصال بقاعدة البيانات، وتُستخدم
+// بصياغة sourceNote تحت لعرض وصف دقيق للفترة بدل نص ثابت.
+const DISTRICT_PRICE_META = {};
 function realDistrictPrice(city, district){
   return DISTRICT_PRICES[city] && DISTRICT_PRICES[city][district];
 }
@@ -1969,6 +1976,38 @@ async function loadCitiesFromDb(){
   }
 }
 
+/* أسعار الأحياء الحقيقية — تحدّثها Edge Function أسبوعياً من رغدان (انظر
+   supabase/functions/update-district-prices). تُدمَج فوق DISTRICT_PRICES
+   الثابتة (البذرة الاحتياطية)، فأي حي بقاعدة البيانات يطغى على رقمه القديم،
+   وأي حي غير موجود بعد بقاعدة البيانات يبقى على رقم البذرة أو التقدير العام. */
+async function loadDistrictPricesFromDb(){
+  if (!dbReady) return;
+  try {
+    const { data, error } = await withTimeout(
+      supa.from('district_prices')
+        .select('price_per_sqm, transaction_count, period_note, updated_at, districts(name, cities(name))'),
+      3000
+    );
+    if (error || !data) return;
+
+    data.forEach(row=>{
+      const cityName = row.districts?.cities?.name;
+      const districtName = row.districts?.name;
+      if (!cityName || !districtName || !row.price_per_sqm) return;
+      if (!DISTRICT_PRICES[cityName]) DISTRICT_PRICES[cityName] = {};
+      DISTRICT_PRICES[cityName][districtName] = row.price_per_sqm;
+      if (!DISTRICT_PRICE_META[cityName]) DISTRICT_PRICE_META[cityName] = {};
+      DISTRICT_PRICE_META[cityName][districtName] = {
+        count: row.transaction_count,
+        periodNote: row.period_note,
+        updatedAt: row.updated_at,
+      };
+    });
+  } catch (e) {
+    console.error('loadDistrictPricesFromDb: Supabase call failed, keeping the built-in seed prices.', e);
+  }
+}
+
 function populateCitySelects(){
   document.querySelectorAll('select.city-select').forEach(sel=>{
     const prev = sel.value;
@@ -2144,12 +2183,25 @@ function runValuation(){
   if (group !== 'land') adjParts.push(`${L.amenities} ${fmtPct(amenityAdj)}`);
   const adjLine = adjParts.join(' + ');
 
+  // وصف الفترة الفعلي — من قاعدة البيانات (عدد الصفقات + آخر تحديث) لو
+  // متوفر، وإلا نص عام دقيق بدون الادّعاء بسنة واحدة محدَّدة (كانت المشكلة
+  // السابقة: "2020–2026" ثابتة بالكود رغم إن البيانات تراكمية بطبيعتها).
+  const priceMeta = DISTRICT_PRICE_META[cityVal]?.[districtVal];
+  const periodDesc = {
+    ar: priceMeta
+      ? `بيانات تراكمية (${priceMeta.count ? money(priceMeta.count) + ' صفقة موثّقة، ' : ''}آخر تحديث ${new Date(priceMeta.updatedAt).toLocaleDateString('ar-SA')})`
+      : 'بيانات تراكمية موثّقة (مو لسنة واحدة بالضبط — راجع تفاصيل المصدر)',
+    en: priceMeta
+      ? `cumulative data (${priceMeta.count ? money(priceMeta.count) + ' documented deals, ' : ''}last updated ${new Date(priceMeta.updatedAt).toLocaleDateString('en-GB')})`
+      : 'cumulative documented data (not a single specific year — see source for details)',
+  };
+
   const sourceNote = {
     ar: usingRealPrice
-      ? `سعر المتر (${money(pricePerSqm)} ر.س) وسيط صفقات فعلية موثّقة لحي ${districtVal} خلال الفترة 2020–2026 (مصدر: وزارة العدل عبر رغدان العقارية) — قد يختلف عن سعر السوق الحالي بالضبط في الأحياء سريعة الارتفاع.`
+      ? `سعر المتر (${money(pricePerSqm)} ر.س) وسيط صفقات فعلية موثّقة لحي ${districtVal} — ${periodDesc.ar} (مصدر: وزارة العدل عبر رغدان العقارية) — قد يختلف عن سعر السوق الحالي بالضبط في الأحياء سريعة الارتفاع.`
       : `سعر المتر (${money(pricePerSqm)} ر.س) هو متوسط تقديري لمدينة ${cityVal} بالكامل (ما فيه بيانات صفقات فعلية موثّقة لحي ${districtVal} بعد)، معدَّل بتصنيف الحي اليدوي.`,
     en: usingRealPrice
-      ? `The per-sqm price (${money(pricePerSqm)} SAR) is a median of documented transactions for ${districtVal} over 2020–2026 (source: Ministry of Justice via Raghdan) — may differ from the exact current market price in fast-appreciating districts.`
+      ? `The per-sqm price (${money(pricePerSqm)} SAR) is a median of documented transactions for ${districtVal} — ${periodDesc.en} (source: Ministry of Justice via Raghdan) — may differ from the exact current market price in fast-appreciating districts.`
       : `The per-sqm price (${money(pricePerSqm)} SAR) is a citywide estimate for ${cityVal} (no verified transaction data for ${districtVal} yet), adjusted by the manual district grade.`,
   };
   const priceSourceEl = document.getElementById('v-price-source');
@@ -2817,6 +2869,7 @@ window.addEventListener('load', async ()=>{
   };
 
   await safely('loadCitiesFromDb', loadCitiesFromDb);
+  await safely('loadDistrictPricesFromDb', loadDistrictPricesFromDb);
   populateCitySelects();
   populateTypeSelects();
   updateValuationFieldsForType();
