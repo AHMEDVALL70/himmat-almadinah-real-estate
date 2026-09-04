@@ -778,9 +778,11 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="field"><label data-i18n="f_lessor_name">اسم المؤجر</label><input id="c-lessor-name" type="text"></div>
         <div class="field"><label data-i18n="f_lessor_id">هوية المؤجر</label><input id="c-lessor-id" type="text"></div>
         <div class="field"><label data-i18n="f_lessor_phone">جوال المؤجر</label><input id="c-lessor-phone" type="text"></div>
+        <div class="field"><label data-i18n="f_lessor_dob">تاريخ ميلاد المؤجر</label><input id="c-lessor-dob" type="date"></div>
         <div class="field"><label data-i18n="f_lessee_name">اسم المستأجر</label><input id="c-lessee-name" type="text"></div>
         <div class="field"><label data-i18n="f_lessee_id">هوية المستأجر</label><input id="c-lessee-id" type="text"></div>
         <div class="field"><label data-i18n="f_lessee_phone">جوال المستأجر</label><input id="c-lessee-phone" type="text"></div>
+        <div class="field"><label data-i18n="f_lessee_dob">تاريخ ميلاد المستأجر</label><input id="c-lessee-dob" type="date"></div>
         <div class="field"><label data-i18n="f_city">المدينة</label>
           <select id="c-city" class="city-select"></select>
         </div>
@@ -797,7 +799,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
           <select id="c-frequency"><option value="1">سنوي (دفعة واحدة)</option><option value="2" selected>نصف سنوي</option><option value="4">ربع سنوي</option><option value="12">شهري</option></select>
         </div>
       </div>
-      <button class="btn btn-primary" id="btn-generate-contract" style="margin-top:6px" data-i18n="contract_generate">توليد العقد وحفظه</button>
+      <button class="btn btn-primary" id="btn-generate-contract" style="margin-top:6px" data-i18n="contract_generate">توليد العقد وإرسال للوسيط</button>
       <p id="contract-msg" style="font-size:13px;margin-top:10px"></p>
       <pre id="contract-text" class="hide" style="white-space:pre-wrap;background:var(--sand-100);border-radius:10px;padding:16px;margin-top:14px;font-size:13px"></pre>
     </div>
@@ -1133,7 +1135,8 @@ const I18N = {
     f_lessor_name:"اسم المؤجر", f_lessor_id:"هوية المؤجر", f_lessor_phone:"جوال المؤجر",
     f_lessee_name:"اسم المستأجر", f_lessee_id:"هوية المستأجر", f_lessee_phone:"جوال المستأجر",
     f_unit_type:"نوع الوحدة", f_deposit:"الضمان (ر.س)", f_start:"تاريخ البداية", f_end:"تاريخ النهاية",
-    f_rent:"الإيجار السنوي (ر.س)", f_frequency:"عدد الدفعات سنوياً", contract_generate:"توليد العقد وحفظه",
+    f_rent:"الإيجار السنوي (ر.س)", f_frequency:"عدد الدفعات سنوياً", contract_generate:"توليد العقد وإرسال للوسيط",
+    f_lessor_dob:"تاريخ ميلاد المؤجر", f_lessee_dob:"تاريخ ميلاد المستأجر", contract_dob_label:"تاريخ الميلاد",
     faq_eyebrow:"مركز المساعدة", faq_title:"الأسئلة الشائعة",
     about_title:"عنّا", mission_title:"رسالتنا",
     mission_text:"أن نجعل التعامل العقاري أوضح وأسهل وأكثر ثقة.",
@@ -1221,7 +1224,8 @@ const I18N = {
     f_lessor_name:"Lessor name", f_lessor_id:"Lessor ID", f_lessor_phone:"Lessor phone",
     f_lessee_name:"Lessee name", f_lessee_id:"Lessee ID", f_lessee_phone:"Lessee phone",
     f_unit_type:"Unit type", f_deposit:"Deposit (SAR)", f_start:"Start date", f_end:"End date",
-    f_rent:"Annual rent (SAR)", f_frequency:"Installments per year", contract_generate:"Generate & Save Contract",
+    f_rent:"Annual rent (SAR)", f_frequency:"Installments per year", contract_generate:"Generate & Send to Broker",
+    f_lessor_dob:"Lessor's date of birth", f_lessee_dob:"Lessee's date of birth", contract_dob_label:"Date of birth",
     faq_eyebrow:"Help Center", faq_title:"Frequently Asked Questions",
     about_title:"About Us", mission_title:"Our Mission",
     mission_text:"To make real estate dealings clearer, easier, and more trustworthy.",
@@ -2328,8 +2332,8 @@ document.getElementById('btn-generate-contract').addEventListener('click', async
 
   const text = `${t.contract_header} — ${contractTypeLabel}
 ${t.contract_number_label}: ${contractNumber}
-${t.contract_lessor_label}: ${v('c-lessor-name')} (${t.contract_id_label}: ${v('c-lessor-id')} — ${t.contract_phone_label2}: ${v('c-lessor-phone')})
-${t.contract_lessee_label}: ${v('c-lessee-name')} (${t.contract_id_label}: ${v('c-lessee-id')} — ${t.contract_phone_label2}: ${v('c-lessee-phone')})
+${t.contract_lessor_label}: ${v('c-lessor-name')} (${t.contract_id_label}: ${v('c-lessor-id')} — ${t.contract_phone_label2}: ${v('c-lessor-phone')} — ${t.contract_dob_label}: ${v('c-lessor-dob') || '—'})
+${t.contract_lessee_label}: ${v('c-lessee-name')} (${t.contract_id_label}: ${v('c-lessee-id')} — ${t.contract_phone_label2}: ${v('c-lessee-phone')} — ${t.contract_dob_label}: ${v('c-lessee-dob') || '—'})
 ${t.contract_property_label}: ${typeDisplay} — ${districtLabel(v('c-district'))}, ${cityDisplay} — ${v('c-area')} م²
 ${t.contract_term_label}: ${t.contract_term_from} ${v('c-start')} ${t.contract_term_to} ${v('c-end')}
 ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_label}: ${money(parseFloat(v('c-deposit'))||0)} ${currency}`;
@@ -2337,10 +2341,15 @@ ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_la
   pre.textContent = text;
   pre.classList.remove('hide');
 
+  // يُفتح واتساب همة المدينة فوراً بمجرّد توليد نص العقد — بغض النظر عن نجاح
+  // الحفظ بقاعدة البيانات، حتى ما يضيع العقد على الوسيط لو صار عطل بالاتصال
+  // (نفس فلسفة نموذج "تواصل" بالأسفل).
+  window.open(`https://wa.me/966530500906?text=${encodeURIComponent(text)}`, '_blank');
+
   if (!dbReady){
     msg.textContent = '⚠️ ' + (currentLang==='ar'
-      ? 'تم توليد نص العقد فقط — قاعدة البيانات غير مربوطة، لن يُحفظ جدول الدفعات.'
-      : 'Contract text generated only — the database isn\'t connected, so the payment schedule won\'t be saved.');
+      ? 'تم توليد العقد وإرساله للوسيط عبر واتساب — بس قاعدة البيانات غير مربوطة، لن يُحفظ جدول الدفعات.'
+      : 'Contract generated and sent to the broker via WhatsApp — but the database isn\'t connected, so the payment schedule won\'t be saved.');
     msg.style.color = 'var(--warn)';
     return;
   }
@@ -2350,7 +2359,9 @@ ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_la
       p_contract_number: contractNumber,
       p_contract_type: contractType,
       p_lessor_name: v('c-lessor-name'), p_lessor_id_number: v('c-lessor-id'), p_lessor_phone: v('c-lessor-phone'),
+      p_lessor_dob: v('c-lessor-dob') || null,
       p_lessee_name: v('c-lessee-name'), p_lessee_id_number: v('c-lessee-id'), p_lessee_phone: v('c-lessee-phone'),
+      p_lessee_dob: v('c-lessee-dob') || null,
       p_city: v('c-city'), p_district: v('c-district'), p_unit_type: v('c-unit-type'),
       p_area_sqm: parseFloat(v('c-area')) || 0, p_security_deposit: parseFloat(v('c-deposit')) || 0,
       p_start_date: v('c-start'), p_end_date: v('c-end'), p_annual_rent: rent,
@@ -2358,18 +2369,20 @@ ${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_la
     });
 
     if (error){
-      msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'تعذّر حفظ العقد: ' : 'Could not save the contract: ') + error.message;
+      msg.textContent = '⚠️ ' + (currentLang==='ar'
+        ? 'تم إرسال العقد للوسيط عبر واتساب، لكن تعذّر حفظه بقاعدة البيانات: '
+        : 'The contract was sent to the broker via WhatsApp, but could not be saved to the database: ') + error.message;
       msg.style.color = 'var(--danger)';
     } else {
       msg.textContent = '✅ ' + (currentLang==='ar'
-        ? 'تم إنشاء العقد وجدول الدفعات كاملاً في قاعدة البيانات.'
-        : 'The contract and its full payment schedule were saved to the database.');
+        ? 'تم توليد العقد وحفظه بجدول الدفعات كاملاً، وإرساله للوسيط عبر واتساب.'
+        : 'The contract and its full payment schedule were saved, and it was sent to the broker via WhatsApp.');
       msg.style.color = 'var(--ok)';
     }
   } catch (e) {
     msg.textContent = '⚠️ ' + (currentLang==='ar'
-      ? 'تعذّر الاتصال بقاعدة البيانات — تحقق من اتصالك وحاول مجدداً.'
-      : 'Could not reach the database — check your connection and try again.');
+      ? 'تم إرسال العقد للوسيط عبر واتساب، لكن تعذّر الاتصال بقاعدة البيانات لحفظه — تحقق من اتصالك وحاول مجدداً.'
+      : 'The contract was sent to the broker via WhatsApp, but the database could not be reached to save it — check your connection and try again.');
     msg.style.color = 'var(--danger)';
     console.error('btn-generate-contract: Supabase call failed.', e);
   }
