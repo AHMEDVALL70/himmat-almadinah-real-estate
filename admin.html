@@ -178,9 +178,9 @@ tr:hover td{background:#fafbfc}
         <input type="hidden" id="offer-edit-id">
         <div class="grid-2col">
           <div class="field"><label>العنوان</label><input id="offer-title" type="text"></div>
-          <div class="field"><label>المدينة</label><input id="offer-city" type="text" placeholder="مثال: المدينة المنورة"></div>
-          <div class="field"><label>الحي</label><input id="offer-district" type="text"></div>
-          <div class="field"><label>نوع العقار</label><input id="offer-type" type="text" placeholder="مثال: شقة في عمارة"></div>
+          <div class="field"><label>المدينة</label><select id="offer-city"></select></div>
+          <div class="field"><label>الحي</label><select id="offer-district"></select></div>
+          <div class="field"><label>نوع العقار</label><select id="offer-type"></select></div>
           <div class="field"><label>المساحة (م²)</label><input id="offer-area" type="number"></div>
           <div class="field"><label>عدد الغرف</label><input id="offer-rooms" type="number"></div>
           <div class="field"><label>السعر الأصلي (ر.س)</label><input id="offer-price-original" type="number"></div>
@@ -251,6 +251,40 @@ tr:hover td{background:#fafbfc}
 const SUPABASE_URL = "https://wlebcvwsleoieodjtrcf.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_KhUpsOF0OxVQWyWLakXx2g_yDsUlnxV";
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ============================================================================
+   بيانات المدن/الأحياء/أنواع العقار — نفس القوائم المستخدمة بالموقع العام،
+   عشان قيم العروض تتطابق تماماً (بحث، تصفية، أسعار حقيقية بالتقييم...الخ)
+   ========================================================================== */
+const CITY_DISTRICTS = {
+  "المدينة المنورة": ["العزيزية","العاقول","العريض","الخالدية","الزهرة","شظاة","الملك فهد","المبعوث","الروابي","الربوة","الإسكان","الدويمة","قربان","العوالي","الهجرة","العصبة","قباء","القصواء","الرانوناء","شوران","مهزور","مذينب","بني حارثة","بني معاوية","بني ظفر","بني خدرة","بني بياضة","السيح","الفتح","القبلتين","الجامعة","أبو كبير","الجرف","البركة","السلام","الدفاع","طيبة","أحد","سيد الشهداء","المصانع","العيون","النصر","الراية","المناخة","المغيسلة","الوبرة","السكب","الخاتم","أبو بريقاء","وادي البطان","الحرة الشرقية"],
+  "مكة المكرمة": ["العوالي","الشوقية","الشرائع","النسيم","الزاهر","العتيبية","العمرة","النوارية","التنعيم","الراشدية","بطحاء قريش","الكعكية","ولي العهد","الحمراء وأم الجود","الزهراء","الضيافة","النزهة","الرصيفة","المسفلة","الهجرة","كدي","جرهم","الروابي","الخالدية","الهنداوية","المنصور","الشبيكة","الشامية","جرول","ريع ذاخر","الحجون","المعابدة","العزيزية الشمالية","الملاوي","العدل","العسيلة","وادي جليل","العمرة الجديدة","البحيرات","الشرائع الشمالية","الشرائع الجنوبية","الصفوة","الملك فهد","الحسينية","العكيشية","الليث الجديد"],
+  "جدة": ["الروضة","الزهراء","السلامة","النهضة","الشاطئ","المحمدية","الخالدية","النعيم","النزهة","البوادي","الربوة","الصفا","الفيصلية","الرحاب","مشرفة","العزيزية","الورود","بني مالك","النسيم","الواحة","السامر","المنار","الأجواد","الريان","مريخ","بريمان","المنطقة الصناعية","الجامعة","الفيحاء","السليمانية","الثغر","الروابي","الوزيرية","غليل","مدائن الفهد","البلد","الهنداوية","البغدادية الشرقية","البغدادية الغربية","الكندرة","الصحيفة","السبيل","النزلة الشرقية","النزلة اليمانية","الثعالبة","المحجر","الكرنتينا","الأمير فواز الشمالي","الأمير فواز الجنوبي","السنابل","الهدى","الأجاويد","الفضيلة","الخمرة","القرينية","الحمدانية","الصالحية","الفلاح","الرحمانية","طيبة","الرياض","الكوثر","الياقوت","الزمرد","اللؤلؤ","الأمواج","الشراع","الفردوس","الأصالة","البساتين","أبحر الجنوبية","أبحر الشمالية","المرجان","الشفا","المنتزهات","أم السلم","الحرازات"],
+  "الرياض": ["العليا","السليمانية","الملز","الوزارات","الضباط","الورود","الرحمانية","المحمدية","الرائد","النخيل","أم الحمام الشرقي","أم الحمام الغربي","المعذر","المعذر الشمالي","الهدا","الشفا","بدر","المروة","عكاظ","الحزم","ديراب","نمار","ظهرة نمار","العريجاء","العريجاء الغربية","العريجاء الوسطى","ظهرة البديعة","البديعة","السويدي","السويدي الغربي","شبرا","سلطانة","الجرادية","منفوحة","منفوحة الجديدة","الديرة","الشميسي","الفاخرية","العود","المرقب","الصالحية","الخالدية","غبيراء","اليمامة","الربوة","الريان","الروابي","النسيم الشرقي","النسيم الغربي","السلام","المنار","النهضة","الخليج","القدس","الحمراء","غرناطة","الشهداء","قرطبة","اليرموك","المونسية","الرمال","الجنادرية","القادسية","اشبيلية","الملك فيصل","الروضة","الملقا","حطين","العقيق","الصحافة","الياسمين","النرجس","العارض","القيروان","الربيع","الغدير","النفل","الوادي","التعاون","الازدهار","المصيف","المرسلات","الفلاح","الندى","الواحة","صلاح الدين","الملك فهد","الملك عبدالله","الملك عبدالعزيز","المغرزات","النور"],
+};
+const PROPERTY_TYPE_NAMES = ["فيلا","شقة في برج","شقة في عمارة","أرض","دبلكس","قصر","مزرعة","استراحة","محل تجاري","مكتب","مخزن","منتجع","معرض","عمارة","محطة","دور"];
+
+function populateOfferCitySelect(){
+  const sel = document.getElementById('offer-city');
+  sel.innerHTML = '<option value="">— اختر —</option>' +
+    Object.keys(CITY_DISTRICTS).map(c => `<option value="${c}">${c}</option>`).join('');
+}
+function populateOfferDistrictSelect(){
+  const citySel = document.getElementById('offer-city');
+  const distSel = document.getElementById('offer-district');
+  const list = CITY_DISTRICTS[citySel.value] || [];
+  distSel.innerHTML = '<option value="">— اختر المدينة أول —</option>' +
+    list.map(d => `<option value="${d}">${d}</option>`).join('');
+}
+function populateOfferTypeSelect(){
+  const sel = document.getElementById('offer-type');
+  sel.innerHTML = '<option value="">— اختر —</option>' +
+    PROPERTY_TYPE_NAMES.map(t => `<option value="${t}">${t}</option>`).join('');
+}
+populateOfferCitySelect();
+populateOfferTypeSelect();
+populateOfferDistrictSelect();
+document.getElementById('offer-city').addEventListener('change', populateOfferDistrictSelect);
 
 function money(n){ return Math.round(n || 0).toLocaleString('en-US'); }
 function showToast(msg){
@@ -510,6 +544,7 @@ function clearOfferForm(){
    'offer-marketer-phone','offer-re-license','offer-ad-license','offer-description'].forEach(id=>{
     document.getElementById(id).value = '';
   });
+  populateOfferDistrictSelect();
   document.getElementById('offer-image-file').value = '';
   document.getElementById('offer-image-preview').style.display = 'none';
   document.getElementById('offer-image-upload-status').textContent = '';
@@ -584,6 +619,7 @@ function editOffer(id){
   document.getElementById('offer-edit-id').value = o.id;
   document.getElementById('offer-title').value = o.title || '';
   document.getElementById('offer-city').value = o.city || '';
+  populateOfferDistrictSelect();
   document.getElementById('offer-district').value = o.district || '';
   document.getElementById('offer-type').value = o.property_type || '';
   document.getElementById('offer-area').value = o.area_sqm || '';
