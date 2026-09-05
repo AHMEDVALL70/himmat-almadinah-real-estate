@@ -87,23 +87,6 @@ tr:hover td{background:#fafbfc}
 .actions-cell{display:flex;gap:6px}
 .empty-row td{text-align:center;color:var(--text-600);padding:28px}
 #toast{position:fixed;bottom:20px;left:20px;background:var(--navy-900);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;display:none;z-index:50}
-
-/* الجوال — الهيدر كان يزدحم ويختفي منه زر "الموقع الرئيسي"، والتبويبات
-   الخمسة كانت تفيض بدون طريقة توصلها. */
-@media (max-width:680px){
-  header.admin-bar{flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px}
-  header.admin-bar .brand{font-size:14px;line-height:1.4}
-  header.admin-bar .right{flex-wrap:wrap;gap:8px;width:100%}
-  .tabs-row{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:10px 16px 0;gap:2px}
-  .tabs-row::-webkit-scrollbar{display:none}
-  .tab-btn{padding:10px 14px;font-size:13px;white-space:nowrap;flex-shrink:0}
-  main{padding:16px}
-  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-  .stat-card{padding:14px}
-  .stat-card b{font-size:20px}
-  .filter-row{flex-direction:column;align-items:stretch}
-  .filter-row select{width:100%}
-}
 </style>
 </head>
 <body>
@@ -114,6 +97,8 @@ tr:hover td{background:#fafbfc}
      Users → Add user. This login is the UI convenience; the real protection
      lives in the RLS policies on the database (see supabase/schema.sql §9.5).
      ========================================================================== -->
+<a href="index.html" id="pre-login-home-link" class="btn btn-ghost"
+   style="position:fixed;top:16px;inset-inline-end:16px;text-decoration:none;z-index:20">🏠 الموقع الرئيسي</a>
 <div id="login-screen">
   <div class="card" id="login-box">
     <h1>لوحة التحكم</h1>
