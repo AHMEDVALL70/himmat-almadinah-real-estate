@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>همة المدينة العقارية — Himmat Al Madinah Real Estate</title>
 <meta name="description" content="همة المدينة العقارية: استشارات ودراسات عقارية استرشادية، عروض، وكتابة عقود في المدينة المنورة.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ahmedvall70.github.io/himmat-almadinah-real-estate/">
+<meta property="og:title" content="همة المدينة العقارية">
+<meta property="og:description" content="استشارات ودراسات عقارية استرشادية، عروض، وكتابة عقود في المدينة المنورة.">
+<meta property="og:image" content="https://ahmedvall70.github.io/himmat-almadinah-real-estate/Himmat-Almedina.png">
+<meta property="og:locale" content="ar_SA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="همة المدينة العقارية">
+<meta name="twitter:description" content="استشارات ودراسات عقارية استرشادية، عروض، وكتابة عقود في المدينة المنورة.">
+<meta name="twitter:image" content="https://ahmedvall70.github.io/himmat-almadinah-real-estate/Himmat-Almedina.png">
 <script>
   // تطبيق الوضع المحفوظ فوراً قبل رسم الصفحة، يمنع "ومضة" اللون الخاطئ
   try {
@@ -255,7 +265,8 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .hero .btn-primary:hover{background:#d4bd93}
 .hero .btn-outline{border-color:#c0a16b;color:#c0a16b}
 .license-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 14px;font-size:12.5px;color:#dde2ea;margin-bottom:22px;backdrop-filter:blur(2px)}
-.stats-row{display:flex;gap:28px;flex-wrap:wrap;justify-content:center}
+.stats-row{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;opacity:0;transition:opacity .5s ease}
+.stats-row.ready{opacity:1}
 .stat b{display:block;font-size:26px;font-family:var(--font-display);color:#c0a16b}
 .stat span{font-size:13px;color:#c7cedb}
 
@@ -1171,7 +1182,7 @@ const I18N = {
     hero_desc:"نقدم في همة المدينة العقارية خدمات عقارية مبنية على معرفة السوق، ودقة المعلومات، والوضوح في التعامل. نرافق عملاءنا في رحلة البيع والشراء والتسويق والاستثمار العقاري، ونسعى لأن تكون كل خطوة واضحة ومدروسة.",
     hero_cta1:"ابدأ التقييم الآن", hero_cta_browse:"تصفح العقارات", hero_cta_list:"أضف عقارك",
     license_badge:"مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428 — سجل تجاري: 7042103650",
-    stat1:"مدن مدعومة", stat2:"عامل تقييم", stat3:"عقار مسجَّل فعلياً", stat4:"حي مدعوم",
+    stat1:"مدن مدعومة", stat2:"عوامل تسعير", stat3:"عقار مسجَّل فعلياً", stat4:"حي مدعوم",
     hero_panel_title:"قاعدة بيانات مشتركة وحقيقية",
     hero_panel_desc:"كل عقار وعقد تضيفه يُخزَّن مركزياً ويبقى محفوظاً — وليس فقط على متصفحك.",
     offers_eyebrow:"فرص لا تفوّت", offers_title:"عروض وخصومات",
@@ -1829,7 +1840,7 @@ function offerCardHtml(o, matchScore){
       <svg viewBox="0 0 24 24" width="19" height="19"><path d="M12 21s-7.5-4.6-10.2-9.1C-0.1 8.4 1.6 4.5 5.4 4.5c2.1 0 3.6 1.1 4.3 2.4.7 1.3.7 1.3 0 0 .7-1.3 2.2-2.4 4.3-2.4 3.8 0 5.5 3.9 3.6 7.4C19.5 16.4 12 21 12 21z"/></svg>
     </button>
     ${imageHtml}
-    <div class="offer-top"><b>${o.title}</b><span class="offer-discount">-${o.discount_pct}%</span></div>
+    <div class="offer-top"><b>${o.title}</b>${o.discount_pct > 0 ? `<span class="offer-discount">-${o.discount_pct}%</span>` : ''}</div>
     <div class="offer-body">
       ${matchBadge}
       <h4>${o.property_type} · ${districtLabel(o.district)}</h4>
@@ -2793,6 +2804,7 @@ function observeFadeUps(){
 }
 
 function animateCounters(){
+  document.querySelector('.stats-row')?.classList.add('ready');
   document.querySelectorAll('#home .counter').forEach(el=>{
     try {
       const target = parseFloat(el.dataset.target) || 0;
