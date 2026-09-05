@@ -187,6 +187,7 @@ section{padding:44px 0 60px}
   width:100%;min-width:0
 }
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--gold-500);outline-offset:1px}
+.field input.input-error,.field select.input-error,.field textarea.input-error{border-color:var(--danger);background:rgba(226,104,92,.06)}
 .grid-2{grid-template-columns:repeat(2,1fr)}
 .grid-3{grid-template-columns:repeat(3,1fr)}
 .grid-4{grid-template-columns:repeat(4,1fr)}
@@ -2581,9 +2582,59 @@ document.querySelectorAll('.tabs button[data-tab]').forEach(btn=>{
   });
 });
 
+/* تحقق من اكتمال ومنطقية بيانات العقد قبل أي توليد أو إرسال — يرجّع قائمة
+   أخطاء (فاضية = العقد سليم) ويعلّم الحقول الناقصة بصرياً بلون أحمر. */
+function validateContractForm(){
+  const v = id => document.getElementById(id).value.trim();
+  document.querySelectorAll('#contracts .input-error').forEach(el => el.classList.remove('input-error'));
+
+  const mark = id => document.getElementById(id)?.classList.add('input-error');
+  const errors = [];
+  const required = {
+    'c-lessor-name': 'اسم المؤجر', 'c-lessor-id': 'هوية المؤجر', 'c-lessor-phone': 'جوال المؤجر',
+    'c-lessee-name': 'اسم المستأجر', 'c-lessee-id': 'هوية المستأجر', 'c-lessee-phone': 'جوال المستأجر',
+    'c-city': 'المدينة', 'c-district': 'الحي', 'c-unit-type': 'نوع الوحدة',
+    'c-area': 'المساحة', 'c-start': 'تاريخ البداية', 'c-end': 'تاريخ النهاية', 'c-rent': 'الإيجار السنوي',
+  };
+  Object.entries(required).forEach(([id, label]) => {
+    if (!v(id)){ errors.push(`${label} مطلوب.`); mark(id); }
+  });
+
+  const area = parseFloat(v('c-area'));
+  if (v('c-area') && (!Number.isFinite(area) || area <= 0)){ errors.push('المساحة لازم تكون رقم أكبر من صفر.'); mark('c-area'); }
+
+  const rent = parseFloat(v('c-rent'));
+  if (v('c-rent') && (!Number.isFinite(rent) || rent <= 0)){ errors.push('الإيجار السنوي لازم يكون رقم أكبر من صفر.'); mark('c-rent'); }
+
+  if (v('c-start') && v('c-end')){
+    if (new Date(v('c-end')) <= new Date(v('c-start'))){
+      errors.push('تاريخ النهاية لازم يكون بعد تاريخ البداية.');
+      mark('c-start'); mark('c-end');
+    }
+  }
+
+  return errors;
+}
+
+document.querySelectorAll('#contracts .field input, #contracts .field select').forEach(el=>{
+  el.addEventListener('input', ()=> el.classList.remove('input-error'));
+  el.addEventListener('change', ()=> el.classList.remove('input-error'));
+});
+
 document.getElementById('btn-generate-contract').addEventListener('click', async ()=>{
   const msg = document.getElementById('contract-msg');
   const pre = document.getElementById('contract-text');
+
+  const validationErrors = validateContractForm();
+  if (validationErrors.length){
+    msg.innerHTML = '⚠️ ' + (currentLang==='ar' ? 'العقد ناقص، صحّح قبل الإرسال:' : 'The contract is incomplete, fix before sending:') +
+      '<br>' + validationErrors.map(e => '• ' + e).join('<br>');
+    msg.style.color = 'var(--danger)';
+    pre.classList.add('hide');
+    document.querySelector('#contracts .input-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
   const isResidential = document.querySelector('.tabs button.active').dataset.tab === 'residential';
   const contractType = isResidential ? 'سكني' : 'تجاري';    // canonical value stored in the DB
   const t = I18N[currentLang];
