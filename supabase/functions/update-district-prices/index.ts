@@ -83,8 +83,11 @@ function parsePriceAndCount(rawHtml: string): ParsedPrice | null {
     if (Number.isFinite(price) && price > 0) return { price, count: Number.isFinite(count) ? count : null };
   }
 
-  // النمط 2: "متوسط سعر المتر المربع ... 1,912/ م²" (العنوان الكبير بصفحة الحي)
-  m = text.match(new RegExp(`متوسط سعر المتر المربع\\s*(${num})\\s*/?\\s*م²`));
+  // النمط 2: "وسيط سعر المتر المربع السكني ... 7,101 / م²" (الصياغة الفعلية
+  // على رغدان — تحقّقنا منها يدوياً بحي الياسمين بالرياض). "وسيط" هو
+  // المصطلح الفعلي (يعني: القيمة الوسطى)، مو "متوسط" كما افترضنا أول مرة؛
+  // نقبل الاثنين احتياطاً، ونسمح بكلمة بينية زي "السكني"/"التجاري".
+  m = text.match(new RegExp(`(?:متوسط|وسيط)\\s+سعر\\s+المتر\\s+المربع[\\s\\S]{0,15}?(${num})\\s*/?\\s*م²`));
   if (m) {
     const price = parseInt(m[1].replace(/[,٬]/g, ""), 10);
     if (Number.isFinite(price) && price > 0) {
@@ -172,7 +175,7 @@ Deno.serve(async () => {
         district_id: d.id,
         price_per_sqm: result.price,
         transaction_count: result.count,
-        period_note: "تراكمي (منصة رغدان)",
+        period_note: "وسيط آخر 12 شهراً (رغدان)",
         source: "raghdan.sa",
         updated_at: new Date().toISOString(),
       },
