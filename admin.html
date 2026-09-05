@@ -310,6 +310,9 @@ populateOfferDistrictSelect();
 document.getElementById('offer-city').addEventListener('change', populateOfferDistrictSelect);
 
 function money(n){ return Math.round(n || 0).toLocaleString('en-US'); }
+// بيانات الأطراف تجي من نموذج عام بالموقع الرئيسي (مو محمي بتسجيل دخول)،
+// فلازم تعقيمها قبل عرضها هنا لمنع أي حقن HTML/script بحقول العقد.
+function escapeAdmin(s){ const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
 function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -757,11 +760,17 @@ async function loadContracts(){
   const tbody = document.getElementById('contracts-tbody');
   const search = document.getElementById('contracts-search').value.trim().toLowerCase();
   tbody.innerHTML = `<tr class="empty-row"><td colspan="12">جاري التحميل...</td></tr>`;
-  try {
+  let contractsCache = {}; // id -> صف العقد كامل، يستخدمه toggleInstallments بدون استعلام إضافي
+
+function idTypeLabel(t){
+  return { national_id:'هوية وطنية', iqama:'إقامة', other:'أخرى' }[t] || '—';
+}
+
+try {
     const { data, error } = await supa.from('contracts')
       .select(`*,
-        lessor:parties!contracts_lessor_id_fkey(full_name, phone),
-        lessee:parties!contracts_lessee_id_fkey(full_name, phone),
+        lessor:parties!contracts_lessor_id_fkey(full_name, phone, national_id, id_type, nationality, date_of_birth),
+        lessee:parties!contracts_lessee_id_fkey(full_name, phone, national_id, id_type, nationality, date_of_birth),
         contract_installments(id)`)
       .order('created_at', { ascending: false })
       .limit(100);
@@ -780,6 +789,8 @@ async function loadContracts(){
       return;
     }
 
+    rows.forEach(c => { contractsCache[c.id] = c; });
+
     tbody.innerHTML = rows.map(c => `
       <tr>
         <td>${c.contract_number}</td>
@@ -794,7 +805,7 @@ async function loadContracts(){
         <td><span class="badge badge-${contractStatusBadge(c.status)}">${contractStatusLabel(c.status)}</span></td>
         <td>${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
         <td class="actions-cell">
-          <button class="btn btn-ghost" id="btn-toggle-${c.id}" onclick="toggleInstallments('${c.id}')">عرض الدفعات</button>
+          <button class="btn btn-ghost" id="btn-toggle-${c.id}" onclick="toggleInstallments('${c.id}')">عرض التفاصيل</button>
         </td>
       </tr>
       <tr class="installments-row" id="installments-${c.id}" style="display:none">
@@ -818,13 +829,33 @@ async function toggleInstallments(contractId){
   if (!row) return;
   if (row.style.display !== 'none'){
     row.style.display = 'none';
-    if (btn) btn.textContent = 'عرض الدفعات';
+    if (btn) btn.textContent = 'عرض التفاصيل';
     return;
   }
   const cell = row.querySelector('td');
   cell.innerHTML = 'جاري التحميل...';
   row.style.display = '';
-  if (btn) btn.textContent = 'إخفاء الدفعات';
+  if (btn) btn.textContent = 'إخفاء التفاصيل';
+
+  const c = contractsCache[contractId];
+  const partyBlock = (label, p) => `
+    <div class="card" style="padding:12px 16px">
+      <b style="display:block;margin-bottom:6px">${label}</b>
+      <div style="font-size:13px;color:var(--text-600);line-height:1.9">
+        ${escapeAdmin(p?.full_name || '—')}<br>
+        رقم الهوية: ${escapeAdmin(p?.national_id || '—')} (${idTypeLabel(p?.id_type)})<br>
+        الجنسية: ${escapeAdmin(p?.nationality || '—')} — جوال: ${escapeAdmin(p?.phone || '—')}<br>
+        تاريخ الميلاد: ${p?.date_of_birth ? new Date(p.date_of_birth).toLocaleDateString('ar-SA') : '—'}
+      </div>
+    </div>`;
+  const partiesHtml = c ? `
+    <div class="grid-2col" style="margin-bottom:14px">
+      ${partyBlock('المؤجر', c.lessor)}
+      ${partyBlock('المستأجر', c.lessee)}
+    </div>
+    ${c.deed_number ? `<p style="font-size:13px;color:var(--text-600);margin:0 0 14px">رقم الصك: ${escapeAdmin(c.deed_number)}</p>` : ''}
+  ` : '';
+
   try {
     const { data, error } = await supa.from('contract_installments')
       .select('*')
@@ -832,7 +863,7 @@ async function toggleInstallments(contractId){
       .order('due_date', { ascending: true });
     if (error) throw error;
     const items = data || [];
-    cell.innerHTML = items.length
+    const scheduleHtml = items.length
       ? `<table style="width:100%;margin:6px 0">
            <thead><tr><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>حالة السداد</th></tr></thead>
            <tbody>${items.map(i => `
@@ -843,9 +874,10 @@ async function toggleInstallments(contractId){
              </tr>`).join('')}</tbody>
          </table>`
       : 'لا توجد دفعات مسجّلة لهذا العقد.';
+    cell.innerHTML = partiesHtml + scheduleHtml;
   } catch (e) {
     console.error('toggleInstallments failed', e);
-    cell.innerHTML = '⚠️ تعذّر تحميل جدول الدفعات.';
+    cell.innerHTML = partiesHtml + '⚠️ تعذّر تحميل جدول الدفعات.';
   }
 }
 
