@@ -254,9 +254,9 @@ tr:hover td{background:#fafbfc}
       <div class="card" style="padding:0;overflow-x:auto">
         <table>
           <thead><tr>
-            <th>رقم العقد</th><th>المؤجر</th><th>المستأجر</th><th>المدينة / الحي</th>
+            <th>إجراءات</th><th>رقم العقد</th><th>المؤجر</th><th>المستأجر</th><th>المدينة / الحي</th>
             <th>النوع</th><th>الدور</th><th>المساحة</th><th>الإيجار السنوي</th>
-            <th>عدد الدفعات</th><th>الحالة</th><th>تاريخ الإنشاء</th><th>إجراءات</th>
+            <th>عدد الدفعات</th><th>الحالة</th><th>تاريخ الإنشاء</th>
           </tr></thead>
           <tbody id="contracts-tbody"></tbody>
         </table>
@@ -329,14 +329,17 @@ async function checkSession(){
 }
 
 function applySessionUI(session){
+  const preLoginLink = document.getElementById('pre-login-home-link');
   if (session){
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    if (preLoginLink) preLoginLink.style.display = 'none';
     document.getElementById('admin-email').textContent = session.user.email;
     loadDashboard();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
+    if (preLoginLink) preLoginLink.style.display = 'flex';
   }
 }
 
@@ -756,15 +759,15 @@ function contractStatusBadge(s){
   return { ACTIVE:'approved', EXPIRED:'pending', CANCELLED:'rejected' }[s] || 'pending';
 }
 
+let contractsCache = {}; // id -> صف العقد كامل، يستخدمه toggleInstallments بدون استعلام إضافي
+function idTypeLabel(t){
+  return { national_id:'هوية وطنية', iqama:'إقامة', other:'أخرى' }[t] || '—';
+}
+
 async function loadContracts(){
   const tbody = document.getElementById('contracts-tbody');
   const search = document.getElementById('contracts-search').value.trim().toLowerCase();
   tbody.innerHTML = `<tr class="empty-row"><td colspan="12">جاري التحميل...</td></tr>`;
-  let contractsCache = {}; // id -> صف العقد كامل، يستخدمه toggleInstallments بدون استعلام إضافي
-
-function idTypeLabel(t){
-  return { national_id:'هوية وطنية', iqama:'إقامة', other:'أخرى' }[t] || '—';
-}
 
 try {
     const { data, error } = await supa.from('contracts')
@@ -793,6 +796,9 @@ try {
 
     tbody.innerHTML = rows.map(c => `
       <tr>
+        <td class="actions-cell">
+          <button class="btn btn-ghost" id="btn-toggle-${c.id}" onclick="toggleInstallments('${c.id}')">عرض التفاصيل</button>
+        </td>
         <td>${c.contract_number}</td>
         <td>${c.lessor?.full_name || '—'}</td>
         <td>${c.lessee?.full_name || '—'}</td>
@@ -804,9 +810,6 @@ try {
         <td>${(c.contract_installments || []).length}</td>
         <td><span class="badge badge-${contractStatusBadge(c.status)}">${contractStatusLabel(c.status)}</span></td>
         <td>${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
-        <td class="actions-cell">
-          <button class="btn btn-ghost" id="btn-toggle-${c.id}" onclick="toggleInstallments('${c.id}')">عرض التفاصيل</button>
-        </td>
       </tr>
       <tr class="installments-row" id="installments-${c.id}" style="display:none">
         <td colspan="12"></td>
