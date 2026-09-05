@@ -81,6 +81,10 @@ th{color:var(--text-600);font-weight:700;background:var(--sand-100)}
    دائماً بدل ما ينقطع أي عمود يصير أول/آخر الجدول. */
 .sticky-col{position:sticky;inset-inline-start:0;z-index:2;background:var(--surface);box-shadow:-6px 0 8px -6px rgba(0,0,0,.15)}
 th.sticky-col{background:var(--sand-100);z-index:3}
+/* نفس فكرة sticky-col بس بالحافة المقابلة (نهاية الجدول) — لعمود التاريخ
+   اللي صار هو اللي ينقطع الحين بعد ما ثبّتنا عمود الإجراءات بالحافة الأخرى */
+.sticky-col-end{position:sticky;inset-inline-end:0;z-index:2;background:var(--surface);box-shadow:6px 0 8px -6px rgba(0,0,0,.15)}
+th.sticky-col-end{background:var(--sand-100);z-index:3}
 tr:hover td{background:#fafbfc}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700}
 .badge-pending{background:#fdf3e7;color:var(--warn)}
@@ -261,7 +265,7 @@ tr:hover td{background:#fafbfc}
           <thead><tr>
             <th class="sticky-col">إجراءات</th><th>رقم العقد</th><th>المؤجر</th><th>المستأجر</th><th>المدينة / الحي</th>
             <th>النوع</th><th>الدور</th><th>المساحة</th><th>الإيجار السنوي</th>
-            <th>عدد الدفعات</th><th>الحالة</th><th>تاريخ الإنشاء</th>
+            <th>عدد الدفعات</th><th>الحالة</th><th class="sticky-col-end">تاريخ الإنشاء</th>
           </tr></thead>
           <tbody id="contracts-tbody"></tbody>
         </table>
@@ -814,7 +818,7 @@ try {
         <td>${money(c.annual_rent)} ر.س</td>
         <td>${(c.contract_installments || []).length}</td>
         <td><span class="badge badge-${contractStatusBadge(c.status)}">${contractStatusLabel(c.status)}</span></td>
-        <td>${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
+        <td class="sticky-col-end">${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
       </tr>
       <tr class="installments-row" id="installments-${c.id}" style="display:none">
         <td colspan="12"></td>
