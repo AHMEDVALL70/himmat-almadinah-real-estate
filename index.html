@@ -3186,11 +3186,29 @@ window.addEventListener('load', async ()=>{
   renderLegalPages();
   runFinance();
 
+/* عدّاد "عقار مسجَّل فعلياً" بالصفحة الرئيسية — مستقل تماماً عن قسم
+   التحليلات (اللي صار كسولاً/lazy). استعلام عدّ بس (count فقط، بدون بيانات)
+   عشان يبقى خفيف ولا يأثر على وقت التحميل. */
+async function loadLiveStatsCount(){
+  if (!dbReady) return;
+  try {
+    const { count, error } = await withTimeout(
+      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'approved')
+    );
+    if (!error && typeof count === 'number'){
+      document.getElementById('stat-live-count').dataset.target = count;
+    }
+  } catch (e) {
+    console.error('loadLiveStatsCount: Supabase call failed.', e);
+  }
+}
+
   // هذه الثلاثة مستقلة عن بعضها (كل وحدة تجيب بياناتها من جدول مختلف) —
   // تشغيلها بالتوازي بدل التتابع يقلّل زمن التحميل الكلي بشكل ملموس.
   await Promise.all([
     safely('renderOffers', () => renderOffers()),
     safely('renderFeatured', renderFeatured),
+    safely('loadLiveStatsCount', loadLiveStatsCount),
   ]);
   updateHeroSearchCount();
 
