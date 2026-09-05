@@ -76,15 +76,7 @@ main{padding:24px;max-width:1200px;margin:0 auto}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
 th{color:var(--text-600);font-weight:700;background:var(--sand-100)}
-/* عمود الإجراءات ثابت بمكانه دائماً بغض النظر عن التمرير الأفقي بجدول
-   العقود (12 عمود أعرض من الشاشة أحياناً) — يضمن وصول زر "عرض التفاصيل"
-   دائماً بدل ما ينقطع أي عمود يصير أول/آخر الجدول. */
-.sticky-col{position:sticky;inset-inline-start:0;z-index:2;background:var(--surface);box-shadow:-6px 0 8px -6px rgba(0,0,0,.15)}
-th.sticky-col{background:var(--sand-100);z-index:3}
-/* نفس فكرة sticky-col بس بالحافة المقابلة (نهاية الجدول) — لعمود التاريخ
-   اللي صار هو اللي ينقطع الحين بعد ما ثبّتنا عمود الإجراءات بالحافة الأخرى */
-.sticky-col-end{position:sticky;inset-inline-end:0;z-index:2;background:var(--surface);box-shadow:6px 0 8px -6px rgba(0,0,0,.15)}
-th.sticky-col-end{background:var(--sand-100);z-index:3}
+
 tr:hover td{background:#fafbfc}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700}
 .badge-pending{background:#fdf3e7;color:var(--warn)}
@@ -263,9 +255,8 @@ tr:hover td{background:#fafbfc}
       <div class="card" style="padding:0;overflow-x:auto">
         <table>
           <thead><tr>
-            <th class="sticky-col">إجراءات</th><th>رقم العقد</th><th>المؤجر</th><th>المستأجر</th><th>المدينة / الحي</th>
-            <th>النوع</th><th>الدور</th><th>المساحة</th><th>الإيجار السنوي</th>
-            <th>عدد الدفعات</th><th>الحالة</th><th class="sticky-col-end">تاريخ الإنشاء</th>
+            <th>إجراءات</th><th>رقم العقد</th><th>الأطراف</th><th>العقار</th>
+            <th>الإيجار السنوي</th><th>عدد الدفعات</th><th>الحالة</th><th>تاريخ الإنشاء</th>
           </tr></thead>
           <tbody id="contracts-tbody"></tbody>
         </table>
@@ -776,7 +767,7 @@ function idTypeLabel(t){
 async function loadContracts(){
   const tbody = document.getElementById('contracts-tbody');
   const search = document.getElementById('contracts-search').value.trim().toLowerCase();
-  tbody.innerHTML = `<tr class="empty-row"><td colspan="12">جاري التحميل...</td></tr>`;
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="8">جاري التحميل...</td></tr>`;
 
 try {
     const { data, error } = await supa.from('contracts')
@@ -797,7 +788,7 @@ try {
       );
     }
     if (!rows.length){
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="12">لا توجد عقود مطابقة.</td></tr>`;
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="8">لا توجد عقود مطابقة.</td></tr>`;
       return;
     }
 
@@ -805,27 +796,29 @@ try {
 
     tbody.innerHTML = rows.map(c => `
       <tr>
-        <td class="actions-cell sticky-col">
+        <td class="actions-cell">
           <button class="btn btn-ghost" id="btn-toggle-${c.id}" onclick="toggleInstallments('${c.id}')">عرض التفاصيل</button>
         </td>
         <td>${c.contract_number}</td>
-        <td>${c.lessor?.full_name || '—'}</td>
-        <td>${c.lessee?.full_name || '—'}</td>
-        <td>${c.city || '—'} / ${c.district || '—'}</td>
-        <td>${c.unit_type || '—'}</td>
-        <td>${c.floor_number || '—'}</td>
-        <td>${c.area_sqm ? c.area_sqm + ' م²' : '—'}</td>
+        <td>
+          <div style="font-size:12.5px;color:var(--text-600)">مؤجر</div>${c.lessor?.full_name || '—'}
+          <div style="font-size:12.5px;color:var(--text-600);margin-top:4px">مستأجر</div>${c.lessee?.full_name || '—'}
+        </td>
+        <td>
+          ${c.unit_type || '—'}${c.floor_number ? ' — الدور ' + c.floor_number : ''}<br>
+          <span style="font-size:12.5px;color:var(--text-600)">${c.city || '—'} / ${c.district || '—'}${c.area_sqm ? ' — ' + c.area_sqm + ' م²' : ''}</span>
+        </td>
         <td>${money(c.annual_rent)} ر.س</td>
         <td>${(c.contract_installments || []).length}</td>
         <td><span class="badge badge-${contractStatusBadge(c.status)}">${contractStatusLabel(c.status)}</span></td>
-        <td class="sticky-col-end">${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
+        <td>${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
       </tr>
       <tr class="installments-row" id="installments-${c.id}" style="display:none">
-        <td colspan="12"></td>
+        <td colspan="8"></td>
       </tr>`).join('');
   } catch (e) {
     console.error('loadContracts failed', e);
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="12">⚠️ تعذّر تحميل العقود.</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">⚠️ تعذّر تحميل العقود.</td></tr>`;
   }
 }
 document.getElementById('btn-refresh-contracts').addEventListener('click', loadContracts);
