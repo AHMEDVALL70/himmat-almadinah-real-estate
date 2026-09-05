@@ -245,6 +245,12 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .eyebrow.hero-eyebrow{margin:0 0 8px}
 .hero p.desc{color:#c7cedb;max-width:540px;margin:0 auto 26px}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;justify-content:center}
+.hero-search{background:rgba(255,255,255,.06);border:1px solid rgba(192,161,107,.3);padding:16px;margin-bottom:18px;text-align:start}
+[data-theme="light"] .hero-search{background:rgba(255,255,255,.65);border-color:rgba(192,161,107,.4)}
+.hero-search-row{display:flex;gap:8px;flex-wrap:wrap}
+.hero-search-row select,.hero-search-row input{flex:1 1 150px;min-width:130px;background:var(--surface);color:var(--text-900);border:1.5px solid var(--line)}
+.hero-search-row .btn{flex:0 0 auto}
+.hero-search-count{margin:10px 2px 0;font-size:13px;color:#c0a16b;font-weight:700;min-height:18px}
 .hero .btn-primary{background:#c0a16b;color:#020617}
 .hero .btn-primary:hover{background:#d4bd93}
 .hero .btn-outline{border-color:#c0a16b;color:#c0a16b}
@@ -290,6 +296,15 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 
 /* Offers */
 .offer-card{overflow:hidden;position:relative}
+.favorite-btn{position:absolute;top:10px;inset-inline-end:10px;z-index:3;width:34px;height:34px;border-radius:50%;background:rgba(2,6,23,.55);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:#fff;transition:transform .15s ease,color .15s ease}
+.favorite-btn svg{fill:none;stroke:currentColor;stroke-width:2}
+.favorite-btn:hover{transform:scale(1.08)}
+.favorite-btn.active{color:#e2685c}
+.favorite-btn.active svg{fill:#e2685c}
+.offer-sort-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.offer-sort-tab{padding:9px 18px;border-radius:999px;font-weight:700;font-size:13.5px;background:var(--surface);border:1px solid var(--line);color:var(--text-600);transition:all .15s ease}
+.offer-sort-tab:hover{border-color:var(--gold-500)}
+.offer-sort-tab.active{background:var(--gold-500);border-color:var(--gold-500);color:#020617}
 .offer-img{width:100%;height:180px;object-fit:cover;display:block;background:var(--sand-100)}
 .offer-top{background:var(--navy-900);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
 .offer-discount{background:var(--gold-500);color:var(--navy-900);font-weight:900;padding:3px 10px;border-radius:8px;font-size:13px}
@@ -498,6 +513,15 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       <h1 data-i18n="hero_title">همة المدينة العقارية</h1>
       <p class="hero-tagline" data-i18n="hero_tagline">خبرة محلية… لقرار عقاري أكثر ثقة</p>
       <p class="desc" data-i18n="hero_desc">نقدم في همة المدينة العقارية خدمات عقارية مبنية على معرفة السوق، ودقة المعلومات، والوضوح في التعامل. نرافق عملاءنا في رحلة البيع والشراء والتسويق والاستثمار العقاري، ونسعى لأن تكون كل خطوة واضحة ومدروسة.</p>
+      <div class="hero-search card">
+        <div class="hero-search-row">
+          <select id="hero-search-city" aria-label="المدينة"></select>
+          <select id="hero-search-type" aria-label="نوع العقار"></select>
+          <input id="hero-search-budget" type="number" min="0" placeholder="الميزانية القصوى (ر.س)" data-i18n-placeholder="hero_search_budget">
+          <button type="button" class="btn btn-primary" id="hero-search-btn" data-i18n="hero_search_btn">ابحث</button>
+        </div>
+        <p class="hero-search-count" id="hero-search-count"></p>
+      </div>
       <div class="hero-cta">
         <a href="#offers" class="btn btn-primary" data-i18n="hero_cta_browse">تصفح العقارات</a>
         <a href="#add-property" class="btn btn-outline" data-i18n="hero_cta_list">أضف عقارك</a>
@@ -563,6 +587,12 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
           <button class="btn btn-ghost" id="btn-reset-filters" data-i18n="filter_reset">إعادة تعيين</button>
         </div>
       </div>
+    </div>
+    <div class="offer-sort-tabs" id="offer-sort-tabs">
+      <button type="button" class="offer-sort-tab active" data-sort="newest" onclick="applySortTab('newest')" data-i18n="sort_newest">الأحدث</button>
+      <button type="button" class="offer-sort-tab" data-sort="discount" onclick="applySortTab('discount')" data-i18n="sort_discount">الأعلى خصماً</button>
+      <button type="button" class="offer-sort-tab" data-sort="price_desc" onclick="applySortTab('price_desc')" data-i18n="sort_luxury">الأعلى سعراً</button>
+      <button type="button" class="offer-sort-tab" data-sort="price_asc" onclick="applySortTab('price_asc')" data-i18n="sort_affordable">الأقل سعراً</button>
     </div>
     <div id="offers-grid" class="grid grid-3"></div>
   </div>
@@ -1213,6 +1243,10 @@ const I18N = {
     detail_map:"عرض على الخريطة", detail_whatsapp:"تواصل عبر واتساب",
     detail_marketer:"المسوّق", detail_license:"رقم الرخصة العقارية", detail_ad_license:"رقم الترخيص الإعلاني",
     detail_no_desc:"لا يوجد وصف تفصيلي لهذا العقار بعد.", detail_view_btn:"عرض التفاصيل الكاملة ←",
+    favorite_toggle_label:"أضف للمفضلة",
+    sort_newest:"الأحدث", sort_discount:"الأعلى خصماً", sort_luxury:"الأعلى سعراً", sort_affordable:"الأقل سعراً",
+    hero_search_budget:"الميزانية القصوى (ر.س)", hero_search_btn:"ابحث",
+    hero_search_count_some:"{n} عرض متاح يطابق بحثك", hero_search_count_none:"لا عروض مطابقة الآن — جرّب توسيع البحث",
     contract_header:"عقد إيجار", contract_number_label:"رقم العقد",
     contract_lessor_label:"المؤجر", contract_lessee_label:"المستأجر",
     contract_id_label:"هوية", contract_phone_label2:"جوال",
@@ -1307,6 +1341,10 @@ const I18N = {
     detail_map:"View on map", detail_whatsapp:"Contact via WhatsApp",
     detail_marketer:"Marketed by", detail_license:"Real estate license no.", detail_ad_license:"Ad license no.",
     detail_no_desc:"No detailed description available for this property yet.", detail_view_btn:"View Full Details →",
+    favorite_toggle_label:"Add to favorites",
+    sort_newest:"Newest", sort_discount:"Best discount", sort_luxury:"Highest price", sort_affordable:"Most affordable",
+    hero_search_budget:"Maximum budget (SAR)", hero_search_btn:"Search",
+    hero_search_count_some:"{n} listings match your search", hero_search_count_none:"No matches yet — try widening your search",
     contract_header:"Lease contract", contract_number_label:"Contract No.",
     contract_lessor_label:"Lessor", contract_lessee_label:"Lessee",
     contract_id_label:"ID", contract_phone_label2:"Phone",
@@ -1348,6 +1386,7 @@ function applyLang(lang){
   updateAddPropertyFieldsForType();
   populateCitySelects();
   populateFilterSelects();
+  populateHeroSearch();
   renderOffers();
   renderFeatured();
   renderQuickChips();
@@ -1747,6 +1786,30 @@ function registerOffer(o){
   return key;
 }
 
+/* ============================================================================
+   Favorites — محفوظة محلياً بمتصفح الزائر (localStorage)، بدون تسجيل دخول
+   ولا أي جدول بقاعدة البيانات. تختفي لو الزائر مسح بيانات المتصفح.
+   ========================================================================== */
+const FAVORITES_KEY = 'himmat_favorites';
+function getFavorites(){
+  try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function isFavorite(key){ return getFavorites().includes(key); }
+function toggleFavorite(key){
+  let favs = getFavorites();
+  const btn = document.getElementById('fav-' + key);
+  if (favs.includes(key)){
+    favs = favs.filter(k => k !== key);
+    if (btn) btn.classList.remove('active');
+  } else {
+    favs.push(key);
+    if (btn) btn.classList.add('active');
+  }
+  try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs)); }
+  catch(e) { console.error('toggleFavorite: تعذّر الحفظ بالمتصفح.', e); }
+}
+
 function offerCardHtml(o, matchScore){
   const t = I18N[currentLang];
   const key = registerOffer(o);
@@ -1760,6 +1823,11 @@ function offerCardHtml(o, matchScore){
     ? `<span class="match-badge" title="${t.match_badge_hint}">🎯 ${matchScore}% ${t.match_badge_label}</span>`
     : '';
   return `<div class="card offer-card fade-up" onclick="openDetailModal('${key}')">
+    <button type="button" class="favorite-btn${isFavorite(key) ? ' active' : ''}" id="fav-${key}"
+            onclick="event.stopPropagation(); toggleFavorite('${key}')"
+            aria-label="${t.favorite_toggle_label}" title="${t.favorite_toggle_label}">
+      <svg viewBox="0 0 24 24" width="19" height="19"><path d="M12 21s-7.5-4.6-10.2-9.1C-0.1 8.4 1.6 4.5 5.4 4.5c2.1 0 3.6 1.1 4.3 2.4.7 1.3.7 1.3 0 0 .7-1.3 2.2-2.4 4.3-2.4 3.8 0 5.5 3.9 3.6 7.4C19.5 16.4 12 21 12 21z"/></svg>
+    </button>
     ${imageHtml}
     <div class="offer-top"><b>${o.title}</b><span class="offer-discount">-${o.discount_pct}%</span></div>
     <div class="offer-body">
@@ -1901,6 +1969,34 @@ function computeMatchScore(o, f){
   return Math.round((score / max) * 100);
 }
 
+/* آخر قائمة عروض جُلبت فعلياً — تُستخدم للتبديل الفوري بين التبويبات
+   (الأحدث/الأعلى خصماً/الأعلى سعراً...) بدون أي استعلام جديد لقاعدة البيانات. */
+let LAST_OFFERS_LIST = [];
+let currentOfferSort = 'newest';
+
+function sortOffersList(list, sortKey){
+  const arr = [...list];
+  const price = o => o.price_final ?? o.price ?? o.price_original ?? 0;
+  switch(sortKey){
+    case 'discount': return arr.sort((a,b) => (b.discount_pct||0) - (a.discount_pct||0));
+    case 'price_desc': return arr.sort((a,b) => price(b) - price(a));
+    case 'price_asc': return arr.sort((a,b) => price(a) - price(b));
+    default: return arr.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)); // newest
+  }
+}
+
+function applySortTab(sortKey){
+  currentOfferSort = sortKey;
+  document.querySelectorAll('.offer-sort-tab').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.sort === sortKey);
+  });
+  const grid = document.getElementById('offers-grid');
+  if (!LAST_OFFERS_LIST.length) return;
+  const sorted = sortOffersList(LAST_OFFERS_LIST, sortKey);
+  grid.innerHTML = sorted.map(o => offerCardHtml(o)).join('');
+  observeFadeUps();
+}
+
 async function renderOffers(filters){
   const f = filters || readOfferFilters();
   const grid = document.getElementById('offers-grid');
@@ -1912,6 +2008,7 @@ async function renderOffers(filters){
       if (f.city) query = query.eq('city', f.city);
       const { data, error } = await withTimeout(query);
       if (!error && data && data.length){
+        LAST_OFFERS_LIST = data;
         const scored = data.map(o => ({ o, score: computeMatchScore(o, f) }));
         if (scored[0].score !== null) scored.sort((a, b) => b.score - a.score);
         grid.innerHTML = scored.map(({o, score}) => offerCardHtml(o, score)).join('');
@@ -1936,6 +2033,7 @@ async function renderOffers(filters){
   }
   const demoScored = demoAll.map(o => ({ o, score: computeMatchScore(o, f) }));
   if (demoScored[0].score !== null) demoScored.sort((a, b) => b.score - a.score);
+  LAST_OFFERS_LIST = demoAll;
   grid.innerHTML = demoScored.map(({o, score}) => offerCardHtml(o, score)).join('') +
     `<div class="notice notice-warn" style="grid-column:1/-1">${demoLabel}</div>`;
   observeFadeUps();
@@ -1983,6 +2081,56 @@ document.getElementById('btn-reset-filters').addEventListener('click', ()=>{
   document.getElementById('filter-max-price').value = '';
   document.getElementById('filter-min-rooms').value = '';
   renderOffers({});
+});
+
+/* ============================================================================
+   Hero smart search — بحث سريع مباشر بالهيرو بفلترة فورية (بدون استعلام
+   جديد لقاعدة البيانات؛ يستخدم نفس LAST_OFFERS_LIST المحمّلة أصلاً للعروض).
+   ========================================================================== */
+function populateHeroSearch(){
+  const t = I18N[currentLang];
+  const citySel = document.getElementById('hero-search-city');
+  const prevCity = citySel.value;
+  citySel.innerHTML = `<option value="">${t.filter_all}</option>` +
+    Object.keys(CITY_DISTRICTS).map(c=>`<option value="${c}">${cityLabel(c)}</option>`).join('');
+  citySel.value = prevCity;
+
+  const typeSel = document.getElementById('hero-search-type');
+  const prevType = typeSel.value;
+  typeSel.innerHTML = `<option value="">${t.filter_all}</option>` +
+    PROPERTY_TYPES.map(pt=>`<option value="${pt.v}">${pt[currentLang] || pt.ar}</option>`).join('');
+  typeSel.value = prevType;
+}
+
+function readHeroSearch(){
+  return {
+    city: document.getElementById('hero-search-city').value || null,
+    type: document.getElementById('hero-search-type').value || null,
+    maxPrice: parseFloat(document.getElementById('hero-search-budget').value) || null,
+  };
+}
+
+function updateHeroSearchCount(){
+  const countEl = document.getElementById('hero-search-count');
+  if (!countEl) return;
+  const f = readHeroSearch();
+  const n = LAST_OFFERS_LIST.filter(o => matchesFilters(o, { city: f.city, type: f.type, maxPrice: f.maxPrice })).length;
+  const t = I18N[currentLang];
+  countEl.textContent = LAST_OFFERS_LIST.length
+    ? (n ? t.hero_search_count_some.replace('{n}', n) : t.hero_search_count_none)
+    : '';
+}
+['hero-search-city','hero-search-type','hero-search-budget'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input', updateHeroSearchCount);
+  document.getElementById(id)?.addEventListener('change', updateHeroSearchCount);
+});
+document.getElementById('hero-search-btn')?.addEventListener('click', ()=>{
+  const f = readHeroSearch();
+  document.getElementById('filter-city').value = f.city || '';
+  document.getElementById('filter-type').value = f.type || '';
+  document.getElementById('filter-max-price').value = f.maxPrice || '';
+  renderOffers();
+  document.getElementById('offers')?.scrollIntoView({ behavior: 'smooth' });
 });
 
 function renderFaq(){
@@ -2963,6 +3111,7 @@ window.addEventListener('load', async ()=>{
   updateValuationFieldsForType();
   updateAddPropertyFieldsForType();
   populateFilterSelects();
+  populateHeroSearch();
   renderServices();
   renderFaq();
   renderLegalPages();
@@ -2975,6 +3124,7 @@ window.addEventListener('load', async ()=>{
     safely('renderFeatured', renderFeatured),
     safely('renderAnalytics', renderAnalytics),
   ]);
+  updateHeroSearchCount();
 
   const totalDistricts = Object.values(CITY_DISTRICTS).reduce((sum, list) => sum + list.length, 0);
   document.getElementById('stat-district-count').dataset.target = totalDistricts;
