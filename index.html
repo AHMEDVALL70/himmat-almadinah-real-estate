@@ -253,9 +253,9 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .hero h1{font-size:clamp(26px,3.6vw,38px);margin:0 0 6px}
 .hero-tagline{font-size:clamp(24px,3.6vw,38px);font-weight:900;color:#c0a16b;margin:2px 0 16px;line-height:1.3;font-family:var(--font-display)}
 .eyebrow.hero-eyebrow{margin:0 0 8px}
-.hero p.desc{color:#c7cedb;max-width:540px;margin:0 auto 26px}
+.hero p.desc{color:#c7cedb;max-width:540px;margin:0 auto 26px;min-height:4.6em}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;justify-content:center}
-.hero-search{background:rgba(255,255,255,.06);border:1px solid rgba(192,161,107,.3);padding:16px;margin-bottom:18px;text-align:start}
+.hero-search{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(192,161,107,.3);padding:16px;margin-bottom:18px;text-align:start}
 [data-theme="light"] .hero-search{background:rgba(255,255,255,.65);border-color:rgba(192,161,107,.4)}
 .hero-search-row{display:flex;gap:8px;flex-wrap:wrap}
 .hero-search-row select,.hero-search-row input{flex:1 1 150px;min-width:130px;background:var(--surface);color:var(--text-900);border:1.5px solid var(--line)}
@@ -294,7 +294,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 }
 
 /* Hero image card — contained slideshow of real photos (Masjid an-Nabawi + Madinah) */
-.hero-image-col{flex:1 1 380px;min-width:280px;max-width:460px;display:flex;flex-direction:column;align-items:center;margin-top:-28px}
+.hero-image-col{flex:1 1 380px;min-width:280px;max-width:460px;display:flex;flex-direction:column;align-items:center}
 .hero-image-card{width:100%;aspect-ratio:1/1;border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.4);border:1px solid rgba(192,161,107,.25)}
 .hero-bg-slides{position:absolute;inset:0}
 .hero-bg-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.8s ease}
@@ -480,7 +480,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
           <a href="#faq" data-i18n="nav_faq">الأسئلة</a>
           <a href="#about" data-i18n="nav_about">عنّا</a>
           <a href="#contact" data-i18n="nav_contact">تواصل</a>
-          <a href="admin.html" target="_blank" rel="noopener" data-i18n="nav_admin" style="border-top:1px solid var(--line);margin-top:4px;padding-top:12px">🔐 لوحة التحكم</a>
+          <a href="admin.html" data-i18n="nav_admin" style="border-top:1px solid var(--line);margin-top:4px;padding-top:12px">🔐 لوحة التحكم</a>
         </div>
       </div>
     </nav>
@@ -493,7 +493,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <button data-lang="ar" class="active">🇸🇦 AR</button>
         <button data-lang="en">🇬🇧 EN</button>
       </div>
-      <a href="admin.html" target="_blank" rel="noopener" id="admin-quick-link" title="لوحة التحكم" aria-label="لوحة التحكم">🔐 <span data-i18n="admin_login_label">تسجيل الدخول</span></a>
+      <a href="admin.html" id="admin-quick-link" title="لوحة التحكم" aria-label="لوحة التحكم">🔐 <span data-i18n="admin_login_label">تسجيل الدخول</span></a>
       <button id="mobile-menu-toggle" aria-label="menu">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
@@ -510,7 +510,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
     <a href="#faq" data-i18n="nav_faq">الأسئلة</a>
     <a href="#about" data-i18n="nav_about">عنّا</a>
     <a href="#contact" data-i18n="nav_contact">تواصل</a>
-    <a href="admin.html" target="_blank" rel="noopener" data-i18n="nav_admin">🔐 لوحة التحكم</a>
+    <a href="admin.html" data-i18n="nav_admin">🔐 لوحة التحكم</a>
   </nav>
 </header>
 
@@ -523,16 +523,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
     <div>
       <h1 data-i18n="hero_title">همة المدينة العقارية</h1>
       <p class="hero-tagline" data-i18n="hero_tagline">خبرة محلية… لقرار عقاري أكثر ثقة</p>
-      <p class="desc" data-i18n="hero_desc">نقدم في همة المدينة العقارية خدمات عقارية مبنية على معرفة السوق، ودقة المعلومات، والوضوح في التعامل. نرافق عملاءنا في رحلة البيع والشراء والتسويق والاستثمار العقاري، ونسعى لأن تكون كل خطوة واضحة ومدروسة.</p>
-      <div class="hero-search card">
-        <div class="hero-search-row">
-          <select id="hero-search-city" aria-label="المدينة"></select>
-          <select id="hero-search-type" aria-label="نوع العقار"></select>
-          <input id="hero-search-budget" type="number" min="0" placeholder="الميزانية القصوى (ر.س)" data-i18n-placeholder="hero_search_budget">
-          <button type="button" class="btn btn-primary" id="hero-search-btn" data-i18n="hero_search_btn">ابحث</button>
-        </div>
-        <p class="hero-search-count" id="hero-search-count"></p>
-      </div>
+      <p class="desc" data-i18n="hero_desc" id="hero-desc">نقدم في همة المدينة العقارية خدمات عقارية مبنية على معرفة السوق، ودقة المعلومات، والوضوح في التعامل. نرافق عملاءنا في رحلة البيع والشراء والتسويق والاستثمار العقاري، ونسعى لأن تكون كل خطوة واضحة ومدروسة.</p>
       <div class="hero-cta">
         <a href="#offers" class="btn btn-primary" data-i18n="hero_cta_browse">تصفح العقارات</a>
         <a href="#add-property" class="btn btn-outline" data-i18n="hero_cta_list">أضف عقارك</a>
@@ -546,6 +537,15 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       </div>
     </div>
     <div class="hero-image-col">
+      <div class="hero-search card">
+        <div class="hero-search-row">
+          <select id="hero-search-city" aria-label="المدينة"></select>
+          <select id="hero-search-type" aria-label="نوع العقار"></select>
+          <input id="hero-search-budget" type="number" min="0" placeholder="الميزانية القصوى (ر.س)" data-i18n-placeholder="hero_search_budget">
+          <button type="button" class="btn btn-primary" id="hero-search-btn" data-i18n="hero_search_btn">ابحث</button>
+        </div>
+        <p class="hero-search-count" id="hero-search-count"></p>
+      </div>
       <div class="hero-image-card">
         <div class="hero-bg-slides" id="hero-bg-slides" aria-hidden="true"></div>
       </div>
@@ -2771,6 +2771,25 @@ async function loadHeroSlides(){
   return HERO_BG_IMAGES_FALLBACK.map(url => ({ url, caption: null }));
 }
 
+/* تأثير آلة كاتبة لجملة الوصف الرئيسية بالهيرو — تُكتب حرف حرف مرة واحدة
+   عند فتح الصفحة فقط (مو عند كل تبديل لغة، حتى ما يصير مزعج). */
+function typewriterHeroDesc(){
+  const el = document.getElementById('hero-desc');
+  if (!el) return;
+  const fullText = el.textContent;
+  if (prefersReducedMotion() || !fullText) return; // النص الكامل يبقى ظاهر فوراً لمن يفضّل تقليل الحركة
+  el.textContent = '';
+  let i = 0;
+  function typeNext(){
+    if (i < fullText.length){
+      el.textContent += fullText.charAt(i);
+      i++;
+      setTimeout(typeNext, 18);
+    }
+  }
+  typeNext();
+}
+
 async function initHeroSlideshow(){
   const wrap = document.getElementById('hero-bg-slides');
   if (!wrap) return;
@@ -3143,6 +3162,7 @@ window.addEventListener('load', async ()=>{
   updateGradeFieldVisibility();
   try { runValuation(); } catch(e){}
   await initHeroSlideshow();
+  typewriterHeroDesc();
   showPage(location.hash.slice(1) || 'home');
 });
 </script>
