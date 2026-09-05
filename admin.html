@@ -76,6 +76,11 @@ main{padding:24px;max-width:1200px;margin:0 auto}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
 th{color:var(--text-600);font-weight:700;background:var(--sand-100)}
+/* عمود الإجراءات ثابت بمكانه دائماً بغض النظر عن التمرير الأفقي بجدول
+   العقود (12 عمود أعرض من الشاشة أحياناً) — يضمن وصول زر "عرض التفاصيل"
+   دائماً بدل ما ينقطع أي عمود يصير أول/آخر الجدول. */
+.sticky-col{position:sticky;inset-inline-start:0;z-index:2;background:var(--surface);box-shadow:-6px 0 8px -6px rgba(0,0,0,.15)}
+th.sticky-col{background:var(--sand-100);z-index:3}
 tr:hover td{background:#fafbfc}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700}
 .badge-pending{background:#fdf3e7;color:var(--warn)}
@@ -254,7 +259,7 @@ tr:hover td{background:#fafbfc}
       <div class="card" style="padding:0;overflow-x:auto">
         <table>
           <thead><tr>
-            <th>إجراءات</th><th>رقم العقد</th><th>المؤجر</th><th>المستأجر</th><th>المدينة / الحي</th>
+            <th class="sticky-col">إجراءات</th><th>رقم العقد</th><th>المؤجر</th><th>المستأجر</th><th>المدينة / الحي</th>
             <th>النوع</th><th>الدور</th><th>المساحة</th><th>الإيجار السنوي</th>
             <th>عدد الدفعات</th><th>الحالة</th><th>تاريخ الإنشاء</th>
           </tr></thead>
@@ -796,7 +801,7 @@ try {
 
     tbody.innerHTML = rows.map(c => `
       <tr>
-        <td class="actions-cell">
+        <td class="actions-cell sticky-col">
           <button class="btn btn-ghost" id="btn-toggle-${c.id}" onclick="toggleInstallments('${c.id}')">عرض التفاصيل</button>
         </td>
         <td>${c.contract_number}</td>
