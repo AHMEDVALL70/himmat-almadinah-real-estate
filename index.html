@@ -255,6 +255,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .hero-bg-slides{position:absolute;inset:0}
 .hero-bg-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.8s ease}
 .hero-bg-slide.active{opacity:1}
+.hero-bg-caption{position:absolute;inset-inline-start:14px;bottom:14px;max-width:calc(100% - 28px);background:rgba(16,24,39,.78);color:var(--text-900);border:1px solid rgba(192,161,107,.35);padding:6px 14px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero-logo-under{width:96px;height:96px;object-fit:contain;margin-top:18px;border-radius:16px;background:rgba(255,255,255,.06);padding:10px;border:1px solid rgba(192,161,107,.25)}
 @media(max-width:680px){.hero-image-col{max-width:100%;margin-top:0}.hero-image-card{aspect-ratio:16/10}}
 @media (prefers-reduced-motion: reduce){
@@ -2548,10 +2549,13 @@ const fadeUpObserver = ('IntersectionObserver' in window) ? new IntersectionObse
 }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }) : null;
 
 /* ============================================================================
-   Hero image card slideshow — real photos of the Prophet's Mosque and
-   Madinah, cross-fading automatically inside the contained image card.
+   Hero image card slideshow — يعرض أحدث العروض الحقيقية المنشورة (بصورها
+   الفعلية اللي ترفعها من لوحة التحكم)، فتتحرّك خلفية الصفحة الرئيسية مع أي
+   عرض جديد تضيفه بدل ما تبقى ثابتة على نفس الصور دائماً. لو ما فيه عروض
+   منشورة بصورة بعد، ترجع لصور احتياطية عامة (المسجد النبوي والمدينة) بدل
+   ما تطلع خلفية فاضية.
    ========================================================================== */
-const HERO_BG_IMAGES = [
+const HERO_BG_IMAGES_FALLBACK = [
   "https://images.pexels.com/photos/4321694/pexels-photo-4321694.jpeg?auto=compress&cs=tinysrgb&h=900&w=1200",
   "https://images.pexels.com/photos/34246953/pexels-photo-34246953.jpeg?auto=compress&cs=tinysrgb&h=900&w=1200",
   "https://images.pexels.com/photos/35017416/pexels-photo-35017416.jpeg?auto=compress&cs=tinysrgb&h=900&w=1200",
@@ -2559,14 +2563,38 @@ const HERO_BG_IMAGES = [
   "https://images.pexels.com/photos/34845465/pexels-photo-34845465.jpeg?auto=compress&cs=tinysrgb&h=900&w=1200",
 ];
 
-function initHeroSlideshow(){
+async function loadHeroSlides(){
+  if (dbReady){
+    try {
+      const { data, error } = await withTimeout(
+        supa.from('offers')
+          .select('image_url, title, city, district')
+          .eq('is_published', true)
+          .not('image_url', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(6)
+      );
+      if (!error && data && data.length){
+        return data.map(o => ({ url: o.image_url, caption: [o.title, o.district].filter(Boolean).join(' — ') }));
+      }
+    } catch (e) {
+      console.error('loadHeroSlides: Supabase call failed, using fallback images.', e);
+    }
+  }
+  return HERO_BG_IMAGES_FALLBACK.map(url => ({ url, caption: null }));
+}
+
+async function initHeroSlideshow(){
   const wrap = document.getElementById('hero-bg-slides');
   if (!wrap) return;
-  wrap.innerHTML = HERO_BG_IMAGES.map((url, i) =>
-    `<div class="hero-bg-slide${i===0 ? ' active' : ''}" style="background-image:url('${url}')"></div>`
+  const slidesData = await loadHeroSlides();
+  wrap.innerHTML = slidesData.map((s, i) =>
+    `<div class="hero-bg-slide${i===0 ? ' active' : ''}" style="background-image:url('${s.url}')">${
+      s.caption ? `<span class="hero-bg-caption">${escapeHtml(s.caption)}</span>` : ''
+    }</div>`
   ).join('');
 
-  if (prefersReducedMotion()) return; // صورة واحدة ثابتة تكفي لمن يفضّل تقليل الحركة
+  if (prefersReducedMotion() || slidesData.length <= 1) return; // صورة واحدة ثابتة تكفي لمن يفضّل تقليل الحركة
 
   let current = 0;
   const slides = wrap.querySelectorAll('.hero-bg-slide');
@@ -2924,7 +2952,7 @@ window.addEventListener('load', async ()=>{
   document.getElementById('stat-district-count').dataset.target = totalDistricts;
   updateGradeFieldVisibility();
   try { runValuation(); } catch(e){}
-  initHeroSlideshow();
+  await initHeroSlideshow();
   showPage(location.hash.slice(1) || 'home');
 });
 </script>
