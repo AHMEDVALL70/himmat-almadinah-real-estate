@@ -1264,7 +1264,7 @@ const I18N = {
     contract_id_label:"هوية", contract_phone_label2:"جوال",
     contract_property_label:"العقار", contract_term_label:"مدة العقد",
     contract_term_from:"من", contract_term_to:"إلى",
-    contract_rent_label:"الإيجار السنوي", contract_deposit_label:"الضمان",
+    contract_rent_label:"الإيجار السنوي", contract_deposit_label:"الضمان", contract_frequency_label:"عدد الدفعات سنوياً",
     type_residential:"سكني", type_commercial:"تجاري",
     opt_east:"شرقية (+5%)", opt_north:"شمالية (+4%)", opt_south:"جنوبية", opt_west:"غربية (-2%)",
     opt_upscale:"حي راقي (+25%)", opt_investment:"حي استثماري (+15%)", opt_mid:"حي متوسط",
@@ -1362,7 +1362,7 @@ const I18N = {
     contract_id_label:"ID", contract_phone_label2:"Phone",
     contract_property_label:"Property", contract_term_label:"Term",
     contract_term_from:"from", contract_term_to:"to",
-    contract_rent_label:"Annual rent", contract_deposit_label:"Deposit",
+    contract_rent_label:"Annual rent", contract_deposit_label:"Deposit", contract_frequency_label:"Installments per year",
     type_residential:"Residential", type_commercial:"Commercial",
     opt_east:"East (+5%)", opt_north:"North (+4%)", opt_south:"South", opt_west:"West (-2%)",
     opt_upscale:"Upscale district (+25%)", opt_investment:"Investment district (+15%)", opt_mid:"Mid-range district",
@@ -2646,6 +2646,12 @@ document.getElementById('btn-generate-contract').addEventListener('click', async
   const contractNumber = 'HMD-' + Date.now();
   const rent = parseFloat(v('c-rent')) || 0;
   const currency = currentLang==='ar' ? 'ر.س' : 'SAR';
+  const frequencyLabels = {
+    ar: {1:'سنوي (دفعة واحدة)', 2:'نصف سنوي', 4:'ربع سنوي', 12:'شهري'},
+    en: {1:'Annual (one payment)', 2:'Semi-annual', 4:'Quarterly', 12:'Monthly'},
+  };
+  const frequencyVal = parseInt(document.getElementById('c-frequency').value, 10);
+  const frequencyDisplay = frequencyLabels[currentLang]?.[frequencyVal] || frequencyVal;
 
   const text = `${t.contract_header} — ${contractTypeLabel}
 ${t.contract_number_label}: ${contractNumber}
@@ -2653,7 +2659,8 @@ ${t.contract_lessor_label}: ${v('c-lessor-name')} (${t.contract_id_label}: ${v('
 ${t.contract_lessee_label}: ${v('c-lessee-name')} (${t.contract_id_label}: ${v('c-lessee-id')} — ${t.contract_phone_label2}: ${v('c-lessee-phone')} — ${t.contract_dob_label}: ${v('c-lessee-dob') || '—'})
 ${t.contract_property_label}: ${typeDisplay} — ${districtLabel(v('c-district'))}, ${cityDisplay} — ${v('c-area')} م²${v('c-floor-number') ? ' — ' + (currentLang==='ar' ? 'الدور' : 'Floor') + ': ' + v('c-floor-number') : ''}
 ${t.contract_term_label}: ${t.contract_term_from} ${v('c-start')} ${t.contract_term_to} ${v('c-end')}
-${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_label}: ${money(parseFloat(v('c-deposit'))||0)} ${currency}`;
+${t.contract_rent_label}: ${money(rent)} ${currency} — ${t.contract_deposit_label}: ${money(parseFloat(v('c-deposit'))||0)} ${currency}
+${t.contract_frequency_label}: ${frequencyDisplay}`;
 
   pre.textContent = text;
   pre.classList.remove('hide');
