@@ -253,15 +253,37 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .stat b{display:block;font-size:26px;font-family:var(--font-display);color:#c0a16b}
 .stat span{font-size:13px;color:#c7cedb}
 
+/* الوضع النهاري: أبيض دافئ فخم بدل الأسود الثابت — نفس الذهبي محفوظ كخيط
+   بصري بين الوضعين، بس ألوان النص تتبدّل عشان تبقى مقروءة على خلفية فاتحة. */
+[data-theme="light"] .hero{
+  background:
+    radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.16) 0%, transparent 55%),
+    #fbf6ec;
+  color:#241d0f;
+}
+[data-theme="light"] .hero p.desc{color:#5c5540}
+[data-theme="light"] .hero .stat span{color:#6b6350}
+[data-theme="light"] .license-badge{background:rgba(192,161,107,.12);border-color:rgba(192,161,107,.4);color:#5c5028}
+[data-theme="light"] .hero-image-card{box-shadow:0 24px 60px rgba(36,29,15,.18);border-color:rgba(192,161,107,.4)}
+
+/* حركة طفو خفيفة مستمرة لعمود النص — تحسّ الصفحة حيّة بدون ما تشتت القراءة */
+@keyframes heroTextFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-7px)}
+}
+.hero-grid > *:first-child{animation:heroTextFloat 6s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){
+  .hero-grid > *:first-child{animation:none}
+}
+
 /* Hero image card — contained slideshow of real photos (Masjid an-Nabawi + Madinah) */
 .hero-image-col{flex:1 1 380px;min-width:280px;max-width:460px;display:flex;flex-direction:column;align-items:center;margin-top:-28px}
-.hero-image-card{width:100%;aspect-ratio:4/3;border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.4);border:1px solid rgba(192,161,107,.25)}
+.hero-image-card{width:100%;aspect-ratio:1/1;border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.4);border:1px solid rgba(192,161,107,.25)}
 .hero-bg-slides{position:absolute;inset:0}
 .hero-bg-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.8s ease}
 .hero-bg-slide.active{opacity:1}
 .hero-bg-caption{position:absolute;inset-inline-start:14px;bottom:14px;max-width:calc(100% - 28px);background:rgba(16,24,39,.78);color:var(--text-900);border:1px solid rgba(192,161,107,.35);padding:6px 14px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hero-logo-under{width:96px;height:96px;object-fit:contain;margin-top:18px;border-radius:16px;background:rgba(255,255,255,.06);padding:10px;border:1px solid rgba(192,161,107,.25)}
-@media(max-width:680px){.hero-image-col{max-width:100%;margin-top:0}.hero-image-card{aspect-ratio:16/10}}
+@media(max-width:680px){.hero-image-col{max-width:100%;margin-top:0}.hero-image-card{aspect-ratio:1/1}}
 @media (prefers-reduced-motion: reduce){
   .hero-bg-slide{transition:none}
 }
@@ -492,7 +514,6 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
       <div class="hero-image-card">
         <div class="hero-bg-slides" id="hero-bg-slides" aria-hidden="true"></div>
       </div>
-      <img src="Himmat-Almedina.png" alt="همة المدينة العقارية" class="hero-logo-under" onerror="this.remove()">
     </div>
   </div>
 </section>
