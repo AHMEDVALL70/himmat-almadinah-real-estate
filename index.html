@@ -1127,6 +1127,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_KhUpsOF0OxVQWyWLakXx2g_yDsUlnxV";
 
 let supa = null;
 let dbReady = false;
+let analyticsLoaded = false; // تُحمَّل مرة وحدة، أول ما الزائر يدخل قسم التحليلات فعلياً
 
 function initSupabase(){
   if (SUPABASE_URL.startsWith("YOUR_") || !window.supabase) return false;
@@ -2902,6 +2903,10 @@ function showPage(id){
   if (location.hash !== '#' + id) history.pushState(null, '', '#' + id);
   window.scrollTo({ top: 0, behavior: 'auto' });
   if (id === 'home') animateCounters();
+  if (id === 'analytics' && !analyticsLoaded){
+    analyticsLoaded = true;
+    safely('renderAnalytics', renderAnalytics);
+  }
   observeFadeUps();
 }
 
@@ -3186,7 +3191,6 @@ window.addEventListener('load', async ()=>{
   await Promise.all([
     safely('renderOffers', () => renderOffers()),
     safely('renderFeatured', renderFeatured),
-    safely('renderAnalytics', renderAnalytics),
   ]);
   updateHeroSearchCount();
 
