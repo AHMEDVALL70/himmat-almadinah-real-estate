@@ -1835,6 +1835,7 @@ function offerCardHtml(o, matchScore){
 function openDetailModal(key){
   const o = OFFER_REGISTRY[key];
   if (!o) return;
+  logOfferView(o.id); // إحصائية خفيفة، لا تنتظر ولا تعطّل فتح النافذة
   const t = I18N[currentLang];
   const currency = currentLang === 'ar' ? 'ر.س' : 'SAR';
 
@@ -2896,8 +2897,27 @@ function animateCounters(){
   });
 }
 
+/* ============================================================================
+   إحصائيات خفيفة (زيارات الأقسام + مشاهدات العروض) — بيانات مجهولة تماماً
+   بدون أي معرّف شخصي للزائر، تُستخدم لاحقاً لتفعيل "الأكثر طلباً" ومتابعة
+   أداء الموقع بدل التخمين. لا تنتظر ولا تعطّل الواجهة أبداً (fire-and-forget).
+   ========================================================================== */
+function logPageView(page){
+  if (!dbReady) return;
+  supa.from('page_views').insert({ page }).then(({ error }) => {
+    if (error) console.error('logPageView: تعذّر التسجيل.', error.message);
+  });
+}
+function logOfferView(offerId){
+  if (!dbReady || !offerId) return; // نتجاهل عروض العرض التوضيحي (demo-N)
+  supa.from('offer_views').insert({ offer_id: offerId }).then(({ error }) => {
+    if (error) console.error('logOfferView: تعذّر التسجيل.', error.message);
+  });
+}
+
 function showPage(id){
   if (!PAGES.includes(id)) id = 'home';
+  logPageView(id);
   PAGES.forEach(p=>{
     const el = document.getElementById(p);
     if (el) el.style.display = (p === id) ? '' : 'none';
