@@ -268,13 +268,25 @@ async function handleEvictionNotices() {
 }
 
 Deno.serve(async (req) => {
+  const startedAt = Date.now();
   try {
     await Promise.all([handlePaymentReminders(), handleEvictionNotices()]);
+    await supabase.from("job_runs").insert({
+      job_name: "send-reminders",
+      status: "success",
+      started_at: new Date(startedAt).toISOString(),
+    });
     return new Response(JSON.stringify({ status: "ok" }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
     console.error(err);
+    await supabase.from("job_runs").insert({
+      job_name: "send-reminders",
+      status: "failed",
+      summary: { message: String(err) },
+      started_at: new Date(startedAt).toISOString(),
+    });
     return new Response(JSON.stringify({ status: "error", message: String(err) }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
