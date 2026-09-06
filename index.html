@@ -2936,7 +2936,7 @@ function showPage(id){
   if (id === 'home') animateCounters();
   if (id === 'analytics' && !analyticsLoaded){
     analyticsLoaded = true;
-    safely('renderAnalytics', renderAnalytics);
+    renderAnalytics();
   }
   observeFadeUps();
 }
