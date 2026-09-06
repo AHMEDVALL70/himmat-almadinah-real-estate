@@ -853,6 +853,7 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
         <div class="field"><label data-i18n="f_floor_number">رقم الدور (اختياري)</label><input id="c-floor-number" type="text" placeholder="مثال: الثالث"></div>
         <div class="field"><label data-i18n="f_area">المساحة (م²)</label><input id="c-area" type="number"></div>
         <div class="field"><label data-i18n="f_deed_number">رقم الصك (اختياري)</label><input id="c-deed-number" type="text"></div>
+        <div class="field"><label data-i18n="f_deed_date">تاريخ الصك (اختياري)</label><input id="c-deed-date" type="date"></div>
         <div class="field"><label data-i18n="f_deposit">الضمان (ر.س)</label><input id="c-deposit" type="number" value="0"></div>
         <div class="field"><label data-i18n="f_start">تاريخ البداية</label><input id="c-start" type="date"></div>
         <div class="field"><label data-i18n="f_end">تاريخ النهاية</label><input id="c-end" type="date"></div>
@@ -1204,7 +1205,7 @@ const I18N = {
     f_lessor_id_type:"نوع هوية المؤجر", f_lessee_id_type:"نوع هوية المستأجر",
     f_lessor_nationality:"جنسية المؤجر", f_lessee_nationality:"جنسية المستأجر",
     id_type_national:"هوية وطنية", id_type_iqama:"إقامة", id_type_other:"أخرى",
-    f_deed_number:"رقم الصك (اختياري)", f_floor_number:"رقم الدور (اختياري)",
+    f_deed_number:"رقم الصك (اختياري)", f_deed_date:"تاريخ الصك (اختياري)", f_floor_number:"رقم الدور (اختياري)",
     faq_eyebrow:"مركز المساعدة", faq_title:"الأسئلة الشائعة",
     about_title:"عنّا", mission_title:"رسالتنا",
     mission_text:"أن نجعل التعامل العقاري أوضح وأسهل وأكثر ثقة.",
@@ -1302,7 +1303,7 @@ const I18N = {
     f_lessor_id_type:"Lessor's ID type", f_lessee_id_type:"Lessee's ID type",
     f_lessor_nationality:"Lessor's nationality", f_lessee_nationality:"Lessee's nationality",
     id_type_national:"National ID", id_type_iqama:"Iqama (residency)", id_type_other:"Other",
-    f_deed_number:"Deed number (optional)", f_floor_number:"Floor number (optional)",
+    f_deed_number:"Deed number (optional)", f_deed_date:"Deed date (optional)", f_floor_number:"Floor number (optional)",
     faq_eyebrow:"Help Center", faq_title:"Frequently Asked Questions",
     about_title:"About Us", mission_title:"Our Mission",
     mission_text:"To make real estate dealings clearer, easier, and more trustworthy.",
@@ -2667,6 +2668,7 @@ ${t.contract_frequency_label}: ${frequencyDisplay}`;
       p_lessee_id_type: v('c-lessee-id-type') || null,
       p_lessee_nationality: v('c-lessee-nationality') || null,
       p_deed_number: v('c-deed-number') || null,
+      p_deed_date: v('c-deed-date') || null,
       p_floor_number: v('c-floor-number') || null,
       p_city: v('c-city'), p_district: v('c-district'), p_unit_type: v('c-unit-type'),
       p_area_sqm: parseFloat(v('c-area')) || 0, p_security_deposit: parseFloat(v('c-deposit')) || 0,
