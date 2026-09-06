@@ -628,6 +628,7 @@ create table if not exists contracts (
     -- رقم صك ملكية العقار — تحضير لربط شبكة إيجار مستقبلاً (تتحقق من العقار
     -- عبر رقم الصك)، غير إلزامي حالياً وغير مفعَّل بأي منطق تلقائي بعد
     deed_number      varchar(100),
+    deed_date        date,
     security_deposit numeric(12,2) default 0,
     start_date       date not null,
     end_date         date not null,
@@ -649,6 +650,7 @@ create table if not exists contracts (
 
 -- يضمن التقاط الأعمدة الجديدة حتى لو الجدول موجود مسبقاً من تشغيل سابق
 alter table contracts add column if not exists deed_number varchar(100);
+alter table contracts add column if not exists deed_date date;
 alter table contracts add column if not exists floor_number varchar(50);
 alter table contracts add column if not exists ejar_status varchar(20) not null default 'not_submitted';
 alter table contracts add column if not exists ejar_contract_number varchar(100);
@@ -793,6 +795,7 @@ create or replace function create_contract_with_schedule(
     p_lessee_id_type    varchar default null,
     p_lessee_nationality varchar default null,
     p_deed_number       varchar default null,
+    p_deed_date         date default null,
     p_floor_number      varchar default null
 ) returns uuid
 security definer
@@ -813,11 +816,11 @@ begin
 
     insert into contracts (
         contract_number, contract_type, lessor_id, lessee_id,
-        city, district, unit_type, floor_number, area_sqm, deed_number, security_deposit,
+        city, district, unit_type, floor_number, area_sqm, deed_number, deed_date, security_deposit,
         start_date, end_date, annual_rent
     ) values (
         p_contract_number, p_contract_type, v_lessor_id, v_lessee_id,
-        p_city, p_district, p_unit_type, p_floor_number, p_area_sqm, p_deed_number, coalesce(p_security_deposit,0),
+        p_city, p_district, p_unit_type, p_floor_number, p_area_sqm, p_deed_number, p_deed_date, coalesce(p_security_deposit,0),
         p_start_date, p_end_date, p_annual_rent
     ) returning id into v_contract_id;
 
