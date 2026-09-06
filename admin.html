@@ -146,6 +146,14 @@ tr:hover td{background:#fafbfc}
         <div class="card stat-card"><b id="s-new-inquiries">—</b><span>استفسارات جديدة</span></div>
         <div class="card stat-card"><b id="s-contracts">—</b><span>إجمالي العقود</span></div>
       </div>
+      <div class="card" style="padding:18px;margin-bottom:20px">
+        <h3 style="margin:0 0 12px">حالة الوظائف التلقائية</h3>
+        <div id="job-status-list" style="display:flex;flex-direction:column;gap:8px;font-size:13.5px">جاري التحميل...</div>
+      </div>
+      <div class="card" style="padding:18px;margin-bottom:20px">
+        <h3 style="margin:0 0 12px">الأكثر مشاهدة (آخر 30 يوم)</h3>
+        <div id="most-viewed-list" style="display:flex;flex-direction:column;gap:6px;font-size:13.5px">جاري التحميل...</div>
+      </div>
       <div class="card" style="padding:18px">
         <h3 style="margin:0 0 12px">آخر العقارات المضافة</h3>
         <table>
@@ -427,6 +435,64 @@ async function loadDashboard(){
   } catch (e) {
     console.error('loadDashboard failed', e);
     showToast('⚠️ تعذّر تحميل لوحة القيادة');
+  }
+  loadJobStatus();
+  loadMostViewed();
+}
+
+const JOB_LABELS = {
+  'update-district-prices': 'تحديث أسعار الأحياء',
+  'send-reminders': 'تنبيهات الدفعات/الإخلاء',
+};
+
+async function loadJobStatus(){
+  const el = document.getElementById('job-status-list');
+  try {
+    const { data, error } = await supa.from('job_runs')
+      .select('*')
+      .order('finished_at', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+
+    const latestByJob = {};
+    (data || []).forEach(r => { if (!latestByJob[r.job_name]) latestByJob[r.job_name] = r; });
+
+    el.innerHTML = Object.entries(JOB_LABELS).map(([name, label]) => {
+      const run = latestByJob[name];
+      if (!run) return `<div>⚪ ${label} — لا يوجد تشغيل مسجَّل بعد</div>`;
+      const icon = run.status === 'success' ? '✅' : (run.status === 'partial' ? '⚠️' : '❌');
+      const when = new Date(run.finished_at).toLocaleString('ar-SA');
+      const extra = run.summary?.updated != null ? ` (${run.summary.updated}/${run.summary.total} نجح)` : '';
+      return `<div>${icon} ${label} — آخر تشغيل: ${when}${extra}</div>`;
+    }).join('');
+  } catch (e) {
+    el.innerHTML = '⚠️ تعذّر تحميل حالة الوظائف.';
+    console.error('loadJobStatus failed', e);
+  }
+}
+
+async function loadMostViewed(){
+  const el = document.getElementById('most-viewed-list');
+  try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { data, error } = await supa.from('offer_views')
+      .select('offer_id, offers(title)')
+      .gte('viewed_at', thirtyDaysAgo);
+    if (error) throw error;
+
+    const counts = {};
+    (data || []).forEach(r => {
+      const title = r.offers?.title || 'عرض محذوف';
+      counts[title] = (counts[title] || 0) + 1;
+    });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+    el.innerHTML = sorted.length
+      ? sorted.map(([title, count]) => `<div>${escapeAdmin(title)} — <b>${count}</b> مشاهدة</div>`).join('')
+      : '<span style="color:var(--text-600)">لا توجد مشاهدات مسجَّلة بعد آخر 30 يوم.</span>';
+  } catch (e) {
+    el.innerHTML = '⚠️ تعذّر تحميل الأكثر مشاهدة.';
+    console.error('loadMostViewed failed', e);
   }
 }
 
