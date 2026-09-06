@@ -593,6 +593,36 @@ function readOfferForm(){
     is_published: document.getElementById('offer-published').checked,
   };
 }
+/* ضغط الصورة بالمتصفح قبل الرفع — تصغير الأبعاد لحد أقصى معقول (1600px)
+   وإعادة الترميز كـJPEG بجودة 80%. يقلل حجم الملف المرفوع بشكل كبير
+   (عادة 60-90% أصغر) بدون فرق ملموس بالجودة على الشاشة. لو فشل الضغط لأي
+   سبب (متصفح قديم، صيغة غير متوقعة)، نرفع الصورة الأصلية بدل ما نوقف كامل
+   العملية. */
+function compressImage(file, maxWidth = 1600, quality = 0.8){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let { width, height } = img;
+      if (width > maxWidth){
+        height = Math.round(height * (maxWidth / width));
+        width = maxWidth;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => {
+        if (!blob) { reject(new Error('تعذّر ضغط الصورة')); return; }
+        resolve(blob);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('تعذّر تحميل الصورة للمعالجة')); };
+    img.src = objectUrl;
+  });
+}
+
 /* ============================================================================
    رفع صورة العرض مباشرة من الجهاز إلى مخزن Supabase Storage
    ========================================================================== */
@@ -614,13 +644,23 @@ document.getElementById('offer-image-file').addEventListener('change', async (e)
     return;
   }
 
+  statusEl.textContent = 'جاري ضغط الصورة...';
+  statusEl.style.color = 'var(--text-600)';
+
+  let uploadBlob = file;
+  try {
+    uploadBlob = await compressImage(file, 1600, 0.8);
+  } catch (compressErr) {
+    console.error('compressImage: فشل الضغط، سيتم رفع الصورة الأصلية بدلاً منه.', compressErr);
+    uploadBlob = file;
+  }
+
   statusEl.textContent = 'جاري الرفع...';
   statusEl.style.color = 'var(--text-600)';
 
   try {
-    const ext = file.name.split('.').pop().toLowerCase();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error: uploadError } = await supa.storage.from('property-images').upload(fileName, file);
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+    const { error: uploadError } = await supa.storage.from('property-images').upload(fileName, uploadBlob, { contentType: 'image/jpeg' });
     if (uploadError) throw uploadError;
 
     const { data: urlData } = supa.storage.from('property-images').getPublicUrl(fileName);
