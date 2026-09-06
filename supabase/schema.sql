@@ -978,6 +978,57 @@ create policy "property_images_admin_delete" on storage.objects
     for delete using (bucket_id = 'property-images' and auth.role() = 'authenticated');
 
 -- ============================================================================
+-- 11) مراقبة الوظائف التلقائية + إحصائيات زيارات خفيفة
+--     (بدون هذا، أي فشل صامت بالتنبيهات أو تحديث الأسعار محد يعرفه، وكل
+--     قرار عن "الأكثر طلباً" كان تخميناً بدون بيانات حقيقية)
+-- ============================================================================
+
+-- سجل تشغيل كل وظيفة تلقائية (تحديث الأسعار، تنبيهات الدفعات...) — تكتبه
+-- الدالة نفسها (Edge Function) بنهاية كل تشغيل، ناجح كان أو فاشل.
+create table if not exists job_runs (
+    id           uuid primary key default gen_random_uuid(),
+    job_name     varchar(100) not null,
+    status       varchar(20) not null check (status in ('success','partial','failed')),
+    summary      jsonb,
+    started_at   timestamptz not null,
+    finished_at  timestamptz not null default now()
+);
+create index if not exists idx_job_runs_job_name on job_runs(job_name, finished_at desc);
+alter table job_runs enable row level security;
+drop policy if exists job_runs_admin_read on job_runs;
+create policy job_runs_admin_read on job_runs for select using (auth.role() = 'authenticated');
+-- لا سياسة insert هنا عمداً — الكتابة فقط عبر service_role (الدوال)، يتجاوز RLS تلقائياً.
+
+-- زيارات عامة لكل قسم بالموقع (تُسجَّل من نفس زر التنقل showPage بالموقع
+-- العام) — بيانات مجهولة تماماً، بدون أي معرّف شخصي للزائر.
+create table if not exists page_views (
+    id         uuid primary key default gen_random_uuid(),
+    page       varchar(100),
+    viewed_at  timestamptz not null default now()
+);
+create index if not exists idx_page_views_viewed_at on page_views(viewed_at desc);
+alter table page_views enable row level security;
+drop policy if exists page_views_public_insert on page_views;
+create policy page_views_public_insert on page_views for insert with check (true);
+drop policy if exists page_views_admin_read on page_views;
+create policy page_views_admin_read on page_views for select using (auth.role() = 'authenticated');
+
+-- مشاهدات كل عرض تحديداً (تُسجَّل عند فتح نافذة تفاصيل أي عرض) — أساس
+-- حقيقي مستقبلاً لتفعيل تبويب "الأكثر طلباً" بدل التخمين.
+create table if not exists offer_views (
+    id         uuid primary key default gen_random_uuid(),
+    offer_id   uuid references offers(id) on delete cascade,
+    viewed_at  timestamptz not null default now()
+);
+create index if not exists idx_offer_views_offer_id on offer_views(offer_id);
+create index if not exists idx_offer_views_viewed_at on offer_views(viewed_at desc);
+alter table offer_views enable row level security;
+drop policy if exists offer_views_public_insert on offer_views;
+create policy offer_views_public_insert on offer_views for insert with check (true);
+drop policy if exists offer_views_admin_read on offer_views;
+create policy offer_views_admin_read on offer_views for select using (auth.role() = 'authenticated');
+
+-- ============================================================================
 -- تحديث ذاكرة الأعمدة (Schema Cache) — يضمن Supabase يتعرّف فوراً على أي
 -- عمود أُضيف بهذا التشغيل، بدل انتظار التحديث التلقائي. آمن يتكرر تشغيله.
 -- ============================================================================
