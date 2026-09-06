@@ -2787,6 +2787,15 @@ const HERO_BG_IMAGES_FALLBACK = [
 ];
 
 async function loadHeroSlides(){
+  // نعيد استخدام آخر قائمة عروض جُلبت فعلياً لصفحة "العروض" (LAST_OFFERS_LIST)
+  // بدل عمل استعلام Supabase منفصل لنفس الجدول — يوفّر جولة اتصال كاملة
+  // وقت الإقلاع. لو ما وصلت البيانات لأي سبب، نرجع لاستعلام مباشر احتياطي.
+  const fromCache = (LAST_OFFERS_LIST || [])
+    .filter(o => o.image_url)
+    .slice(0, 6)
+    .map(o => ({ url: o.image_url, caption: [o.title, o.district].filter(Boolean).join(' — ') }));
+  if (fromCache.length) return fromCache;
+
   if (dbReady){
     try {
       const { data, error } = await withTimeout(
@@ -3175,8 +3184,10 @@ window.addEventListener('load', async ()=>{
     catch (e) { console.error(`Boot step "${label}" failed — continuing with the rest of the page.`, e); }
   };
 
-  await safely('loadCitiesFromDb', loadCitiesFromDb);
-  await safely('loadDistrictPricesFromDb', loadDistrictPricesFromDb);
+  await Promise.all([
+    safely('loadCitiesFromDb', loadCitiesFromDb),
+    safely('loadDistrictPricesFromDb', loadDistrictPricesFromDb),
+  ]);
   populateCitySelects();
   populateTypeSelects();
   updateValuationFieldsForType();
