@@ -141,6 +141,12 @@ Deno.serve(async () => {
 
   if (error) {
     console.error("[update-district-prices] تعذّر جلب قائمة الأحياء:", error.message);
+    await supabase.from("job_runs").insert({
+      job_name: "update-district-prices",
+      status: "failed",
+      summary: { message: error.message },
+      started_at: new Date(startedAt).toISOString(),
+    });
     return new Response(JSON.stringify({ status: "error", message: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
@@ -195,6 +201,13 @@ Deno.serve(async () => {
   console.log(
     `[update-district-prices] انتهى خلال ${seconds}ث — نجح: ${summary.updated} — فشل: ${summary.failed} من أصل ${targets.length}`
   );
+
+  await supabase.from("job_runs").insert({
+    job_name: "update-district-prices",
+    status: summary.failed === 0 ? "success" : (summary.updated > 0 ? "partial" : "failed"),
+    summary: { total: targets.length, updated: summary.updated, failed: summary.failed, seconds },
+    started_at: new Date(startedAt).toISOString(),
+  });
 
   return new Response(JSON.stringify({ status: "ok", seconds, total: targets.length, ...summary }), {
     headers: { "Content-Type": "application/json" },
