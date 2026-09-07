@@ -1458,6 +1458,38 @@ document.querySelectorAll('.tabs button[data-tab]').forEach(btn=>{
 
 /* تحقق من اكتمال ومنطقية بيانات العقد قبل أي توليد أو إرسال — يرجّع قائمة
    أخطاء (فاضية = العقد سليم) ويعلّم الحقول الناقصة بصرياً بلون أحمر. */
+/* تطبيع الأرقام أثناء الكتابة — لو المستخدم يكتب بلوحة مفاتيح عربية، بعض
+   المتصفحات تدخل أرقام عربية-هندية (٠١٢٣...) بدل اللاتينية، فيصير شكل الرقم
+   غير ثابت بين حقل وآخر. نحوّلها فوراً للاتينية بكل حقول الهوية/الجوال. */
+const ARABIC_INDIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+function normalizeDigitsInput(e){
+  const el = e.target;
+  const normalized = el.value.replace(/[٠-٩]/g, d => String(ARABIC_INDIC_DIGITS.indexOf(d)));
+  if (normalized !== el.value){
+    const pos = el.selectionStart;
+    el.value = normalized;
+    el.setSelectionRange(pos, pos);
+  }
+}
+['c-lessor-id','c-lessor-phone','c-lessee-id','c-lessee-phone'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input', normalizeDigitsInput);
+});
+
+/* لو نوع الهوية "وطنية"، الجنسية سعودية دائماً (الهوية الوطنية تصدر
+   للسعوديين حصراً) — نعبّيها تلقائياً بدل ما يكتبها المستخدم يدوياً كل مرة،
+   وتبقى قابلة للتعديل لو احتاج. */
+function autoFillNationality(idTypeSelectId, nationalityInputId){
+  const idTypeEl = document.getElementById(idTypeSelectId);
+  const nationalityEl = document.getElementById(nationalityInputId);
+  idTypeEl?.addEventListener('change', ()=>{
+    if (idTypeEl.value === 'national_id'){
+      nationalityEl.value = currentLang === 'ar' ? 'سعودي' : 'Saudi';
+    }
+  });
+}
+autoFillNationality('c-lessor-id-type', 'c-lessor-nationality');
+autoFillNationality('c-lessee-id-type', 'c-lessee-nationality');
+
 function validateContractForm(){
   const v = id => document.getElementById(id).value.trim();
   document.querySelectorAll('#contracts .input-error').forEach(el => el.classList.remove('input-error'));
