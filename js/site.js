@@ -104,7 +104,7 @@ const I18N = {
     legal_disclaimer:"محتوى عام كنقطة انطلاق وليس استشارة قانونية متخصصة؛ يُنصح بمراجعة مستشار قانوني مرخّص لتخصيصه لنشاطكم.",
     footer_contact_title:"تواصل سريع", footer_rights:"جميع الحقوق محفوظة", footer_license:"رخصة فال العقارية: 1200030428 — سجل تجاري: 7042103650",
     footer_tag:"🕌 شريكك العقاري الموثوق في المدينة المنورة",
-    assist_title:"المساعد الإرشادي", assist_sub:"قواعد مبرمجة، وليس نموذج ذكاء اصطناعي خارجي",
+    assist_title:"المساعد الذكي", assist_sub:"ذكاء اصطناعي حقيقي للأسئلة العامة، وبحث دقيق مباشر بقاعدة بياناتنا للعروض",
     assist_placeholder:"اكتب سؤالك...", assist_send:"إرسال", assist_online:"متصل الآن",
     social_title:"تابعنا عبر منصات التواصل",
     price_on_request:"السعر عند التواصل", rooms_suffix:"غرف",
@@ -203,7 +203,7 @@ const I18N = {
     legal_disclaimer:"General starting-point content, not specialized legal advice; consult a licensed legal advisor to tailor it to your business.",
     footer_contact_title:"Quick Contact", footer_rights:"All rights reserved", footer_license:"Fal Real Estate License: 1200030428 — CR: 7042103650",
     footer_tag:"🕌 Your trusted real estate partner in Madinah",
-    assist_title:"Guided Assistant", assist_sub:"Rule-based logic, not an external AI model",
+    assist_title:"Smart Assistant", assist_sub:"Real AI for general questions, plus accurate live search of our listings",
     assist_placeholder:"Type your question...", assist_send:"Send", assist_online:"Online now",
     social_title:"Follow us on social media",
     price_on_request:"Price on request", rooms_suffix:"rooms",
@@ -365,7 +365,7 @@ const FAQ_I18N = {
     {q:"هل الأدوات مجانية؟", a:"نعم، أداة التقييم الاسترشادي ومولّد العقود متاحة مجاناً."},
     {q:"كيف أتواصل مع فريق الدعم؟", a:"عبر قسم «تواصل» يمكنك مراسلتنا واتساب أو بريد إلكتروني أو الاتصال المباشر."},
     {q:"هل العروض المعروضة مخزون كامل؟", a:"العروض نماذج قابلة للتحديث وليست بالضرورة مخزوناً كاملاً؛ تواصل معنا للتأكد من توفر عقار محدد."},
-    {q:"كيف يعمل المساعد الإرشادي؟", a:"مساعد داخل الصفحة يعتمد على قواعد مبرمجة (كلمات مفتاحية) لتوجيهك للقسم المناسب — وليس نموذج ذكاء اصطناعي خارجي، للحفاظ على خصوصيتك وعدم كشف أي مفاتيح API."},
+    {q:"كيف يعمل المساعد الذكي؟", a:"يجاوب على الأسئلة العامة بذكاء اصطناعي حقيقي (Gemini) عبر خادم وسيط آمن — مفتاح الاتصال محفوظ على الخادم فقط، أبداً لا يظهر بكود الموقع. لو سألت عن عقار محدَّد (مدينة/سعر/نوع)، يبحث لك مباشرة بقاعدة بياناتنا الحقيقية بدل الذكاء الاصطناعي، لضمان دقة الأرقام."},
     {q:"أين تُخزَّن بياناتي؟", a:"في قاعدة بيانات Supabase مركزية محمية بصلاحيات وصول (RLS)، وليس في متصفحك فقط — فهي تبقى محفوظة ومرئية لفريقنا حتى لو غيّرت جهازك."},
   ],
   en: [
@@ -1948,7 +1948,7 @@ const ROBOT_ICON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 
 const ASSIST_I18N = {
   ar: {
-    greeting:"أهلاً 👋 أنا مساعد إرشادي بقواعد مبرمجة (مو نموذج ذكاء اصطناعي خارجي). اسألني عن عقار — مثلاً «شقة في جدة تحت 900 ألف» — أو اكتب اسم قسم تبي أروح له.",
+    greeting:"أهلاً 👋 أنا المساعد الذكي لهمة المدينة العقارية — أجاوبك بذكاء اصطناعي حقيقي على أسئلتك العامة، وأبحث لك مباشرة بقاعدة بياناتنا لو سألت عن عقار محدَّد — مثلاً «شقة في جدة تحت 900 ألف».",
     fallback:"أقدر أساعدك بالتنقل بين أقسام الموقع: التقييم، العقود، إضافة عقار، العروض، أو التواصل معنا. أو صف لي العقار اللي تدور عليه (المدينة، النوع، الميزانية) وأبحث لك عنه.",
     noResults:"ما لقيت نتائج مطابقة تماماً، جرّب توسيع النطاق أو تصفح كل العروض.",
     resultsIntro: n => `لقيت لك ${n} نتيجة مطابقة تقريباً:`,
@@ -1961,7 +1961,7 @@ const ASSIST_I18N = {
     ],
   },
   en: {
-    greeting:"Hi 👋 I'm a rule-based guided assistant (not an external AI model). Ask me about a property — e.g. “apartment in Jeddah under 900k” — or name a section you'd like to visit.",
+    greeting:"Hi 👋 I'm Himmat Al Madinah's smart assistant — I answer general questions with real AI, and search our live database directly when you ask about a specific property — e.g. “apartment in Jeddah under 900k”.",
     fallback:"I can help you navigate: Valuation, Contracts, List Property, Offers, or Contact. Or describe the property you're after (city, type, budget) and I'll search for it.",
     noResults:"I couldn't find an exact match — try broadening your search or browse all offers.",
     resultsIntro: n => `Found ${n} roughly matching result(s):`,
