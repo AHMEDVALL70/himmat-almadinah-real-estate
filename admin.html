@@ -551,6 +551,9 @@ async function setPropertyStatus(id, status){
     const { error } = await supa.from('properties').update({ status }).eq('id', id);
     if (error) throw error;
     showToast(status === 'approved' ? '✅ تم اعتماد العقار' : '✅ تم رفض العقار');
+    // نحوّل الفلتر لـ"الكل" عند الاعتماد عشان العقار يفضل ظاهر بزر "تحويل لعرض"
+    // بدل ما يختفي فوراً من فلتر "بانتظار المراجعة" الحالي
+    if (status === 'approved') document.getElementById('prop-filter').value = 'all';
     loadProperties();
     loadDashboard();
   } catch (e) {
