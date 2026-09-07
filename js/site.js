@@ -121,6 +121,7 @@ const I18N = {
     contract_property_label:"العقار", contract_term_label:"مدة العقد",
     contract_term_from:"من", contract_term_to:"إلى",
     contract_rent_label:"الإيجار السنوي", contract_deposit_label:"الضمان", contract_frequency_label:"عدد الدفعات سنوياً",
+    contract_print_btn:"🖨️ طباعة العقد / حفظ PDF",
     type_residential:"سكني", type_commercial:"تجاري",
     opt_east:"شرقية (+5%)", opt_north:"شمالية (+4%)", opt_south:"جنوبية", opt_west:"غربية (-2%)",
     opt_upscale:"حي راقي (+25%)", opt_investment:"حي استثماري (+15%)", opt_mid:"حي متوسط",
@@ -219,6 +220,7 @@ const I18N = {
     contract_property_label:"Property", contract_term_label:"Term",
     contract_term_from:"from", contract_term_to:"to",
     contract_rent_label:"Annual rent", contract_deposit_label:"Deposit", contract_frequency_label:"Installments per year",
+    contract_print_btn:"🖨️ Print Contract / Save as PDF",
     type_residential:"Residential", type_commercial:"Commercial",
     opt_east:"East (+5%)", opt_north:"North (+4%)", opt_south:"South", opt_west:"West (-2%)",
     opt_upscale:"Upscale district (+25%)", opt_investment:"Investment district (+15%)", opt_mid:"Mid-range district",
@@ -1537,6 +1539,43 @@ ${t.contract_frequency_label}: ${frequencyDisplay}`;
   pre.textContent = text;
   pre.classList.remove('hide');
 
+  // تعبئة قالب الطباعة/PDF بنفس البيانات (بدون أي تأثير على منطق واتساب/الحفظ
+  // أدناه — قسم مستقل تماماً حتى ما يخاطر بكسر التدفق الأساسي الشغّال).
+  document.getElementById('pv-title').textContent = `${t.contract_header} — ${contractTypeLabel}`;
+  document.getElementById('pv-number').textContent = `${t.contract_number_label}: ${contractNumber}`;
+  document.getElementById('pv-lessor-h').textContent = t.contract_lessor_label;
+  document.getElementById('pv-lessee-h').textContent = t.contract_lessee_label;
+  document.getElementById('pv-lessor-info').innerHTML =
+    `${escapeHtml(v('c-lessor-name'))}<br>${t.contract_id_label}: ${escapeHtml(v('c-lessor-id'))}<br>${t.contract_phone_label2}: ${escapeHtml(v('c-lessor-phone'))}<br>${t.contract_dob_label}: ${v('c-lessor-dob') || '—'}`;
+  document.getElementById('pv-lessee-info').innerHTML =
+    `${escapeHtml(v('c-lessee-name'))}<br>${t.contract_id_label}: ${escapeHtml(v('c-lessee-id'))}<br>${t.contract_phone_label2}: ${escapeHtml(v('c-lessee-phone'))}<br>${t.contract_dob_label}: ${v('c-lessee-dob') || '—'}`;
+  document.getElementById('pv-property-l').textContent = t.contract_property_label;
+  document.getElementById('pv-property-v').textContent =
+    `${typeDisplay} — ${districtLabel(v('c-district'))}, ${cityDisplay} — ${v('c-area')} م²` +
+    (v('c-floor-number') ? ' — ' + (currentLang==='ar' ? 'الدور' : 'Floor') + ': ' + v('c-floor-number') : '');
+  document.getElementById('pv-term-l').textContent = t.contract_term_label;
+  document.getElementById('pv-term-v').textContent = `${t.contract_term_from} ${v('c-start')} ${t.contract_term_to} ${v('c-end')}`;
+  document.getElementById('pv-rent-l').textContent = t.contract_rent_label;
+  document.getElementById('pv-rent-v').textContent = `${money(rent)} ${currency}`;
+  document.getElementById('pv-deposit-l').textContent = t.contract_deposit_label;
+  document.getElementById('pv-deposit-v').textContent = `${money(parseFloat(v('c-deposit'))||0)} ${currency}`;
+  document.getElementById('pv-frequency-l').textContent = t.contract_frequency_label;
+  document.getElementById('pv-frequency-v').textContent = frequencyDisplay;
+  const deedRow = document.getElementById('pv-deed-row');
+  if (v('c-deed-number')){
+    deedRow.classList.remove('hide');
+    document.getElementById('pv-deed-l').textContent = currentLang==='ar' ? 'رقم الصك' : 'Deed number';
+    document.getElementById('pv-deed-v').textContent = escapeHtml(v('c-deed-number')) + (v('c-deed-date') ? ' — ' + v('c-deed-date') : '');
+  } else {
+    deedRow.classList.add('hide');
+  }
+  document.getElementById('pv-sig-lessor-l').textContent = (currentLang==='ar' ? 'توقيع' : 'Signature of') + ' ' + t.contract_lessor_label;
+  document.getElementById('pv-sig-lessee-l').textContent = (currentLang==='ar' ? 'توقيع' : 'Signature of') + ' ' + t.contract_lessee_label;
+  document.getElementById('pv-footer').textContent = (currentLang==='ar'
+    ? `تم إصدار هذا العقد عبر منصة همة المدينة العقارية بتاريخ ${new Date().toLocaleDateString('ar-SA')}`
+    : `This contract was issued via the Himmat Al Madinah Real Estate platform on ${new Date().toLocaleDateString('en-GB')}`);
+  document.getElementById('btn-print-contract').classList.remove('hide');
+
   // يُفتح واتساب همة المدينة فوراً بمجرّد توليد نص العقد — بغض النظر عن نجاح
   // الحفظ بقاعدة البيانات، حتى ما يضيع العقد على الوسيط لو صار عطل بالاتصال
   // (نفس فلسفة نموذج "تواصل" بالأسفل).
@@ -1589,6 +1628,10 @@ ${t.contract_frequency_label}: ${frequencyDisplay}`;
     msg.style.color = 'var(--danger)';
     console.error('btn-generate-contract: Supabase call failed.', e);
   }
+});
+
+document.getElementById('btn-print-contract').addEventListener('click', ()=>{
+  window.print();
 });
 
 /* ============================================================================
