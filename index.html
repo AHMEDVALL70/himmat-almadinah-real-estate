@@ -981,6 +981,8 @@ function applyLang(lang){
   renderOffers();
   renderFeatured();
   renderQuickChips();
+  try { runValuation(); } catch(e){}
+  if (analyticsLoaded) renderAnalytics();
 }
 document.getElementById('lang-switch').addEventListener('click', e=>{
   const btn = e.target.closest('button[data-lang]');
