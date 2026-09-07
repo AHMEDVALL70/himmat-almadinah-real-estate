@@ -2090,7 +2090,7 @@ function renderQuickChips(){
 // الخادم الوسيط الآمن (Cloudflare Worker) — يتصل بـGemini بمفتاح محفوظ
 // على الخادم فقط، أبداً لا يظهر بكود الموقع. لو الاتصال فشل لأي سبب،
 // نرجع للردود الجاهزة الثابتة تلقائياً (تحسّن سلوكي، مو تعطّل كامل).
-const AI_BACKEND_URL = 'https://himmat-ai-backend.ahmedvalljemaldine.workers.dev/chat';
+const AI_BACKEND_URL = 'https://himmat-ai-backend.ahmedvall.workers.dev/chat';
 let assistantHistory = [];
 
 async function askAiAssistant(text){
