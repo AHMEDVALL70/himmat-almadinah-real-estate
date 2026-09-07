@@ -113,6 +113,7 @@ alter table offers add column if not exists marketer_name varchar(255);
 alter table offers add column if not exists marketer_phone varchar(20);
 alter table offers add column if not exists real_estate_license varchar(50);
 alter table offers add column if not exists ad_license varchar(50);
+alter table offers add column if not exists is_sold boolean not null default false;
 
 alter table properties add column if not exists description text;
 alter table properties add column if not exists map_url text;
@@ -923,6 +924,11 @@ create policy parties_admin_read on parties
 drop policy if exists contract_installments_admin_read on contract_installments;
 create policy contract_installments_admin_read on contract_installments
     for select using (auth.role() = 'authenticated');
+-- تعليم دفعة "مدفوعة" يدوياً من لوحة التحكم (كانت ناقصة — العرض بس بدون تحديث ممكن)
+drop policy if exists contract_installments_admin_update on contract_installments;
+create policy contract_installments_admin_update on contract_installments
+    for update using (auth.role() = 'authenticated')
+    with check (auth.role() = 'authenticated');
 
 -- ============================================================================
 -- 10) جدولة فحص التنبيهات يومياً عبر pg_cron (بديل خادم Python الدائم)
