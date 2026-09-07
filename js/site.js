@@ -2093,17 +2093,72 @@ function renderQuickChips(){
 const AI_BACKEND_URL = 'https://himmat-ai-backend.ahmedvall.workers.dev/chat';
 let assistantHistory = [];
 
+/* بيانات أسعار الأحياء الحقيقية — نجيبها بس لما السؤال يبدو متعلق
+   بالأسعار/الأحياء (توفير تكلفة، مو كل سؤال)، ونخزّنها مؤقتاً 10 دقائق
+   لأنها ما تتغيّر إلا أسبوعياً. نرسل أرخص وأغلى 15 حي بس (مو الـ191 كامل)
+   عشان نبقى ضمن حدود حجم الرسالة بالخادم. */
+let districtPriceContextCache = null;
+let districtPriceContextCacheTime = 0;
+
+function looksLikePriceQuestion(text){
+  const keywords = ['سعر','اسعار','أسعار','ارخص','أرخص','اخفض','أخفض','اعلى','أعلى','اغلى','أغلى','غالي','رخيص','حي ','أحياء','احياء','متر'];
+  return keywords.some(k => text.includes(k));
+}
+
+async function fetchDistrictPriceContext(){
+  if (districtPriceContextCache && (Date.now() - districtPriceContextCacheTime) < 600000){
+    return districtPriceContextCache;
+  }
+  if (!dbReady) return null;
+  try {
+    const { data, error } = await withTimeout(
+      supa.from('district_prices').select('price_per_sqm, districts(name, cities(name))')
+    );
+    if (error || !data || !data.length) return null;
+    const rows = data
+      .filter(r => r.districts && r.price_per_sqm)
+      .map(r => ({ name: r.districts.name, city: r.districts.cities?.name || '', price: Math.round(r.price_per_sqm) }))
+      .sort((a, b) => a.price - b.price);
+    if (!rows.length) return null;
+    const cheapest = rows.slice(0, 15);
+    const priciest = rows.slice(-15).reverse();
+    const fmt = r => `${r.name} (${r.city}): ${money(r.price)} ر.س/م²`;
+    districtPriceContextCache =
+      `الأحياء الأقل سعراً (من أرخص لأغلى):\n${cheapest.map(fmt).join('\n')}\n\n` +
+      `الأحياء الأعلى سعراً (من أغلى لأقل):\n${priciest.map(fmt).join('\n')}`;
+    districtPriceContextCacheTime = Date.now();
+    return districtPriceContextCache;
+  } catch (e) {
+    console.error('fetchDistrictPriceContext failed', e);
+    return null;
+  }
+}
+
 async function askAiAssistant(text){
-  assistantHistory.push({ role: 'user', text });
+  assistantHistory.push({ role: 'user', text }); // نخزّن النص الأصلي النظيف بالسجل المعروض
   if (assistantHistory.length > 20) assistantHistory = assistantHistory.slice(-20);
 
+  // نبني نسخة للإرسال فقط — نضيف بيانات الأسعار الحقيقية للرسالة الأخيرة بس
+  // لو السؤال يبدو متعلق بالأسعار، بدون ما نخزّنها بالسجل نفسه (يبقى نظيف
+  // وخفيف لباقي الأسئلة بنفس المحادثة)
+  let messagesToSend = assistantHistory;
+  if (looksLikePriceQuestion(text)){
+    const priceContext = await fetchDistrictPriceContext();
+    if (priceContext){
+      messagesToSend = assistantHistory.slice(0, -1).concat([{
+        role: 'user',
+        text: `[بيانات أسعار حقيقية من قاعدة بياناتنا — ريال/م²]\n${priceContext}\n\n[سؤال الزائر]: ${text}`
+      }]);
+    }
+  }
+
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000); // ردود الذكاء الاصطناعي أبطأ من استعلام قاعدة بيانات عادي
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // ردود الذكاء الاصطناعي أبطأ من استعلام قاعدة بيانات عادي
   try {
     const res = await fetch(AI_BACKEND_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: assistantHistory }),
+      body: JSON.stringify({ messages: messagesToSend }),
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
