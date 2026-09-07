@@ -978,6 +978,7 @@ function applyLang(lang){
   populateCitySelects();
   populateFilterSelects();
   populateHeroSearch();
+  updateHeroSearchCount();
   renderOffers();
   renderFeatured();
   renderQuickChips();
@@ -1319,6 +1320,14 @@ function districtLabel(name){
   return DISTRICT_TRANSLIT[name] || name;
 }
 
+// نوع العقار قيمة محدودة معروفة (فيلا، شقة، أرض...) ولها ترجمة جاهزة أصلاً
+// بمصفوفة PROPERTY_TYPES تحت — عكس اسم المدينة/الحي اللي هي أسماء أعلام
+// حقيقية. نفس نمط cityLabel/districtLabel بالضبط.
+function typeLabel(name){
+  if (currentLang === 'ar') return name;
+  return PROPERTY_TYPES.find(pt => pt.v === name)?.en || name;
+}
+
 const PROPERTY_TYPES = [
   { v:"فيلا",          mult:1.18, group:"residential", ar:"فيلا",              en:"Villa" },
   { v:"شقة في برج",     mult:1.05, group:"residential", ar:"شقة في برج",         en:"Apartment in a tower" },
@@ -1427,7 +1436,7 @@ function offerCardHtml(o, matchScore){
     <div class="offer-top"><b>${o.title}</b>${o.discount_pct > 0 ? `<span class="offer-discount">-${o.discount_pct}%</span>` : ''}</div>
     <div class="offer-body">
       ${matchBadge}
-      <h4>${o.property_type} · ${districtLabel(o.district)}</h4>
+      <h4>${typeLabel(o.property_type)} · ${districtLabel(o.district)}</h4>
       <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} ${t.rooms_suffix}</div>
       ${priceHtml}
       <button type="button" class="offer-details-btn">${t.detail_view_btn}</button>
@@ -1452,7 +1461,7 @@ function openDetailModal(key){
   const specs = [];
   if (o.area_sqm) specs.push({ v: o.area_sqm + ' م²', l: t.f_area });
   if (o.rooms) specs.push({ v: o.rooms, l: t.f_rooms });
-  if (o.property_type) specs.push({ v: o.property_type, l: t.f_type });
+  if (o.property_type) specs.push({ v: typeLabel(o.property_type), l: t.f_type });
   if (o.discount_pct) specs.push({ v: '-' + o.discount_pct + '%', l: currentLang==='ar' ? 'الخصم' : 'Discount' });
 
   const descHtml = o.description
@@ -2136,7 +2145,7 @@ async function renderAnalytics(){
     if (error || !data || !data.length) return;
 
     document.getElementById('stat-live-count').dataset.target = data.length;
-    tbody.innerHTML = data.map(p=>`<tr><td>${cityLabel(p.city)}</td><td>${districtLabel(p.district)}</td><td>${p.property_type}</td><td>${money(p.price)}</td><td>${p.area_sqm}</td></tr>`).join('');
+    tbody.innerHTML = data.map(p=>`<tr><td>${cityLabel(p.city)}</td><td>${districtLabel(p.district)}</td><td>${typeLabel(p.property_type)}</td><td>${money(p.price)}</td><td>${p.area_sqm}</td></tr>`).join('');
 
     const byCity = {};
     data.forEach(p=>{ byCity[p.city] = byCity[p.city] || []; byCity[p.city].push(p.price / p.area_sqm); });
