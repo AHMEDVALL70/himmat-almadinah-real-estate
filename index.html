@@ -465,6 +465,7 @@
         </div>
       </div>
       <button class="btn btn-primary" id="btn-generate-contract" style="margin-top:6px" data-i18n="contract_generate">إرسال العقد للتوثيق</button>
+      <button class="btn btn-outline hide" id="btn-print-contract" style="margin-top:6px" data-i18n="contract_print_btn">🖨️ طباعة العقد / حفظ PDF</button>
       <p id="contract-msg" style="font-size:13px;margin-top:10px"></p>
       <pre id="contract-text" class="hide" style="white-space:pre-wrap;background:var(--sand-100);border-radius:10px;padding:16px;margin-top:14px;font-size:13px"></pre>
     </div>
@@ -722,5 +723,35 @@
 </div>
 
 <script src="js/site.js"></script>
+<div id="contract-print-view" class="hide">
+  <div class="print-header">
+    <img src="Himmat-Almedina.png" alt="همة المدينة العقارية" onerror="this.remove()">
+    <div>
+      <h1>همة المدينة العقارية</h1>
+      <p>مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428 — سجل تجاري: 7042103650</p>
+    </div>
+  </div>
+  <h2 id="pv-title"></h2>
+  <p id="pv-number"></p>
+  <table class="pv-parties">
+    <thead><tr><th id="pv-lessor-h">المؤجر</th><th id="pv-lessee-h">المستأجر</th></tr></thead>
+    <tbody><tr><td id="pv-lessor-info"></td><td id="pv-lessee-info"></td></tr></tbody>
+  </table>
+  <table class="pv-details">
+    <tbody>
+      <tr><td id="pv-property-l"></td><td id="pv-property-v"></td></tr>
+      <tr><td id="pv-term-l"></td><td id="pv-term-v"></td></tr>
+      <tr><td id="pv-rent-l"></td><td id="pv-rent-v"></td></tr>
+      <tr><td id="pv-deposit-l"></td><td id="pv-deposit-v"></td></tr>
+      <tr><td id="pv-frequency-l"></td><td id="pv-frequency-v"></td></tr>
+      <tr id="pv-deed-row" class="hide"><td id="pv-deed-l"></td><td id="pv-deed-v"></td></tr>
+    </tbody>
+  </table>
+  <div class="pv-signatures">
+    <div><span id="pv-sig-lessor-l"></span> ______________________</div>
+    <div><span id="pv-sig-lessee-l"></span> ______________________</div>
+  </div>
+  <p class="pv-footer" id="pv-footer"></p>
+</div>
 </body>
 </html>
