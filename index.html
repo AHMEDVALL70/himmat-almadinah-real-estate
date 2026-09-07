@@ -954,6 +954,7 @@ let currentLang = 'ar';
 
 function applyLang(lang){
   currentLang = lang;
+  heroDescTypewriterRunId++; // يوقف أي تشغيلة آلة كاتبة قديمة شغّالة بالخلفية فوراً
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -2149,8 +2150,9 @@ async function renderAnalytics(){
 
     const byCity = {};
     data.forEach(p=>{ byCity[p.city] = byCity[p.city] || []; byCity[p.city].push(p.price / p.area_sqm); });
-    const labels = Object.keys(byCity);
-    const values = labels.map(c => byCity[c].reduce((a,b)=>a+b,0) / byCity[c].length);
+    const rawCities = Object.keys(byCity);
+    const labels = rawCities.map(c => cityLabel(c));
+    const values = rawCities.map(c => byCity[c].reduce((a,b)=>a+b,0) / byCity[c].length);
 
     if (window.Chart){
       if (analyticsChart) analyticsChart.destroy();
@@ -2434,14 +2436,17 @@ async function loadHeroSlides(){
 
 /* تأثير آلة كاتبة لجملة الوصف الرئيسية بالهيرو — تُكتب حرف حرف مرة واحدة
    عند فتح الصفحة فقط (مو عند كل تبديل لغة، حتى ما يصير مزعج). */
+let heroDescTypewriterRunId = 0; // يُستخدم لإبطال أي تشغيلة قديمة شغّالة بالخلفية
 function typewriterHeroDesc(){
   const el = document.getElementById('hero-desc');
   if (!el) return;
   const fullText = el.textContent;
   if (prefersReducedMotion() || !fullText) return; // النص الكامل يبقى ظاهر فوراً لمن يفضّل تقليل الحركة
+  const myRunId = ++heroDescTypewriterRunId;
   el.textContent = '';
   let i = 0;
   function typeNext(){
+    if (myRunId !== heroDescTypewriterRunId) return; // صار تبديل لغة أو تشغيلة أحدث — نتوقف فوراً
     if (i < fullText.length){
       el.textContent += fullText.charAt(i);
       i++;
