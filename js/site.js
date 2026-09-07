@@ -2166,7 +2166,10 @@ async function handleAssistSend(textOverride){
 
   const t = ASSIST_I18N[currentLang] || ASSIST_I18N.ar;
   const q = parseQuery(text);
-  const isSearch = !!(q.city || q.type || q.maxPrice || q.minPrice || q.rooms);
+  // اسم المدينة وحده مو كافي لاعتبارها "بحث عقارات" — "أسعار العقار بالعزيزية،
+  // المدينة المنورة" فيها اسم مدينة بس هي سؤال عام عن الأسعار، مو طلب قائمة
+  // عروض. لازم نوع محدَّد أو سعر أو عدد غرف كمان عشان نعتبرها بحث فعلي.
+  const isSearch = !!(q.type || q.maxPrice || q.minPrice || q.rooms);
 
   if (isSearch){
     const results = await searchProperties(q);
