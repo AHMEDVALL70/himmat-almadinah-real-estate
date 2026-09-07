@@ -517,6 +517,9 @@ async function loadProperties(){
       tbody.innerHTML = `<tr class="empty-row"><td colspan="9">لا توجد عقارات مطابقة.</td></tr>`;
       return;
     }
+    window.__PROPERTIES_CACHE = {};
+    data.forEach(p => window.__PROPERTIES_CACHE[p.id] = p);
+
     tbody.innerHTML = data.map(p => {
       const roomsOrFloors = p.property_type === 'عمارة'
         ? `${p.floors_count ?? '—'} × ${p.units_per_floor ?? '—'}`
@@ -530,6 +533,7 @@ async function loadProperties(){
         <td class="actions-cell">
           ${p.status !== 'approved' ? `<button class="btn btn-ok" onclick="setPropertyStatus('${p.id}','approved')">اعتماد</button>` : ''}
           ${p.status !== 'rejected' ? `<button class="btn btn-danger" onclick="setPropertyStatus('${p.id}','rejected')">رفض</button>` : ''}
+          ${p.status === 'approved' ? `<button class="btn btn-ghost" onclick="convertToOffer('${p.id}')">تحويل لعرض</button>` : ''}
           <button class="btn btn-ghost" onclick="deleteProperty('${p.id}')">حذف</button>
         </td>
       </tr>`;
@@ -694,6 +698,25 @@ function clearOfferForm(){
 }
 document.getElementById('btn-cancel-offer-edit').addEventListener('click', clearOfferForm);
 
+function convertToOffer(propertyId){
+  const p = window.__PROPERTIES_CACHE?.[propertyId];
+  if (!p) return;
+  clearOfferForm();
+  document.getElementById('offer-title').value = `${p.property_type} — ${p.district}`;
+  document.getElementById('offer-city').value = p.city || '';
+  populateOfferDistrictSelect();
+  document.getElementById('offer-district').value = p.district || '';
+  document.getElementById('offer-type').value = p.property_type || '';
+  document.getElementById('offer-area').value = p.area_sqm || '';
+  if (p.property_type !== 'عمارة') document.getElementById('offer-rooms').value = p.rooms || '';
+  document.getElementById('offer-price-original').value = p.price || '';
+  document.getElementById('offer-price-final').value = p.price || '';
+  document.querySelector('[data-tab="offers"]').click();
+  document.getElementById('offer-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('offer-title').focus();
+  showToast('✅ تم تعبئة بيانات العقار — أكمل باقي التفاصيل (الصورة، المسوّق، الخصم إن وجد)');
+}
+
 document.getElementById('btn-save-offer').addEventListener('click', async ()=>{
   const msg = document.getElementById('offer-form-msg');
   const payload = readOfferForm();
@@ -739,10 +762,14 @@ async function loadOffers(){
         <td>${o.title}</td><td>${o.city}</td><td>${o.district}</td>
         <td>${o.price_final ? money(o.price_final) + ' ر.س' : '—'}</td>
         <td>${o.discount_pct || 0}%</td>
-        <td><span class="badge ${o.is_published ? 'badge-approved' : 'badge-pending'}">${o.is_published ? 'منشور' : 'مخفي'}</span></td>
+        <td>
+          <span class="badge ${o.is_published ? 'badge-approved' : 'badge-pending'}">${o.is_published ? 'منشور' : 'مخفي'}</span>
+          ${o.is_sold ? '<span class="badge badge-rejected">مباع</span>' : ''}
+        </td>
         <td class="actions-cell">
           <button class="btn btn-ghost" onclick="editOffer('${o.id}')">تعديل</button>
           <button class="btn btn-ghost" onclick="toggleOfferPublish('${o.id}', ${!o.is_published})">${o.is_published ? 'إخفاء' : 'نشر'}</button>
+          <button class="btn btn-ghost" onclick="toggleOfferSold('${o.id}', ${!o.is_sold})">${o.is_sold ? 'إرجاع للمتاح' : 'تم البيع'}</button>
           <button class="btn btn-danger" onclick="deleteOffer('${o.id}')">حذف</button>
         </td>
       </tr>`).join('');
@@ -787,6 +814,18 @@ async function toggleOfferPublish(id, newState){
     const { error } = await supa.from('offers').update({ is_published: newState }).eq('id', id);
     if (error) throw error;
     showToast(newState ? '✅ تم النشر' : '✅ تم الإخفاء');
+    loadOffers();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر التحديث: ' + e.message);
+  }
+}
+
+async function toggleOfferSold(id, newState){
+  try {
+    const { error } = await supa.from('offers').update({ is_sold: newState }).eq('id', id);
+    if (error) throw error;
+    showToast(newState ? '✅ تم تعليمه كمباع' : '✅ رجع متاح للبيع');
     loadOffers();
   } catch (e) {
     console.error(e);
@@ -975,12 +1014,13 @@ async function toggleInstallments(contractId){
     const items = data || [];
     const scheduleHtml = items.length
       ? `<table style="width:100%;margin:6px 0">
-           <thead><tr><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>حالة السداد</th></tr></thead>
+           <thead><tr><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>حالة السداد</th><th></th></tr></thead>
            <tbody>${items.map(i => `
              <tr>
                <td>${new Date(i.due_date).toLocaleDateString('ar-SA')}</td>
                <td>${money(i.total_installment)} ر.س</td>
                <td>${i.payment_status === 'PAID' ? '✅ مدفوعة' : '⏳ قيد الانتظار'}</td>
+               <td>${i.payment_status !== 'PAID' ? `<button class="btn btn-ghost" onclick="markInstallmentPaid('${i.id}', '${contractId}')">تم السداد</button>` : ''}</td>
              </tr>`).join('')}</tbody>
          </table>`
       : 'لا توجد دفعات مسجّلة لهذا العقد.';
@@ -988,6 +1028,26 @@ async function toggleInstallments(contractId){
   } catch (e) {
     console.error('toggleInstallments failed', e);
     cell.innerHTML = partiesHtml + '⚠️ تعذّر تحميل جدول الدفعات.';
+  }
+}
+
+async function markInstallmentPaid(installmentId, contractId){
+  if (!confirm('تأكيد استلام هذه الدفعة؟')) return;
+  try {
+    const { error } = await supa.from('contract_installments')
+      .update({ payment_status: 'PAID' })
+      .eq('id', installmentId);
+    if (error) throw error;
+    showToast('✅ تم تسجيل السداد');
+    // نعيد فتح تفاصيل نفس العقد لتحديث الجدول فوراً
+    const row = document.getElementById('installments-' + contractId);
+    const btn = document.getElementById('btn-toggle-' + contractId);
+    if (row) row.style.display = 'none';
+    if (btn) btn.textContent = 'عرض التفاصيل';
+    toggleInstallments(contractId);
+  } catch (e) {
+    console.error('markInstallmentPaid failed', e);
+    showToast('⚠️ تعذّر تحديث حالة السداد: ' + e.message);
   }
 }
 
