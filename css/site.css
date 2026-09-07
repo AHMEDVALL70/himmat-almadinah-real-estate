@@ -369,3 +369,33 @@ footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;p
 .faq-item p{color:var(--text-600);margin:10px 0 0;font-size:14px}
 
 .hide{display:none !important}
+
+/* ============================================================================
+   طباعة العقد / حفظ PDF — نعتمد على طباعة المتصفح نفسها بدل مكتبة PDF
+   خارجية، عشان العربي يطلع صحيح 100% (بدون مشاكل اتجاه أو تفكك حروف شائعة
+   بمكتبات PDF بالمتصفح). مخفي دائماً بالعرض العادي، يظهر بس وقت الطباعة.
+   ========================================================================== */
+#contract-print-view{display:none}
+.print-header{display:flex;align-items:center;gap:16px;border-bottom:3px solid #c0a16b;padding-bottom:14px;margin-bottom:20px}
+.print-header img{width:64px;height:64px;object-fit:contain}
+.print-header h1{margin:0;font-size:20px}
+.print-header p{margin:4px 0 0;font-size:11px;color:#444}
+#contract-print-view h2{font-size:17px;margin:0 0 4px}
+#contract-print-view > p#pv-number{font-size:12px;color:#444;margin:0 0 18px}
+.pv-parties, .pv-details{width:100%;border-collapse:collapse;margin-bottom:18px;font-size:12.5px}
+.pv-parties th{background:#f3f1ea;padding:8px 10px;border:1px solid #ccc;font-size:13px}
+.pv-parties td{padding:10px;border:1px solid #ccc;vertical-align:top;line-height:1.8}
+.pv-details td{padding:8px 10px;border:1px solid #ccc}
+.pv-details td:first-child{background:#f8f7f3;font-weight:700;width:35%}
+.pv-signatures{display:flex;justify-content:space-between;margin-top:50px;font-size:13px}
+.pv-footer{margin-top:40px;font-size:10.5px;color:#666;text-align:center}
+
+@media print{
+  body *{visibility:hidden}
+  #contract-print-view, #contract-print-view *{visibility:visible}
+  #contract-print-view{
+    display:block !important;
+    position:absolute;top:0;right:0;width:100%;
+    direction:rtl;color:#000;background:#fff;padding:24px;font-family:var(--font-body,Arial,sans-serif)
+  }
+}
