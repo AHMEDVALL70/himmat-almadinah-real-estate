@@ -2087,6 +2087,38 @@ function renderQuickChips(){
   });
 }
 
+// الخادم الوسيط الآمن (Cloudflare Worker) — يتصل بـGemini بمفتاح محفوظ
+// على الخادم فقط، أبداً لا يظهر بكود الموقع. لو الاتصال فشل لأي سبب،
+// نرجع للردود الجاهزة الثابتة تلقائياً (تحسّن سلوكي، مو تعطّل كامل).
+const AI_BACKEND_URL = 'https://himmat-ai-backend.ahmedvalljemaldine.workers.dev/chat';
+let assistantHistory = [];
+
+async function askAiAssistant(text){
+  assistantHistory.push({ role: 'user', text });
+  if (assistantHistory.length > 20) assistantHistory = assistantHistory.slice(-20);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12000); // ردود الذكاء الاصطناعي أبطأ من استعلام قاعدة بيانات عادي
+  try {
+    const res = await fetch(AI_BACKEND_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: assistantHistory }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error('AI backend returned ' + res.status);
+    const data = await res.json();
+    if (!data.reply) throw new Error('AI backend returned no reply');
+    assistantHistory.push({ role: 'bot', text: data.reply });
+    return data.reply;
+  } catch (e) {
+    clearTimeout(timeoutId);
+    console.error('askAiAssistant: falling back to static replies.', e);
+    return null; // فشل — نرجع للردود الجاهزة بدل ما نكسر تجربة المستخدم
+  }
+}
+
 function assistantReply(text){
   const dict = ASSIST_I18N[currentLang] || ASSIST_I18N.ar;
   const lower = text.toLowerCase();
@@ -2151,11 +2183,16 @@ async function handleAssistSend(textOverride){
     }
     showPage('offers');
   } else {
-    const { reply, goto } = assistantReply(text);
+    const aiReply = await askAiAssistant(text);
     await sleep(300);
     hideTyping();
-    addAssistMsg(reply, 'bot');
-    if (goto) showPage(goto);
+    if (aiReply){
+      addAssistMsg(aiReply, 'bot');
+    } else {
+      const { reply, goto } = assistantReply(text);
+      addAssistMsg(reply, 'bot');
+      if (goto) showPage(goto);
+    }
   }
 }
 document.getElementById('assist-send').addEventListener('click', ()=> handleAssistSend());
