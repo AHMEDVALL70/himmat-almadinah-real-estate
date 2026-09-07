@@ -2107,15 +2107,19 @@ async function askAiAssistant(text){
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
-    if (!res.ok) throw new Error('AI backend returned ' + res.status);
+    if (!res.ok){
+      const bodyText = await res.text().catch(()=> '');
+      throw new Error(`HTTP ${res.status} — ${bodyText.slice(0, 200)}`);
+    }
     const data = await res.json();
-    if (!data.reply) throw new Error('AI backend returned no reply');
+    if (!data.reply) throw new Error('الرد ما فيه حقل reply: ' + JSON.stringify(data).slice(0, 200));
     assistantHistory.push({ role: 'bot', text: data.reply });
-    return data.reply;
+    return { ok: true, reply: data.reply };
   } catch (e) {
     clearTimeout(timeoutId);
+    const detail = e.name === 'AbortError' ? 'انتهت مهلة الانتظار (12 ثانية) بدون رد' : e.message;
     console.error('askAiAssistant: falling back to static replies.', e);
-    return null; // فشل — نرجع للردود الجاهزة بدل ما نكسر تجربة المستخدم
+    return { ok: false, error: detail }; // فشل — نرجع للردود الجاهزة بدل ما نكسر تجربة المستخدم
   }
 }
 
@@ -2186,9 +2190,10 @@ async function handleAssistSend(textOverride){
     const aiReply = await askAiAssistant(text);
     await sleep(300);
     hideTyping();
-    if (aiReply){
-      addAssistMsg(aiReply, 'bot');
+    if (aiReply.ok){
+      addAssistMsg(aiReply.reply, 'bot');
     } else {
+      addAssistMsg('🔧 [تشخيص مؤقت] فشل الاتصال بالذكاء الاصطناعي: ' + aiReply.error, 'bot');
       const { reply, goto } = assistantReply(text);
       addAssistMsg(reply, 'bot');
       if (goto) showPage(goto);
