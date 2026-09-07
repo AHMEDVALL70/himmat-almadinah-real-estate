@@ -1985,7 +1985,7 @@ function detectCity(text, lower){
   for (const cname of Object.keys(CITY_DISTRICTS)){
     if (text.includes(cname)) return cname;
     const lbl = CITY_LABELS[cname];
-    if (lbl && (lower.includes(lbl.en.toLowerCase()) || lower.includes(lbl.fr.toLowerCase()))) return cname;
+    if (lbl && ((lbl.en && lower.includes(lbl.en.toLowerCase())) || (lbl.fr && lower.includes(lbl.fr.toLowerCase())))) return cname;
   }
   return null;
 }
@@ -1997,7 +1997,7 @@ function detectType(text, lower){
   const skip = new Set(['شقة في برج','شقة في عمارة','محل تجاري']);
   for (const pt of PROPERTY_TYPES){
     if (skip.has(pt.v)) continue;
-    if (text.includes(pt.ar) || lower.includes(pt.en.toLowerCase()) || lower.includes(pt.fr.toLowerCase())) return pt.v;
+    if (text.includes(pt.ar) || (pt.en && lower.includes(pt.en.toLowerCase())) || (pt.fr && lower.includes(pt.fr.toLowerCase()))) return pt.v;
   }
   return null;
 }
