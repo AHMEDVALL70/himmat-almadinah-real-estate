@@ -1935,16 +1935,7 @@ window.addEventListener('popstate', ()=> showPage(location.hash.slice(1) || 'hom
 function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
 function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-const ROBOT_ICON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-  <rect x="4" y="8" width="16" height="11" rx="4"/>
-  <line x1="12" y1="8" x2="12" y2="4"/>
-  <circle cx="12" cy="3" r="1" fill="currentColor"/>
-  <circle cx="9" cy="13.5" r="1.1" fill="currentColor" stroke="none"/>
-  <circle cx="15" cy="13.5" r="1.1" fill="currentColor" stroke="none"/>
-  <line x1="9" y1="17" x2="15" y2="17"/>
-  <line x1="2" y1="12" x2="4" y2="12"/>
-  <line x1="20" y1="12" x2="22" y2="12"/>
-</svg>`;
+const ROBOT_ICON_SVG = `🤖`;
 
 const ASSIST_I18N = {
   ar: {
