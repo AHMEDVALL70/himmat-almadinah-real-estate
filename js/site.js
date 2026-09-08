@@ -30,14 +30,14 @@ function renderConfigBanner(){
    ========================================================================== */
 const I18N = {
   ar: {
-    brand:"همة المدينة العقارية", nav_home:"الرئيسية", nav_valuation:"التقييم", nav_offers:"العروض",
+    brand:"همة المدينة العقارية", nav_home:"الرئيسية", nav_valuation:"التقدير", nav_offers:"العروض",
     nav_contracts:"العقود", nav_add:"أضف عقارك", nav_analytics:"التحليلات", nav_services:"الخدمات",
     nav_faq:"الأسئلة", nav_about:"عنّا", nav_contact:"تواصل", nav_more:"المزيد ▾", nav_admin:"🔐 لوحة التحكم",
     admin_login_label:"تسجيل الدخول",
     hero_eyebrow:"🇸🇦 المدينة المنورة", hero_title:"همة المدينة العقارية", hero_sub:"Himmat Al Madinah Real Estate",
     hero_tagline:"خبرة محلية… لقرار عقاري أكثر ثقة",
     hero_desc:"نقدم في همة المدينة العقارية خدمات عقارية مبنية على معرفة السوق، ودقة المعلومات، والوضوح في التعامل. نرافق عملاءنا في رحلة البيع والشراء والتسويق والاستثمار العقاري، ونسعى لأن تكون كل خطوة واضحة ومدروسة.",
-    hero_cta1:"ابدأ التقييم الآن", hero_cta_browse:"تصفح العقارات", hero_cta_list:"أضف عقارك",
+    hero_cta1:"ابدأ التقدير الآن", hero_cta_browse:"تصفح العقارات", hero_cta_list:"أضف عقارك",
     license_badge:"مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428 — سجل تجاري: 7042103650",
     stat1:"مدن مدعومة", stat2:"عوامل تسعير", stat3:"عقار مسجَّل فعلياً", stat4:"حي مدعوم",
     hero_panel_title:"قاعدة بيانات مشتركة وحقيقية",
@@ -46,7 +46,7 @@ const I18N = {
     featured_eyebrow:"مختارات لك", featured_title:"عقارات مميزة", featured_see_all:"شاهد كل العروض ←",
     offers_desc:"عروض تتحدّث فور ما يضيفها فريقنا — بدون تحديث يدوي ولا صفحات قديمة.",
     services_eyebrow:"خدماتنا", services_title:"ماذا نقدّم", map_title:"الخريطة العقارية",
-    val_eyebrow:"تقييم فوري", val_title:"استشارات ودراسات عقارية استرشادية",
+    val_eyebrow:"تقدير فوري", val_title:"استشارات ودراسات عقارية استرشادية",
     val_desc:"خمس معلومات بسيطة، وتقدير سعري شفاف خلال ثوانٍ.",
     val_honesty_label:"ملاحظة مهمة حول الدقة: ",
     val_honesty_text:"هذا التقدير ناتج معادلة حسابية شفافة، وليس نموذج ذكاء اصطناعي مُدرَّب على بيانات فعلية.",
@@ -99,7 +99,7 @@ const I18N = {
     whatsapp_word:"واتساب",
     footer_legal:"قانوني", footer_privacy:"سياسة الخصوصية", footer_terms:"شروط الاستخدام",
     footer_quicklinks_title:"روابط سريعة", footer_services_title:"الخدمات",
-    footer_svc_1:"البيع والشراء", footer_svc_2:"التقييم العقاري", footer_svc_3:"كتابة العقود", footer_svc_4:"إدارة الأملاك",
+    footer_svc_1:"البيع والشراء", footer_svc_2:"تقدير الأسعار العقارية", footer_svc_3:"كتابة العقود", footer_svc_4:"إدارة الأملاك",
     privacy_title:"سياسة الخصوصية", terms_title:"شروط الاستخدام",
     legal_disclaimer:"محتوى عام كنقطة انطلاق وليس استشارة قانونية متخصصة؛ يُنصح بمراجعة مستشار قانوني مرخّص لتخصيصه لنشاطكم.",
     footer_contact_title:"تواصل سريع", footer_rights:"جميع الحقوق محفوظة", footer_license:"رخصة فال العقارية: 1200030428 — سجل تجاري: 7042103650",
@@ -125,20 +125,20 @@ const I18N = {
     type_residential:"سكني", type_commercial:"تجاري",
     opt_east:"شرقية (+5%)", opt_north:"شمالية (+4%)", opt_south:"جنوبية", opt_west:"غربية (-2%)",
     opt_upscale:"حي راقي (+25%)", opt_investment:"حي استثماري (+15%)", opt_mid:"حي متوسط",
-    opt_buy:"شراء عقار", opt_sell:"بيع عقار", opt_valuation_inq:"تقييم عقاري",
+    opt_buy:"شراء عقار", opt_sell:"بيع عقار", opt_valuation_inq:"تقدير سعر عقار",
     opt_contract_inq:"كتابة عقد", opt_general:"استفسار عام"
   },
   en: {
-    brand:"Himmat Al Madinah Real Estate", nav_home:"Home", nav_valuation:"Valuation", nav_offers:"Offers",
+    brand:"Himmat Al Madinah Real Estate", nav_home:"Home", nav_valuation:"Estimate", nav_offers:"Offers",
     nav_contracts:"Contracts", nav_add:"List Property", nav_analytics:"Analytics", nav_services:"Services",
     nav_faq:"FAQ", nav_about:"About", nav_contact:"Contact", nav_more:"More ▾", nav_admin:"🔐 Admin",
     admin_login_label:"Login",
     hero_eyebrow:"🇸🇦 Madinah", hero_title:"Himmat Al Madinah Real Estate", hero_sub:"همة المدينة العقارية",
     hero_tagline:"Local expertise… for a more confident real estate decision",
     hero_desc:"At Himmat Al Madinah Real Estate, we provide real estate services built on market knowledge, accurate information, and clear dealings. We accompany our clients through buying, selling, marketing, and real estate investment, striving to make every step clear and well-considered.",
-    hero_cta1:"Start Valuation", hero_cta_browse:"Browse Properties", hero_cta_list:"List Your Property",
+    hero_cta1:"Start Estimate", hero_cta_browse:"Browse Properties", hero_cta_list:"List Your Property",
     license_badge:"Licensed by the General Real Estate Authority — Fal License: 1200030428 — CR: 7042103650",
-    stat1:"Cities covered", stat2:"Valuation factors", stat3:"Properties actually listed", stat4:"Districts covered",
+    stat1:"Cities covered", stat2:"Pricing factors", stat3:"Properties actually listed", stat4:"Districts covered",
     hero_panel_title:"A real, shared database",
     hero_panel_desc:"Every property and contract you add is stored centrally — not just in your browser.",
     offers_eyebrow:"Don't miss out", offers_title:"Offers & Discounts",
@@ -198,7 +198,7 @@ const I18N = {
     whatsapp_word:"WhatsApp",
     footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Use",
     footer_quicklinks_title:"Quick Links", footer_services_title:"Services",
-    footer_svc_1:"Buying & Selling", footer_svc_2:"Property Valuation", footer_svc_3:"Contract Drafting", footer_svc_4:"Property Management",
+    footer_svc_1:"Buying & Selling", footer_svc_2:"Property Price Estimate", footer_svc_3:"Contract Drafting", footer_svc_4:"Property Management",
     privacy_title:"Privacy Policy", terms_title:"Terms of Use",
     legal_disclaimer:"General starting-point content, not specialized legal advice; consult a licensed legal advisor to tailor it to your business.",
     footer_contact_title:"Quick Contact", footer_rights:"All rights reserved", footer_license:"Fal Real Estate License: 1200030428 — CR: 7042103650",
@@ -224,7 +224,7 @@ const I18N = {
     type_residential:"Residential", type_commercial:"Commercial",
     opt_east:"East (+5%)", opt_north:"North (+4%)", opt_south:"South", opt_west:"West (-2%)",
     opt_upscale:"Upscale district (+25%)", opt_investment:"Investment district (+15%)", opt_mid:"Mid-range district",
-    opt_buy:"Buy property", opt_sell:"Sell property", opt_valuation_inq:"Property valuation",
+    opt_buy:"Buy property", opt_sell:"Sell property", opt_valuation_inq:"Property price estimate",
     opt_contract_inq:"Contract drafting", opt_general:"General inquiry"
   }
 };
@@ -359,10 +359,10 @@ const DEMO_OFFERS_I18N = {
 const FAQ_I18N = {
   ar: [
     {q:"كيف أضيف عقاري؟", a:"من قسم «إضافة»، أدخل بيانات العقار ثم اضغط «إدراج للمراجعة». يظهر عقارك في «التحليلات» بعد مراجعة قصيرة من فريقنا لضمان جودة البيانات."},
-    {q:"هل التقييم معتمد رسمياً؟", a:"لا. التقييم تقدير استرشادي ناتج معادلة حسابية شفافة (سعر المتر × المساحة مع معاملات تعديل)، وليس تقييماً معتمداً من هيئة رسمية ولا نموذج ذكاء اصطناعي مُدرَّب."},
+    {q:"هل التقدير معتمد رسمياً؟", a:"لا. هذا تقدير استرشادي ناتج معادلة حسابية شفافة (سعر المتر × المساحة مع معاملات تعديل)، وليس تقييماً معتمداً من هيئة رسمية ولا نموذج ذكاء اصطناعي مُدرَّب."},
     {q:"هل يمكنني توقيع العقد مباشرة؟", a:"من قسم «العقود» يمكنك تعبئة بيانات العقد وتوليده وحفظه في قاعدة بياناتنا، ثم طباعته للتوقيع. الحفظ يشمل جدول الدفعات كاملاً تلقائياً."},
-    {q:"هل تغطون مدناً أخرى؟", a:"حالياً نغطي المدينة المنورة ومكة المكرمة وجدة والرياض، ويمكنك إضافة مدينة غير مدرجة مباشرة من نماذج التقييم أو إضافة عقار."},
-    {q:"هل الأدوات مجانية؟", a:"نعم، أداة التقييم الاسترشادي ومولّد العقود متاحة مجاناً."},
+    {q:"هل تغطون مدناً أخرى؟", a:"حالياً نغطي المدينة المنورة ومكة المكرمة وجدة والرياض، ويمكنك إضافة مدينة غير مدرجة مباشرة من نماذج التقدير أو إضافة عقار."},
+    {q:"هل الأدوات مجانية؟", a:"نعم، أداة التقدير الاسترشادي ومولّد العقود متاحة مجاناً."},
     {q:"كيف أتواصل مع فريق الدعم؟", a:"عبر قسم «تواصل» يمكنك مراسلتنا واتساب أو بريد إلكتروني أو الاتصال المباشر."},
     {q:"هل العروض المعروضة مخزون كامل؟", a:"العروض نماذج قابلة للتحديث وليست بالضرورة مخزوناً كاملاً؛ تواصل معنا للتأكد من توفر عقار محدد."},
     {q:"كيف يعمل المساعد الذكي؟", a:"يجاوب على الأسئلة العامة بذكاء اصطناعي حقيقي (Gemini) عبر خادم وسيط آمن — مفتاح الاتصال محفوظ على الخادم فقط، أبداً لا يظهر بكود الموقع. لو سألت عن عقار محدَّد (مدينة/سعر/نوع)، يبحث لك مباشرة بقاعدة بياناتنا الحقيقية بدل الذكاء الاصطناعي، لضمان دقة الأرقام."},
@@ -384,7 +384,7 @@ const FAQ_I18N = {
 const PRIVACY_I18N = {
   ar: [
     {h:"مقدمة", p:"نحترم خصوصيتك. توضح هذه السياسة كيف نجمع بياناتك ونستخدمها ونحميها عند استخدامك موقع همة المدينة العقارية."},
-    {h:"البيانات التي نجمعها", p:"بيانات التواصل (الاسم، الجوال أو البريد الإلكتروني) عند تعبئة نموذج التواصل أو التقييم أو إضافة عقار أو كتابة عقد، بالإضافة لبيانات العقار أو العقد التي تُدخلها بنفسك."},
+    {h:"البيانات التي نجمعها", p:"بيانات التواصل (الاسم، الجوال أو البريد الإلكتروني) عند تعبئة نموذج التواصل أو التقدير أو إضافة عقار أو كتابة عقد، بالإضافة لبيانات العقار أو العقد التي تُدخلها بنفسك."},
     {h:"كيف نستخدم بياناتك", p:"للرد على استفساراتك، لمراجعة واعتماد العقارات المُضافة قبل نشرها، لإصدار جدول دفعات العقود، ولتحسين جودة خدماتنا."},
     {h:"أين تُخزَّن بياناتك", p:"في قاعدة بيانات Supabase مركزية محمية بصلاحيات وصول محكومة (Row Level Security)، وليست في متصفحك فقط — تبقى محفوظة ومرئية لفريقنا حتى لو غيّرت جهازك."},
     {h:"مشاركة البيانات", p:"لا نبيع بياناتك لأي طرف ثالث. قد نستخدم واتساب للتواصل المباشر بناءً على اختيارك أنت عند الضغط على زر واتساب."},
@@ -1940,11 +1940,11 @@ const ROBOT_ICON_SVG = `🤖`;
 const ASSIST_I18N = {
   ar: {
     greeting:"أهلاً 👋 أنا المساعد الذكي لهمة المدينة العقارية — أجاوبك بذكاء اصطناعي حقيقي على أسئلتك العامة، وأبحث لك مباشرة بقاعدة بياناتنا لو سألت عن عقار محدَّد — مثلاً «شقة في جدة تحت 900 ألف».",
-    fallback:"أقدر أساعدك بالتنقل بين أقسام الموقع: التقييم، العقود، إضافة عقار، العروض، أو التواصل معنا. أو صف لي العقار اللي تدور عليه (المدينة، النوع، الميزانية) وأبحث لك عنه.",
+    fallback:"أقدر أساعدك بالتنقل بين أقسام الموقع: التقدير، العقود، إضافة عقار، العروض، أو التواصل معنا. أو صف لي العقار اللي تدور عليه (المدينة، النوع، الميزانية) وأبحث لك عنه.",
     noResults:"ما لقيت نتائج مطابقة تماماً، جرّب توسيع النطاق أو تصفح كل العروض.",
     resultsIntro: n => `لقيت لك ${n} نتيجة مطابقة تقريباً:`,
     rules: [
-      { kw:['تقييم'], reply:"يمكنك استخدام قسم «التقييم» لحساب تقدير استرشادي فوري.", goto:'valuation' },
+      { kw:['تقييم','تقدير'], reply:"يمكنك استخدام قسم «التقدير» لحساب تقدير استرشادي فوري.", goto:'valuation' },
       { kw:['عقد'], reply:"من قسم «العقود» تقدر تولّد عقد سكني أو تجاري ويُحفظ جدول دفعاته تلقائياً.", goto:'contracts' },
       { kw:['إضافة','اضافة','أضيف','اضف'], reply:"من قسم «إضافة» تقدر تسجّل عقارك، وسيظهر للجميع بعد مراجعة سريعة.", goto:'add-property' },
       { kw:['عرض','عروض'], reply:"أحدث العروض موجودة في قسم «العروض».", goto:'offers' },
