@@ -2182,6 +2182,7 @@ async function askAiAssistant(text){
   // نبني نسخة للإرسال فقط — نضيف بيانات الأسعار الحقيقية للرسالة الأخيرة بس
   // لو السؤال يبدو متعلق بالأسعار، بدون ما نخزّنها بالسجل نفسه (يبقى نظيف
   // وخفيف لباقي الأسئلة بنفس المحادثة)
+  window.__lastDebug = null;
   let messagesToSend = assistantHistory;
   if (looksLikePriceQuestion(text)){
     const allRows = await fetchAllDistrictPriceRows();
@@ -2192,6 +2193,7 @@ async function askAiAssistant(text){
       const mentionedCity = detectCity(text, text.toLowerCase());
       const relevantRows = mentionedCity ? allRows.filter(r => r.city === mentionedCity) : allRows;
       const rowsToSend = relevantRows.length ? relevantRows : allRows;
+      window.__lastDebug = `[تشخيص مؤقت] المدينة المكتشفة: ${mentionedCity || 'لا شي'} — عدد الصفوف المُرسلة: ${rowsToSend.length} من أصل ${allRows.length}`;
       const priceContext = buildPriceContextText(rowsToSend);
       const cityNote = mentionedCity ? `\n\n[ملاحظة: الزائر يسأل تحديداً عن مدينة ${mentionedCity} — البيانات أعلاه لهذي المدينة فقط، لا تذكر مدن ثانية بالرد]` : '';
       messagesToSend = assistantHistory.slice(0, -1).concat([{
@@ -2307,6 +2309,7 @@ async function handleAssistSend(textOverride, isPredefinedChip){
     await sleep(300);
     hideTyping();
     if (aiReply.ok){
+      if (window.__lastDebug) addAssistMsg(window.__lastDebug, 'bot');
       addAssistMsg(aiReply.reply, 'bot');
     } else {
       // الذكاء الاصطناعي غير متاح مؤقتاً (ازدحام أو انقطاع) — رجوع سلس
