@@ -2152,11 +2152,15 @@ async function fetchAllDistrictPriceRows(){
 }
 
 function buildPriceContextText(rows){
-  const cheapest = rows.slice(0, 10);
-  const priciest = rows.slice(-10).reverse();
-  const fmt = r => `${r.name} (${r.city}): ${money(r.price)} ر.س/م²`;
-  return `الأحياء الأقل سعراً (من أرخص لأغلى):\n${cheapest.map(fmt).join('\n')}\n\n` +
-         `الأحياء الأعلى سعراً (من أغلى لأقل):\n${priciest.map(fmt).join('\n')}`;
+  // نرسل كل الأحياء المتوفرة (مو بس أرخص/أغلى 10) — نخلي الذكاء الاصطناعي
+  // نفسه يفهم أي حي يقصده الزائر (حتى بصياغة أو خطأ إملائي)، بدل ما نحصر
+  // خياراته بقائمة قصيرة مسبقاً.
+  const grouped = {};
+  rows.forEach(r => { (grouped[r.city] = grouped[r.city] || []).push(r); });
+  const fmt = r => `${r.name}: ${money(r.price)} ر.س/م²`;
+  return Object.entries(grouped)
+    .map(([city, list]) => `${city}:\n${list.map(fmt).join('\n')}`)
+    .join('\n\n');
 }
 
 async function askAiAssistant(text){
