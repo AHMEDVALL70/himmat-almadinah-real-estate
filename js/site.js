@@ -2095,9 +2095,10 @@ let assistantHistory = [];
 
 /* بيانات أسعار الأحياء الحقيقية — نجيبها بس لما السؤال يبدو متعلق
    بالأسعار/الأحياء (توفير تكلفة، مو كل سؤال)، ونخزّنها مؤقتاً 10 دقائق
-   لأنها ما تتغيّر إلا أسبوعياً. نرسل أرخص وأغلى 15 حي بس (مو الـ191 كامل)
-   عشان نبقى ضمن حدود حجم الرسالة بالخادم. */
-let districtPriceContextCache = null;
+   لأنها ما تتغيّر إلا أسبوعياً. نخزّن الصفوف الخام كاملة (يتيح البحث عن حي
+   معيّن بالاسم مباشرة)، ونبني منها سياق مختصر (أرخص/أغلى 10) للذكاء
+   الاصطناعي لما السؤال عام/مقارن. */
+let districtPriceRowsCache = null;
 let districtPriceContextCacheTime = 0;
 
 function looksLikePriceQuestion(text){
@@ -2105,9 +2106,30 @@ function looksLikePriceQuestion(text){
   return keywords.some(k => text.includes(k));
 }
 
-async function fetchDistrictPriceContext(){
-  if (districtPriceContextCache && (Date.now() - districtPriceContextCacheTime) < 600000){
-    return districtPriceContextCache;
+// هل السؤال يذكر اسم حي معروف عندنا صراحة؟ (يمكّن رد فوري دقيق 100% بدون
+// أي حاجة للذكاء الاصطناعي إطلاقاً لهذا النوع من الأسئلة تحديداً)
+function detectDistrictName(text){
+  // لو الزائر ذكر مدينة صراحة، نبحث بحيّها هي أول (يحل تضارب أسماء متكررة
+  // بين مدن مختلفة زي "العزيزية" الموجودة بالمدينة المنورة وجدة معاً)
+  const mentionedCity = detectCity(text, text.toLowerCase());
+  const citiesToCheck = mentionedCity
+    ? [mentionedCity, ...Object.keys(CITY_DISTRICTS).filter(c => c !== mentionedCity)]
+    : Object.keys(CITY_DISTRICTS);
+
+  for (const city of citiesToCheck){
+    const districts = CITY_DISTRICTS[city];
+    for (const d of districts){
+      if (text.includes(d)) return { district: d, city };
+      const core = d.startsWith('ال') ? d.slice(2) : d;
+      if (core.length >= 3 && text.includes(core)) return { district: d, city };
+    }
+  }
+  return null;
+}
+
+async function fetchAllDistrictPriceRows(){
+  if (districtPriceRowsCache && (Date.now() - districtPriceContextCacheTime) < 600000){
+    return districtPriceRowsCache;
   }
   if (!dbReady) return null;
   try {
@@ -2120,21 +2142,45 @@ async function fetchDistrictPriceContext(){
       .map(r => ({ name: r.districts.name, city: r.districts.cities?.name || '', price: Math.round(r.price_per_sqm) }))
       .sort((a, b) => a.price - b.price);
     if (!rows.length) return null;
-    const cheapest = rows.slice(0, 10);
-    const priciest = rows.slice(-10).reverse();
-    const fmt = r => `${r.name} (${r.city}): ${money(r.price)} ر.س/م²`;
-    districtPriceContextCache =
-      `الأحياء الأقل سعراً (من أرخص لأغلى):\n${cheapest.map(fmt).join('\n')}\n\n` +
-      `الأحياء الأعلى سعراً (من أغلى لأقل):\n${priciest.map(fmt).join('\n')}`;
+    districtPriceRowsCache = rows;
     districtPriceContextCacheTime = Date.now();
-    return districtPriceContextCache;
+    return rows;
   } catch (e) {
-    console.error('fetchDistrictPriceContext failed', e);
+    console.error('fetchAllDistrictPriceRows failed', e);
     return null;
   }
 }
 
+function buildPriceContextText(rows){
+  const cheapest = rows.slice(0, 10);
+  const priciest = rows.slice(-10).reverse();
+  const fmt = r => `${r.name} (${r.city}): ${money(r.price)} ر.س/م²`;
+  return `الأحياء الأقل سعراً (من أرخص لأغلى):\n${cheapest.map(fmt).join('\n')}\n\n` +
+         `الأحياء الأعلى سعراً (من أغلى لأقل):\n${priciest.map(fmt).join('\n')}`;
+}
+
 async function askAiAssistant(text){
+  // فحص أول: هل السؤال يذكر حي معيّن بالاسم صراحة؟ لو نعم ولدينا سعره
+  // الحقيقي، نجاوب فوراً من قاعدة البيانات مباشرة — دقة 100%، بدون أي
+  // انتظار للذكاء الاصطناعي إطلاقاً (أسرع وأدق من تمرير 10 أحياء بس ونتمنى
+  // يكون الحي المطلوب منها).
+  const namedDistrict = detectDistrictName(text);
+  if (namedDistrict && looksLikePriceQuestion(text)){
+    const allRows = await fetchAllDistrictPriceRows();
+    const match = allRows?.find(r => r.name === namedDistrict.district && r.city === namedDistrict.city);
+    if (match){
+      const reply = currentLang === 'ar'
+        ? `متوسط سعر المتر بحي ${match.name} (${match.city}): ${money(match.price)} ر.س/م² — بيانات حقيقية موثَّقة من قاعدة بياناتنا.`
+        : `Average price per sqm in ${match.name} (${match.city}): ${money(match.price)} SAR/sqm — real documented data from our database.`;
+      assistantHistory.push({ role: 'user', text });
+      assistantHistory.push({ role: 'bot', text: reply });
+      if (assistantHistory.length > 20) assistantHistory = assistantHistory.slice(-20);
+      return { ok: true, reply };
+    }
+    // الحي مذكور بس ما عندنا سعر موثَّق له بعد — نكمل للذكاء الاصطناعي عادي
+    // (يقدر يوضّح إنه غير متوفر بدل ما نعلّق بصمت)
+  }
+
   assistantHistory.push({ role: 'user', text }); // نخزّن النص الأصلي النظيف بالسجل المعروض
   if (assistantHistory.length > 20) assistantHistory = assistantHistory.slice(-20);
 
@@ -2143,8 +2189,9 @@ async function askAiAssistant(text){
   // وخفيف لباقي الأسئلة بنفس المحادثة)
   let messagesToSend = assistantHistory;
   if (looksLikePriceQuestion(text)){
-    const priceContext = await fetchDistrictPriceContext();
-    if (priceContext){
+    const allRows = await fetchAllDistrictPriceRows();
+    if (allRows && allRows.length){
+      const priceContext = buildPriceContextText(allRows);
       messagesToSend = assistantHistory.slice(0, -1).concat([{
         role: 'user',
         text: `[بيانات أسعار حقيقية من قاعدة بياناتنا — ريال/م²]\n${priceContext}\n\n[سؤال الزائر]: ${text}`
