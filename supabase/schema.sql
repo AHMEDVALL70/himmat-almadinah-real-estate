@@ -75,7 +75,7 @@ begin
     new.status := 'pending';
     return new;
 end;
-$$ language plpgsql;
+$$ language plpgsql set search_path = public, pg_temp;
 
 drop trigger if exists trg_force_pending on properties;
 create trigger trg_force_pending
@@ -703,7 +703,7 @@ begin
 
     return null;
 end;
-$$ language plpgsql;
+$$ language plpgsql set search_path = public, pg_temp;
 
 drop trigger if exists trg_recalc_total on contract_installments;
 create trigger trg_recalc_total
@@ -764,7 +764,7 @@ begin
         cur_date := cur_date + (period_months || ' months')::interval;
     end loop;
 end;
-$$ language plpgsql;
+$$ language plpgsql set search_path = public, pg_temp;
 
 -- ============================================================================
 -- 8) دالة RPC آمنة تُنشئ العقد + الأطراف + جدول الدفعات في عملية واحدة
@@ -829,7 +829,7 @@ begin
 
     return v_contract_id;
 end;
-$$ language plpgsql;
+$$ language plpgsql set search_path = public, pg_temp;
 
 -- ============================================================================
 -- 9) تفعيل RLS وسياسات الوصول
