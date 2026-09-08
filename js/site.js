@@ -2262,6 +2262,7 @@ async function handleAssistSend(textOverride, isPredefinedChip){
       // الذكاء الاصطناعي غير متاح مؤقتاً (ازدحام أو انقطاع) — رجوع سلس
       // للرد الثابت بدون إظهار تفاصيل تقنية للزائر العادي
       console.error('AI assistant unavailable, using static fallback:', aiReply.error);
+      addAssistMsg('🔧 [تشخيص مؤقت] ' + aiReply.error, 'bot');
       const { reply, goto } = assistantReply(text);
       addAssistMsg(reply, 'bot');
       if (goto) showPage(goto);
