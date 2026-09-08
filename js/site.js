@@ -2120,8 +2120,8 @@ async function fetchDistrictPriceContext(){
       .map(r => ({ name: r.districts.name, city: r.districts.cities?.name || '', price: Math.round(r.price_per_sqm) }))
       .sort((a, b) => a.price - b.price);
     if (!rows.length) return null;
-    const cheapest = rows.slice(0, 15);
-    const priciest = rows.slice(-15).reverse();
+    const cheapest = rows.slice(0, 10);
+    const priciest = rows.slice(-10).reverse();
     const fmt = r => `${r.name} (${r.city}): ${money(r.price)} ر.س/م²`;
     districtPriceContextCache =
       `الأحياء الأقل سعراً (من أرخص لأغلى):\n${cheapest.map(fmt).join('\n')}\n\n` +
@@ -2152,8 +2152,9 @@ async function askAiAssistant(text){
     }
   }
 
+  const AI_TIMEOUT_MS = 20000; // 20 ثانية — أطول من قبل لأن سؤال الأسعار يحتاج جلب بيانات إضافية قبل الاتصال بالذكاء الاصطناعي
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000); // ردود الذكاء الاصطناعي أبطأ من استعلام قاعدة بيانات عادي
+  const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
   try {
     const res = await fetch(AI_BACKEND_URL, {
       method: 'POST',
@@ -2172,7 +2173,7 @@ async function askAiAssistant(text){
     return { ok: true, reply: data.reply };
   } catch (e) {
     clearTimeout(timeoutId);
-    const detail = e.name === 'AbortError' ? 'انتهت مهلة الانتظار (12 ثانية) بدون رد' : e.message;
+    const detail = e.name === 'AbortError' ? `انتهت مهلة الانتظار (${AI_TIMEOUT_MS/1000} ثانية) بدون رد` : e.message;
     console.error('askAiAssistant: falling back to static replies.', e);
     return { ok: false, error: detail }; // فشل — نرجع للردود الجاهزة بدل ما نكسر تجربة المستخدم
   }
