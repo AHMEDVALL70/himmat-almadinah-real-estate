@@ -2083,7 +2083,7 @@ function renderQuickChips(){
   const wrap = document.getElementById('assist-quick');
   wrap.innerHTML = list.map(c=>`<button class="assist-chip" type="button">${c}</button>`).join('');
   wrap.querySelectorAll('.assist-chip').forEach(btn=>{
-    btn.addEventListener('click', ()=> handleAssistSend(btn.textContent));
+    btn.addEventListener('click', ()=> handleAssistSend(btn.textContent, true));
   });
 }
 
@@ -2211,7 +2211,7 @@ document.addEventListener('keydown', (e)=>{
   if (e.key === 'Escape' && assistantOpen) setAssistantOpen(false);
 });
 
-async function handleAssistSend(textOverride){
+async function handleAssistSend(textOverride, isPredefinedChip){
   const input = document.getElementById('assist-input');
   const text = (textOverride !== undefined ? textOverride : input.value).trim();
   if (!text) return;
@@ -2244,6 +2244,14 @@ async function handleAssistSend(textOverride){
       addAssistMsg(t.resultsIntro(results.length), 'bot', cardsHtml);
     }
     showPage('offers');
+  } else if (isPredefinedChip){
+    // الأزرار الجاهزة إجاباتها معروفة مسبقاً 100% — لا داعي لانتظار الذكاء
+    // الاصطناعي (أبطأ وأحياناً مزدحم)، نروح للرد الثابت مباشرة
+    await sleep(300);
+    hideTyping();
+    const { reply, goto } = assistantReply(text);
+    addAssistMsg(reply, 'bot');
+    if (goto) showPage(goto);
   } else {
     const aiReply = await askAiAssistant(text);
     await sleep(300);
@@ -2251,7 +2259,9 @@ async function handleAssistSend(textOverride){
     if (aiReply.ok){
       addAssistMsg(aiReply.reply, 'bot');
     } else {
-      addAssistMsg('🔧 [تشخيص مؤقت] فشل الاتصال بالذكاء الاصطناعي: ' + aiReply.error, 'bot');
+      // الذكاء الاصطناعي غير متاح مؤقتاً (ازدحام أو انقطاع) — رجوع سلس
+      // للرد الثابت بدون إظهار تفاصيل تقنية للزائر العادي
+      console.error('AI assistant unavailable, using static fallback:', aiReply.error);
       const { reply, goto } = assistantReply(text);
       addAssistMsg(reply, 'bot');
       if (goto) showPage(goto);
