@@ -111,6 +111,54 @@ document.getElementById('btn-logout').addEventListener('click', async ()=>{
 });
 
 /* ============================================================================
+   تغيير كلمة المرور — مباشرة من لوحة التحكم، بدون الحاجة للرجوع للوحة
+   Supabase أو التعامل مع بريد استعادة قد تفشل صلاحيته (فحص أمني تلقائي من
+   بعض مزوّدي البريد يفتح الرابط قبل المستخدم ويستهلكه).
+   ========================================================================== */
+function openChangePasswordModal(){
+  document.getElementById('new-password-input').value = '';
+  document.getElementById('confirm-password-input').value = '';
+  document.getElementById('change-password-msg').textContent = '';
+  document.getElementById('change-password-overlay').classList.remove('hide');
+}
+function closeChangePasswordModal(){
+  document.getElementById('change-password-overlay').classList.add('hide');
+}
+document.getElementById('btn-change-password').addEventListener('click', openChangePasswordModal);
+document.getElementById('btn-cancel-password-change').addEventListener('click', closeChangePasswordModal);
+
+document.getElementById('btn-save-new-password').addEventListener('click', async ()=>{
+  const msg = document.getElementById('change-password-msg');
+  const newPass = document.getElementById('new-password-input').value;
+  const confirmPass = document.getElementById('confirm-password-input').value;
+
+  if (newPass.length < 6){
+    msg.textContent = '⚠️ كلمة المرور لازم تكون 6 أحرف على الأقل.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+  if (newPass !== confirmPass){
+    msg.textContent = '⚠️ كلمتا المرور غير متطابقتين.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+
+  msg.textContent = 'جاري الحفظ...';
+  msg.style.color = 'var(--text-600)';
+  try {
+    const { error } = await supa.auth.updateUser({ password: newPass });
+    if (error) throw error;
+    msg.textContent = '✅ تم تغيير كلمة المرور بنجاح.';
+    msg.style.color = 'var(--ok)';
+    setTimeout(closeChangePasswordModal, 1500);
+  } catch (e) {
+    console.error('changePassword failed', e);
+    msg.textContent = '⚠️ تعذّر التغيير: ' + e.message;
+    msg.style.color = 'var(--danger)';
+  }
+});
+
+/* ============================================================================
    Tabs
    ========================================================================== */
 document.querySelectorAll('.tab-btn').forEach(btn=>{
