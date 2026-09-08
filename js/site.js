@@ -2107,12 +2107,20 @@ function detectDistrictName(text){
     ? [mentionedCity, ...Object.keys(CITY_DISTRICTS).filter(c => c !== mentionedCity)]
     : Object.keys(CITY_DISTRICTS);
 
+  // مطابقة على مستوى الكلمة المفردة (بعد التقطيع بالمسافات)، مو احتواء جزئي
+  // بالنص كامل — يمنع مطابقات خاطئة زي "نور" داخل "المنورة" (اسم مدينة).
+  const words = text.split(/\s+/).filter(Boolean);
+
   for (const city of citiesToCheck){
     const districts = CITY_DISTRICTS[city];
     for (const d of districts){
-      if (text.includes(d)) return { district: d, city };
       const core = d.startsWith('ال') ? d.slice(2) : d;
-      if (core.length >= 3 && text.includes(core)) return { district: d, city };
+      for (const w of words){
+        if (w === d || w === core) return { district: d, city };
+        // نسمح بحرف بادئة وحد زيادة عن الجذر (يحل خطأ إملائي شائع زي
+        // "لعزيزية" بدل "العزيزية" — نقص الألف بالبداية)
+        if (core.length >= 3 && w.length === core.length + 1 && w.endsWith(core)) return { district: d, city };
+      }
     }
   }
   return null;
