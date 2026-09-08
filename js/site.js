@@ -2186,10 +2186,17 @@ async function askAiAssistant(text){
   if (looksLikePriceQuestion(text)){
     const allRows = await fetchAllDistrictPriceRows();
     if (allRows && allRows.length){
-      const priceContext = buildPriceContextText(allRows);
+      // لو السؤال يذكر مدينة صراحة، نفلتر البيانات لهذي المدينة بس قبل ما
+      // نرسلها — يضمن الإجابة تبقى بنفس المدينة المطلوبة دائماً، بدل ما
+      // نعتمد على الذكاء الاصطناعي يفلتر صح من بيانات 4 مدن مختلطة.
+      const mentionedCity = detectCity(text, text.toLowerCase());
+      const relevantRows = mentionedCity ? allRows.filter(r => r.city === mentionedCity) : allRows;
+      const rowsToSend = relevantRows.length ? relevantRows : allRows;
+      const priceContext = buildPriceContextText(rowsToSend);
+      const cityNote = mentionedCity ? `\n\n[ملاحظة: الزائر يسأل تحديداً عن مدينة ${mentionedCity} — البيانات أعلاه لهذي المدينة فقط، لا تذكر مدن ثانية بالرد]` : '';
       messagesToSend = assistantHistory.slice(0, -1).concat([{
         role: 'user',
-        text: `[بيانات أسعار حقيقية من قاعدة بياناتنا — ريال/م²]\n${priceContext}\n\n[سؤال الزائر]: ${text}`
+        text: `[بيانات أسعار حقيقية من قاعدة بياناتنا — ريال/م²]\n${priceContext}${cityNote}\n\n[سؤال الزائر]: ${text}`
       }]);
     }
   }
