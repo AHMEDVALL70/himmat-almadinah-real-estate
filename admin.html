@@ -43,6 +43,7 @@
     <div class="right">
       <a href="index.html" class="btn btn-ghost" style="text-decoration:none">🏠 الموقع الرئيسي</a>
       <span id="admin-email"></span>
+      <button class="btn btn-ghost" id="btn-change-password">🔑 تغيير كلمة المرور</button>
       <button class="btn btn-ghost" id="btn-logout">تسجيل خروج</button>
     </div>
   </header>
@@ -194,6 +195,25 @@
 </div>
 
 <div id="toast"></div>
+
+<div id="change-password-overlay" class="hide" style="position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200">
+  <div class="card" style="max-width:380px;width:90%;padding:24px">
+    <h3 style="margin:0 0 16px">تغيير كلمة المرور</h3>
+    <div class="field" style="margin-bottom:12px">
+      <label>كلمة المرور الجديدة</label>
+      <input id="new-password-input" type="password" minlength="6" placeholder="6 أحرف على الأقل">
+    </div>
+    <div class="field" style="margin-bottom:16px">
+      <label>تأكيد كلمة المرور الجديدة</label>
+      <input id="confirm-password-input" type="password" minlength="6">
+    </div>
+    <p id="change-password-msg" style="font-size:13px;margin:0 0 12px;min-height:18px"></p>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" id="btn-save-new-password" style="flex:1">حفظ</button>
+      <button class="btn btn-ghost" id="btn-cancel-password-change" style="flex:1">إلغاء</button>
+    </div>
+  </div>
+</div>
 
 <script src="js/admin.js?v=20260907c"></script>
 </body>
