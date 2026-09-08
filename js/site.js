@@ -2097,35 +2097,6 @@ function looksLikePriceQuestion(text){
   return keywords.some(k => text.includes(k));
 }
 
-// هل السؤال يذكر اسم حي معروف عندنا صراحة؟ (يمكّن رد فوري دقيق 100% بدون
-// أي حاجة للذكاء الاصطناعي إطلاقاً لهذا النوع من الأسئلة تحديداً)
-function detectDistrictName(text){
-  // لو الزائر ذكر مدينة صراحة، نبحث بحيّها هي أول (يحل تضارب أسماء متكررة
-  // بين مدن مختلفة زي "العزيزية" الموجودة بالمدينة المنورة وجدة معاً)
-  const mentionedCity = detectCity(text, text.toLowerCase());
-  const citiesToCheck = mentionedCity
-    ? [mentionedCity, ...Object.keys(CITY_DISTRICTS).filter(c => c !== mentionedCity)]
-    : Object.keys(CITY_DISTRICTS);
-
-  // مطابقة على مستوى الكلمة المفردة (بعد التقطيع بالمسافات)، مو احتواء جزئي
-  // بالنص كامل — يمنع مطابقات خاطئة زي "نور" داخل "المنورة" (اسم مدينة).
-  const words = text.split(/\s+/).filter(Boolean);
-
-  for (const city of citiesToCheck){
-    const districts = CITY_DISTRICTS[city];
-    for (const d of districts){
-      const core = d.startsWith('ال') ? d.slice(2) : d;
-      for (const w of words){
-        if (w === d || w === core) return { district: d, city };
-        // نسمح بحرف بادئة وحد زيادة عن الجذر (يحل خطأ إملائي شائع زي
-        // "لعزيزية" بدل "العزيزية" — نقص الألف بالبداية)
-        if (core.length >= 3 && w.length === core.length + 1 && w.endsWith(core)) return { district: d, city };
-      }
-    }
-  }
-  return null;
-}
-
 async function fetchAllDistrictPriceRows(){
   if (districtPriceRowsCache && (Date.now() - districtPriceContextCacheTime) < 600000){
     return districtPriceRowsCache;
@@ -2163,27 +2134,6 @@ function buildPriceContextText(rows){
 }
 
 async function askAiAssistant(text){
-  // فحص أول: هل السؤال يذكر حي معيّن بالاسم صراحة؟ لو نعم ولدينا سعره
-  // الحقيقي، نجاوب فوراً من قاعدة البيانات مباشرة — دقة 100%، بدون أي
-  // انتظار للذكاء الاصطناعي إطلاقاً (أسرع وأدق من تمرير 10 أحياء بس ونتمنى
-  // يكون الحي المطلوب منها).
-  const namedDistrict = detectDistrictName(text);
-  if (namedDistrict && looksLikePriceQuestion(text)){
-    const allRows = await fetchAllDistrictPriceRows();
-    const match = allRows?.find(r => r.name === namedDistrict.district && r.city === namedDistrict.city);
-    if (match){
-      const reply = currentLang === 'ar'
-        ? `متوسط سعر المتر بحي ${match.name} (${match.city}): ${money(match.price)} ر.س/م² — بيانات حقيقية موثَّقة من قاعدة بياناتنا.`
-        : `Average price per sqm in ${match.name} (${match.city}): ${money(match.price)} SAR/sqm — real documented data from our database.`;
-      assistantHistory.push({ role: 'user', text });
-      assistantHistory.push({ role: 'bot', text: reply });
-      if (assistantHistory.length > 20) assistantHistory = assistantHistory.slice(-20);
-      return { ok: true, reply };
-    }
-    // الحي مذكور بس ما عندنا سعر موثَّق له بعد — نكمل للذكاء الاصطناعي عادي
-    // (يقدر يوضّح إنه غير متوفر بدل ما نعلّق بصمت)
-  }
-
   assistantHistory.push({ role: 'user', text }); // نخزّن النص الأصلي النظيف بالسجل المعروض
   if (assistantHistory.length > 20) assistantHistory = assistantHistory.slice(-20);
 
