@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=Almarai:wght@400;700&display=swap" rel="stylesheet">
 <script src="lib/supabase.min.js"></script>
-<link rel="stylesheet" href="css/admin.css?v=20260907d">
+<link rel="stylesheet" href="css/admin.css?v=20260907e">
 </head>
 <body>
 
@@ -55,6 +55,7 @@
     <button class="tab-btn" data-tab="inquiries">الاستفسارات</button>
     <button class="tab-btn" data-tab="contracts">العقود</button>
     <button class="tab-btn" data-tab="cities">المدن والأحياء</button>
+    <button class="tab-btn" data-tab="team" data-owner-only>فريق العمل</button>
   </div>
 
   <main>
@@ -137,7 +138,7 @@
         <div class="field"><label>الوصف التفصيلي</label><textarea id="offer-description" rows="6" style="width:100%"></textarea></div>
         <div class="field"><label><input type="checkbox" id="offer-published" checked style="width:auto;display:inline-block"> منشور (ظاهر للزوار)</label></div>
         <div style="display:flex;gap:10px">
-          <button class="btn btn-primary" id="btn-save-offer">حفظ العرض</button>
+          <button class="btn btn-primary" id="btn-save-offer" data-owner-only>حفظ العرض</button>
           <button class="btn btn-ghost" id="btn-cancel-offer-edit" style="display:none">إلغاء التعديل</button>
         </div>
         <p id="offer-form-msg" style="font-size:13px;margin-top:8px"></p>
@@ -196,7 +197,7 @@
     <!-- Cities & Districts -->
     <section class="tab-panel" id="panel-cities">
       <div style="display:flex;gap:16px;flex-wrap:wrap">
-        <div class="card" style="flex:1 1 320px;padding:20px">
+        <div class="card" style="flex:1 1 320px;padding:20px" data-owner-only>
           <h3 style="margin:0 0 14px">إضافة مدينة جديدة</h3>
           <div class="field" style="margin-bottom:12px">
             <label>اسم المدينة</label>
@@ -214,7 +215,7 @@
           <p id="city-new-msg" style="font-size:13px;margin-top:10px;min-height:18px"></p>
         </div>
 
-        <div class="card" style="flex:1 1 320px;padding:20px">
+        <div class="card" style="flex:1 1 320px;padding:20px" data-owner-only>
           <h3 style="margin:0 0 14px">إضافة حي جديد</h3>
           <div class="field" style="margin-bottom:12px">
             <label>المدينة</label>
@@ -234,6 +235,33 @@
           <thead><tr><th>المدينة</th><th>عدد الأحياء المسجَّلة</th></tr></thead>
           <tbody id="cities-summary-tbody"></tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- Team -->
+    <section class="tab-panel" id="panel-team">
+      <div class="card" style="max-width:420px;padding:20px">
+        <h3 style="margin:0 0 6px">إضافة عضو فريق جديد</h3>
+        <p style="font-size:13px;color:var(--text-600);margin:0 0 16px">
+          فقط أنت (owner) تقدر تضيف أعضاء. الافتراضي "مشاهدة بس" — بدون حذف أو تعديل.
+        </p>
+        <div class="field" style="margin-bottom:12px">
+          <label>البريد الإلكتروني</label>
+          <input id="team-new-email" type="email" placeholder="colleague@example.com">
+        </div>
+        <div class="field" style="margin-bottom:12px">
+          <label>كلمة المرور المبدئية</label>
+          <input id="team-new-password" type="text" placeholder="6 أحرف على الأقل">
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label>الصلاحية</label>
+          <select id="team-new-role">
+            <option value="viewer" selected>مشاهدة بس (viewer)</option>
+            <option value="owner">صلاحيات كاملة (owner)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="btn-add-team-member" style="width:100%">إضافة العضو</button>
+        <p id="team-new-msg" style="font-size:13px;margin-top:10px;min-height:18px"></p>
       </div>
     </section>
   </main>
@@ -260,6 +288,6 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=20260907e"></script>
+<script src="js/admin.js?v=20260907f"></script>
 </body>
 </html>

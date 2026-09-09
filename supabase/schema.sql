@@ -894,36 +894,55 @@ create policy districts_public_read on districts
 -- (لا سياسات select/insert تُضاف هنا عمداً؛ RLS بدون سياسات = رفض كل شيء)
 
 -- ============================================================================
--- 9.5) لوحة التحكم الإدارية (admin.html) — صلاحيات authenticated فقط
+-- 9.5) لوحة التحكم الإدارية (admin.html) — نظام أدوار: owner / viewer
 -- ============================================================================
--- هذه الصلاحيات تُمنح فقط لمستخدم مسجَّل دخول عبر Supabase Auth (auth.role() =
--- 'authenticated')، وليس لمفتاح anon العام المستخدم بموقعك الرئيسي. أنشئ حساب
--- المدير الوحيد من: Supabase Dashboard → Authentication → Users → Add user
--- (بريد إلكتروني + كلمة مرور)، ثم سجّل الدخول منه فقط داخل admin.html.
--- هذا أبسط بكثير من نظام أدوار/جدول مستخدمين مخصّص، لكنه حماية حقيقية على
--- مستوى قاعدة البيانات نفسها — مو مجرد إخفاء رابط الصفحة.
+-- كل القراءة تبقى متاحة لأي حساب مسجَّل دخول (auth.role() = 'authenticated')
+-- — owner أو viewer سواء. الكتابة (إضافة/تعديل/حذف) صارت محصورة بـowner بس،
+-- عبر دالة is_owner() اللي تفحص حقل app_metadata.role بتوكن الحساب — حقل ما
+-- يقدر المستخدم نفسه يعدّله (يحتاج المفتاح القوي service_role)، عكس
+-- user_metadata اللي أي حساب يقدر يغيّره بنفسه ويرفّع صلاحياته بخداع.
+--
+-- ⚠️ الحساب الوحيد الحالي لازم يترقّى لـowner صراحة قبل تفعيل هذي السياسات،
+-- وإلا ينقفل حتى هو من كل عمليات الكتابة. شغّل هذا مرة وحدة بمحرر SQL
+-- (استبدل البريد ببريدك الفعلي):
+--   update auth.users set raw_app_meta_data = raw_app_meta_data || '{"role":"owner"}'::jsonb
+--   where email = 'ادخل-بريدك-هنا';
+-- بعدها سجّل خروج ودخول من admin.html عشان التوكن الجديد يحمل الدور المحدَّث.
+--
+-- حساب "viewer" جديد يُنشأ عبر دالة manage-admin-users (Edge Function) من
+-- قسم "فريق العمل" بلوحة التحكم — تتحقق إن الطالب owner فعلاً قبل الإنشاء.
+
+create or replace function public.is_owner()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'owner', false);
+$$;
 
 drop policy if exists properties_admin_read on properties;
 create policy properties_admin_read on properties
     for select using (auth.role() = 'authenticated');
 drop policy if exists properties_admin_update on properties;
 create policy properties_admin_update on properties
-    for update using (auth.role() = 'authenticated');
+    for update using (public.is_owner());
 drop policy if exists properties_admin_delete on properties;
 create policy properties_admin_delete on properties
-    for delete using (auth.role() = 'authenticated');
+    for delete using (public.is_owner());
 
 drop policy if exists inquiries_admin_read on inquiries;
 create policy inquiries_admin_read on inquiries
     for select using (auth.role() = 'authenticated');
 drop policy if exists inquiries_admin_update on inquiries;
 create policy inquiries_admin_update on inquiries
-    for update using (auth.role() = 'authenticated');
+    for update using (public.is_owner());
 
 drop policy if exists offers_admin_write on offers;
 create policy offers_admin_write on offers
-    for all using (auth.role() = 'authenticated')
-    with check (auth.role() = 'authenticated');
+    for all using (public.is_owner())
+    with check (public.is_owner());
 
 -- العقود/الأطراف/الدفعات: قراءة إدارية فقط (نفس نمط بقية اللوحة) — كانت
 -- مفقودة تماماً؛ بدونها admin.html يقدر يكتب عقود (عبر create_contract_with_schedule
@@ -940,20 +959,20 @@ create policy contract_installments_admin_read on contract_installments
 -- تعليم دفعة "مدفوعة" يدوياً من لوحة التحكم (كانت ناقصة — العرض بس بدون تحديث ممكن)
 drop policy if exists contract_installments_admin_update on contract_installments;
 create policy contract_installments_admin_update on contract_installments
-    for update using (auth.role() = 'authenticated')
-    with check (auth.role() = 'authenticated');
+    for update using (public.is_owner())
+    with check (public.is_owner());
 
--- 9.6) إضافة مدن/أحياء جديدة — إدارة فقط (لوحة التحكم)
+-- 9.6) إضافة مدن/أحياء جديدة — owner فقط (لوحة التحكم)
 -- قبل هذا لم يكن مسموحاً بالإضافة إطلاقاً (لا حتى للإدارة) — القراءة العامة
 -- فقط كانت مفعّلة (§ cities_public_read / districts_public_read أعلاه).
 -- هذا يفتح باب "إضافة مدينة/حي" من admin.html مباشرة لقاعدة البيانات، والموقع
 -- العام يقرأ النتيجة تلقائياً بدون أي نشر كود جديد.
 drop policy if exists cities_admin_insert on cities;
 create policy cities_admin_insert on cities
-    for insert with check (auth.role() = 'authenticated');
+    for insert with check (public.is_owner());
 drop policy if exists districts_admin_insert on districts;
 create policy districts_admin_insert on districts
-    for insert with check (auth.role() = 'authenticated');
+    for insert with check (public.is_owner());
 
 -- ============================================================================
 -- 10) جدولة فحص التنبيهات يومياً عبر pg_cron (بديل خادم Python الدائم)
@@ -997,16 +1016,16 @@ drop policy if exists "property_images_public_read" on storage.objects;
 create policy "property_images_public_read" on storage.objects
     for select using (bucket_id = 'property-images');
 
--- الرفع والحذف والاستبدال حصراً للمدير المسجَّل دخول (نفس نمط باقي اللوحة)
+-- الرفع والحذف والاستبدال حصراً لـowner (نفس نمط باقي اللوحة)
 drop policy if exists "property_images_admin_insert" on storage.objects;
 create policy "property_images_admin_insert" on storage.objects
-    for insert with check (bucket_id = 'property-images' and auth.role() = 'authenticated');
+    for insert with check (bucket_id = 'property-images' and public.is_owner());
 drop policy if exists "property_images_admin_update" on storage.objects;
 create policy "property_images_admin_update" on storage.objects
-    for update using (bucket_id = 'property-images' and auth.role() = 'authenticated');
+    for update using (bucket_id = 'property-images' and public.is_owner());
 drop policy if exists "property_images_admin_delete" on storage.objects;
 create policy "property_images_admin_delete" on storage.objects
-    for delete using (bucket_id = 'property-images' and auth.role() = 'authenticated');
+    for delete using (bucket_id = 'property-images' and public.is_owner());
 
 -- ============================================================================
 -- 11) مراقبة الوظائف التلقائية + إحصائيات زيارات خفيفة
