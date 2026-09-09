@@ -2095,6 +2095,20 @@ let assistantHistory = [];
 let districtPriceRowsCache = null;
 let districtPriceContextCacheTime = 0;
 
+/* أسئلة "أغلى/أرخص حي" لا تحتاج ذكاء اصطناعي إطلاقاً — هي عملية فرز رقمية
+   بسيطة، وعندنا البيانات جاهزة بالمتصفح أصلاً. نكتشفها ونحسبها مباشرة،
+   ونستخدم Gemini بس للأسئلة اللي فعلاً تحتاج صياغة أو فهم مفتوح. */
+const SUPERLATIVE_HIGH_KW = ['أغلى','اغلى','اغلا','أعلى','اعلى'];
+const SUPERLATIVE_LOW_KW = ['أرخص','ارخص','أدنى','ادنى','أقل','اقل'];
+function detectPriceSuperlative(text){
+  const norm = normalizeArabicForMatch(text);
+  const isHigh = SUPERLATIVE_HIGH_KW.some(k => norm.includes(normalizeArabicForMatch(k)));
+  const isLow = SUPERLATIVE_LOW_KW.some(k => norm.includes(normalizeArabicForMatch(k)));
+  if (isHigh && !isLow) return 'high';
+  if (isLow && !isHigh) return 'low';
+  return null; // غامض (فيه الاثنين) أو ولا وحدة — نسيب الأمر لـGemini
+}
+
 function looksLikePriceQuestion(text){
   const keywords = ['سعر','اسعار','أسعار','ارخص','أرخص','اخفض','أخفض','اعلى','أعلى','اغلى','أغلى','غالي','رخيص','حي ','أحياء','احياء','متر'];
   return keywords.some(k => text.includes(k));
@@ -2263,6 +2277,10 @@ async function handleAssistSend(textOverride, isPredefinedChip){
   const matchedRule = t.rules.find(r => r.kw.some(k => lowerText.includes(normalizeArabicForMatch(k))));
   const useStaticRule = matchedRule && !looksLikePriceQuestion(text);
 
+  // "أغلى/أرخص حي" — فرز رقمي بسيط، نحسبه محلياً بدون أي اتصال بالذكاء
+  // الاصطناعي (فوري، مجاني، صفر احتمال تايم آوت من Gemini)
+  const superlative = looksLikePriceQuestion(text) ? detectPriceSuperlative(text) : null;
+
   if (isSearch){
     const results = await searchProperties(q);
     await sleep(350);
@@ -2281,6 +2299,37 @@ async function handleAssistSend(textOverride, isPredefinedChip){
       addAssistMsg(t.resultsIntro(results.length), 'bot', cardsHtml);
     }
     showPage('offers');
+  } else if (superlative){
+    const allRows = await fetchAllDistrictPriceRows();
+    await sleep(300);
+    hideTyping();
+    if (!allRows || !allRows.length){
+      // ما قدرنا نجيب بيانات الأسعار (قاعدة بيانات غير متاحة مثلاً) — نكمل
+      // بالطريقة العادية (Gemini) كحل احتياطي بدل ما نوقف الرد كلياً
+      const aiReply = await askAiAssistant(text);
+      if (aiReply.ok) addAssistMsg(aiReply.reply, 'bot');
+      else {
+        console.error('AI assistant unavailable, using static fallback:', aiReply.error);
+        const { reply, goto } = assistantReply(text);
+        addAssistMsg(reply, 'bot');
+        if (goto) showPage(goto);
+      }
+    } else {
+      const mentionedCity = detectCity(text, text.toLowerCase());
+      const rows = mentionedCity ? allRows.filter(r => r.city === mentionedCity) : allRows;
+      if (!rows.length){
+        addAssistMsg(currentLang==='ar' ? `ما لقيت بيانات أسعار كافية حالياً${mentionedCity ? ' لـ' + cityLabel(mentionedCity) : ''}.` : `Not enough price data available${mentionedCity ? ' for ' + cityLabel(mentionedCity) : ''} right now.`, 'bot');
+      } else {
+        // rows مرتّبة تصاعدياً أصلاً (من fetchAllDistrictPriceRows)
+        const target = superlative === 'high' ? rows[rows.length - 1] : rows[0];
+        const cityPhraseAr = mentionedCity ? ` في ${cityLabel(mentionedCity)}` : '';
+        const cityPhraseEn = mentionedCity ? ` in ${cityLabel(mentionedCity)}` : '';
+        const reply = currentLang==='ar'
+          ? `${superlative==='high' ? 'أغلى حي' : 'أقل حي سعراً'}${cityPhraseAr} حسب بياناتنا هو حي ${districtLabel(target.name)} بمتوسط سعر ${money(target.price)} ريال/م².`
+          : `${superlative==='high' ? 'The most expensive district' : 'The cheapest district'}${cityPhraseEn} according to our data is ${districtLabel(target.name)}, averaging ${money(target.price)} SAR/sqm.`;
+        addAssistMsg(reply, 'bot');
+      }
+    }
   } else if (isPredefinedChip || useStaticRule){
     // الأزرار الجاهزة، أو رسالة مكتوبة يدوياً تطابق قسم معروف بدقة —
     // إجاباتها معروفة مسبقاً 100%، لا داعي لانتظار الذكاء الاصطناعي (أبطأ،
