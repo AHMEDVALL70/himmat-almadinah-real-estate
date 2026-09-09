@@ -24,8 +24,8 @@
     <h1>لوحة التحكم</h1>
     <p>همة المدينة العقارية — دخول المدير فقط</p>
     <div class="field">
-      <label>البريد الإلكتروني</label>
-      <input id="login-email" type="email" autocomplete="username">
+      <label>البريد الإلكتروني / اسم الدخول / الجوال</label>
+      <input id="login-email" type="text" autocomplete="username">
     </div>
     <div class="field">
       <label>كلمة المرور</label>
@@ -246,8 +246,16 @@
           فقط أنت (owner) تقدر تضيف أعضاء. الافتراضي "مشاهدة بس" — بدون حذف أو تعديل.
         </p>
         <div class="field" style="margin-bottom:12px">
-          <label>البريد الإلكتروني</label>
-          <input id="team-new-email" type="email" placeholder="colleague@example.com">
+          <label>طريقة تسجيل الدخول</label>
+          <select id="team-new-idtype">
+            <option value="email" selected>بريد إلكتروني</option>
+            <option value="username">اسم دخول (بدون بريد)</option>
+            <option value="phone">رقم جوال — يحتاج ربط SMS بحسابك أولاً</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:12px">
+          <label id="team-new-identifier-label">البريد الإلكتروني</label>
+          <input id="team-new-identifier" type="email" placeholder="colleague@example.com">
         </div>
         <div class="field" style="margin-bottom:12px">
           <label>كلمة المرور المبدئية</label>
@@ -263,6 +271,13 @@
         </div>
         <button class="btn btn-primary" id="btn-add-team-member" style="width:100%">إضافة العضو</button>
         <p id="team-new-msg" style="font-size:13px;margin-top:10px;min-height:18px"></p>
+      </div>
+
+      <div class="card" style="padding:0;overflow-x:auto;margin-top:16px">
+        <table>
+          <thead><tr><th>المعرّف</th><th>الصلاحية</th><th>الحالة</th><th>تاريخ الإنشاء</th><th>إجراءات</th></tr></thead>
+          <tbody id="team-members-tbody"><tr><td colspan="5">جارٍ التحميل...</td></tr></tbody>
+        </table>
       </div>
     </section>
   </main>
@@ -289,6 +304,6 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=20260907h"></script>
+<script src="js/admin.js?v=20260907i"></script>
 </body>
 </html>
