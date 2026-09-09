@@ -183,7 +183,48 @@ document.getElementById('btn-add-district')?.addEventListener('click', async ()=
   }
 });
 
-function money(n){ return Math.round(n || 0).toLocaleString('en-US'); }
+/* ============================================================================
+   فريق العمل — إضافة عضو جديد (owner فقط، عبر Edge Function آمنة)
+   ========================================================================== */
+document.getElementById('btn-add-team-member')?.addEventListener('click', async ()=>{
+  const emailInput = document.getElementById('team-new-email');
+  const passwordInput = document.getElementById('team-new-password');
+  const roleSelect = document.getElementById('team-new-role');
+  const msg = document.getElementById('team-new-msg');
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+  const role = roleSelect.value;
+
+  if (!email || !password){
+    msg.textContent = '⚠️ عبّئ البريد وكلمة المرور.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+  if (password.length < 6){
+    msg.textContent = '⚠️ كلمة المرور لازم تكون 6 أحرف على الأقل.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+  msg.textContent = 'جارٍ الإضافة...';
+  msg.style.color = 'var(--text-600)';
+  try {
+    const { data, error } = await supa.functions.invoke('manage-admin-users', {
+      body: { email, password, role },
+    });
+    if (error || data?.error){
+      msg.textContent = '⚠️ ' + (data?.error || error.message);
+      msg.style.color = 'var(--danger)';
+      return;
+    }
+    msg.textContent = `✅ تمت إضافة ${email} بصلاحية ${role === 'owner' ? 'كاملة' : 'مشاهدة بس'}.`;
+    msg.style.color = 'var(--ok)';
+    emailInput.value = ''; passwordInput.value = '';
+  } catch (e) {
+    msg.textContent = '⚠️ تعذّر الاتصال بالخادم.';
+    msg.style.color = 'var(--danger)';
+    console.error('btn-add-team-member failed', e);
+  }
+});
 // بيانات الأطراف تجي من نموذج عام بالموقع الرئيسي (مو محمي بتسجيل دخول)،
 // فلازم تعقيمها قبل عرضها هنا لمنع أي حقن HTML/script بحقول العقد.
 function escapeAdmin(s){ const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
@@ -202,6 +243,12 @@ async function checkSession(){
   applySessionUI(session);
 }
 
+let currentUserRole = null;
+
+function applyRoleUI(){
+  document.body.classList.toggle('viewer-mode', currentUserRole !== 'owner');
+}
+
 function applySessionUI(session){
   const preLoginLink = document.getElementById('pre-login-home-link');
   if (session){
@@ -209,12 +256,17 @@ function applySessionUI(session){
     document.getElementById('app').style.display = 'block';
     if (preLoginLink) preLoginLink.style.display = 'none';
     document.getElementById('admin-email').textContent = session.user.email;
+    // viewer افتراضي (أكثر أماناً) لو ما فيه دور محفوظ إطلاقاً — بس هذا ما
+    // يفترض يصير للحساب owner الحالي بعد ما يشغّل المستخدم الـmigration
+    currentUserRole = session.user.app_metadata?.role || 'viewer';
+    applyRoleUI();
     loadDashboard();
     refreshCityDistrictData();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
     if (preLoginLink) preLoginLink.style.display = 'flex';
+    currentUserRole = null;
   }
 }
 
@@ -445,10 +497,10 @@ async function loadProperties(){
         <td><span class="badge badge-${p.status}">${statusLabel(p.status)}</span></td>
         <td>${p.submitted_by_contact || '—'}</td>
         <td class="actions-cell">
-          ${p.status !== 'approved' ? `<button class="btn btn-ok" onclick="setPropertyStatus('${p.id}','approved')">اعتماد</button>` : ''}
-          ${p.status !== 'rejected' ? `<button class="btn btn-danger" onclick="setPropertyStatus('${p.id}','rejected')">رفض</button>` : ''}
-          ${p.status === 'approved' ? `<button class="btn btn-ghost" onclick="convertToOffer('${p.id}')">تحويل لعرض</button>` : ''}
-          <button class="btn btn-ghost" onclick="deleteProperty('${p.id}')">حذف</button>
+          ${p.status !== 'approved' ? `<button class="btn btn-ok" data-owner-only onclick="setPropertyStatus('${p.id}','approved')">اعتماد</button>` : ''}
+          ${p.status !== 'rejected' ? `<button class="btn btn-danger" data-owner-only onclick="setPropertyStatus('${p.id}','rejected')">رفض</button>` : ''}
+          ${p.status === 'approved' ? `<button class="btn btn-ghost" data-owner-only onclick="convertToOffer('${p.id}')">تحويل لعرض</button>` : ''}
+          <button class="btn btn-ghost" data-owner-only onclick="deleteProperty('${p.id}')">حذف</button>
         </td>
       </tr>`;
     }).join('');
@@ -685,9 +737,9 @@ async function loadOffers(){
         </td>
         <td class="actions-cell">
           <button class="btn btn-ghost" onclick="editOffer('${o.id}')">تعديل</button>
-          <button class="btn btn-ghost" onclick="toggleOfferPublish('${o.id}', ${!o.is_published})">${o.is_published ? 'إخفاء' : 'نشر'}</button>
-          <button class="btn btn-ghost" onclick="toggleOfferSold('${o.id}', ${!o.is_sold})">${o.is_sold ? 'إرجاع للمتاح' : 'تم البيع'}</button>
-          <button class="btn btn-danger" onclick="deleteOffer('${o.id}')">حذف</button>
+          <button class="btn btn-ghost" data-owner-only onclick="toggleOfferPublish('${o.id}', ${!o.is_published})">${o.is_published ? 'إخفاء' : 'نشر'}</button>
+          <button class="btn btn-ghost" data-owner-only onclick="toggleOfferSold('${o.id}', ${!o.is_sold})">${o.is_sold ? 'إرجاع للمتاح' : 'تم البيع'}</button>
+          <button class="btn btn-danger" data-owner-only onclick="deleteOffer('${o.id}')">حذف</button>
         </td>
       </tr>`).join('');
   } catch (e) {
@@ -786,8 +838,8 @@ async function loadInquiries(){
         <td><span class="badge badge-${i.status}">${statusLabel(i.status)}</span></td>
         <td>${new Date(i.created_at).toLocaleDateString('ar-SA')}</td>
         <td class="actions-cell">
-          ${i.status !== 'contacted' ? `<button class="btn btn-ghost" onclick="setInquiryStatus('${i.id}','contacted')">تم التواصل</button>` : ''}
-          ${i.status !== 'closed' ? `<button class="btn btn-ghost" onclick="setInquiryStatus('${i.id}','closed')">إغلاق</button>` : ''}
+          ${i.status !== 'contacted' ? `<button class="btn btn-ghost" data-owner-only onclick="setInquiryStatus('${i.id}','contacted')">تم التواصل</button>` : ''}
+          ${i.status !== 'closed' ? `<button class="btn btn-ghost" data-owner-only onclick="setInquiryStatus('${i.id}','closed')">إغلاق</button>` : ''}
         </td>
       </tr>`).join('');
   } catch (e) {
@@ -937,7 +989,7 @@ async function toggleInstallments(contractId){
                <td>${new Date(i.due_date).toLocaleDateString('ar-SA')}</td>
                <td>${money(i.total_installment)} ر.س</td>
                <td>${i.payment_status === 'PAID' ? '✅ مدفوعة' : '⏳ قيد الانتظار'}</td>
-               <td>${i.payment_status !== 'PAID' ? `<button class="btn btn-ghost" onclick="markInstallmentPaid('${i.id}', '${contractId}')">تم السداد</button>` : ''}</td>
+               <td>${i.payment_status !== 'PAID' ? `<button class="btn btn-ghost" data-owner-only onclick="markInstallmentPaid('${i.id}', '${contractId}')">تم السداد</button>` : ''}</td>
              </tr>`).join('')}</tbody>
          </table>`
       : 'لا توجد دفعات مسجّلة لهذا العقد.';

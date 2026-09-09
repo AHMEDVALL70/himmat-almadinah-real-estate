@@ -66,3 +66,6 @@ tr:hover td{background:#fafbfc}
 .empty-row td{text-align:center;color:var(--text-600);padding:28px}
 #toast{position:fixed;bottom:20px;left:20px;background:var(--navy-900);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;display:none;z-index:50}
 .hide{display:none !important}
+/* حساب viewer (مشاهدة بس) — يخفي أي زر/قسم إجرائي (إضافة/تعديل/حذف) تلقائياً،
+   حتى لو أُضيف للصفحة لاحقاً بجدول متجدّد ديناميكياً */
+body.viewer-mode [data-owner-only]{display:none !important}
