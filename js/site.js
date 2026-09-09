@@ -47,7 +47,7 @@ const I18N = {
     offers_desc:"عروض تتحدّث فور ما يضيفها فريقنا — بدون تحديث يدوي ولا صفحات قديمة.",
     services_eyebrow:"خدماتنا", services_title:"ماذا نقدّم", map_title:"الخريطة العقارية",
     val_eyebrow:"مؤشر فوري", val_title:"استشارات ودراسات عقارية استرشادية",
-    val_desc:"خمس معلومات بسيطة، وتقدير سعري شفاف خلال ثوانٍ.",
+    val_desc:"خمس معلومات بسيطة، ومؤشر سعري شفاف خلال ثوانٍ.",
     val_honesty_label:"ملاحظة مهمة حول الدقة: ",
     val_honesty_text:"هذا المؤشر ناتج معادلة حسابية شفافة، وليس نموذج ذكاء اصطناعي مُدرَّب على بيانات فعلية.",
     val_run:"احسب المؤشر", res_low:"أدنى النطاق (ر.س)", res_high:"أعلى النطاق (ر.س)",
@@ -145,10 +145,10 @@ const I18N = {
     featured_eyebrow:"Picked for you", featured_title:"Featured Properties", featured_see_all:"See all offers →",
     offers_desc:"Offers update the moment our team adds them — no manual refresh, no stale pages.",
     services_eyebrow:"Our Services", services_title:"What We Offer", map_title:"Property Map",
-    val_eyebrow:"Instant estimate", val_title:"Guided Real Estate Consulting & Studies",
-    val_desc:"Five simple details, and a transparent price estimate in seconds.",
+    val_eyebrow:"Instant indicator", val_title:"Guided Real Estate Consulting & Studies",
+    val_desc:"Five simple details, and a transparent price indicator in seconds.",
     val_honesty_label:"Accuracy note: ",
-    val_honesty_text:"This estimate comes from a transparent formula, not an AI model trained on real transaction data.",
+    val_honesty_text:"This indicator comes from a transparent formula, not an AI model trained on real transaction data.",
     val_run:"Calculate Estimate", res_low:"Low range (SAR)", res_high:"High range (SAR)",
     val_breakdown_hint:"The formula breakdown will appear here after you click \"Calculate Estimate\".",
     finance_title:"Mortgage Calculator", finance_result_label:"Approx. monthly payment",
@@ -370,7 +370,7 @@ const FAQ_I18N = {
   ],
   en: [
     {q:"How do I list my property?", a:"From the “List Property” section, enter the details and click “Submit for review”. It appears in Analytics after a quick review by our team to keep data quality high."},
-    {q:"Is the valuation officially certified?", a:"No. It's a guided estimate from a transparent formula (price per sqm × area with adjustment factors) — not a certified valuation and not a trained AI model."},
+    {q:"Is the valuation officially certified?", a:"No. It's a guided indicator from a transparent formula (price per sqm × area with adjustment factors) — not a certified valuation and not a trained AI model."},
     {q:"Can I sign a contract directly?", a:"From the Contracts section you can fill in the details, generate the contract, and save it to our database, then print it for signing. The full payment schedule is saved automatically."},
     {q:"Do you cover other cities?", a:"We currently cover Madinah, Makkah, Jeddah and Riyadh, and you can add a city that isn't listed directly from the valuation or add-property forms."},
     {q:"Are the tools free?", a:"Yes, the guided valuation tool and the contract generator are both free."},
@@ -407,7 +407,7 @@ const PRIVACY_I18N = {
 const TERMS_I18N = {
   ar: [
     {h:"قبول الشروط", p:"باستخدامك هذا الموقع فإنك توافق على هذه الشروط بالكامل. إن لم توافق، يرجى عدم استخدام الموقع."},
-    {h:"طبيعة الخدمة", p:"يقدّم الموقع تقديراً عقارياً استرشادياً (معادلة حسابية شفافة، وليس تقييماً معتمداً رسمياً)، ونماذج توليد عقود (نقطة انطلاق وليست بديلاً عن استشارة قانونية متخصصة)."},
+    {h:"طبيعة الخدمة", p:"يقدّم الموقع مؤشراً عقارياً استرشادياً (معادلة حسابية شفافة، وليس تقييماً معتمداً رسمياً)، ونماذج توليد عقود (نقطة انطلاق وليست بديلاً عن استشارة قانونية متخصصة)."},
     {h:"مسؤولية المستخدم", p:"أنت مسؤول عن دقة أي بيانات تُدخلها (بيانات العقار، أطراف العقد، معلومات التواصل)، وعن التحقق منها قبل الاعتماد عليها في أي قرار."},
     {h:"الملكية الفكرية", p:"جميع حقوق المحتوى والتصميم والعلامة التجارية محفوظة لهمة المدينة العقارية، ولا يجوز نسخها أو إعادة استخدامها دون إذن كتابي."},
     {h:"حدود المسؤولية", p:"لا تتحمل همة المدينة العقارية مسؤولية أي قرار مالي أو قانوني يُتخذ استناداً فقط إلى المؤشرات الاسترشادية أو نماذج العقود دون مراجعة مختص عقاري أو قانوني مرخّص."},
@@ -417,10 +417,10 @@ const TERMS_I18N = {
   ],
   en: [
     {h:"Acceptance of terms", p:"By using this site, you agree to these terms in full. If you don't agree, please don't use the site."},
-    {h:"Nature of the service", p:"The site provides a guided property estimate (a transparent formula, not a certified official valuation) and contract-drafting templates (a starting point, not a substitute for specialized legal advice)."},
+    {h:"Nature of the service", p:"The site provides a guided property indicator (a transparent formula, not a certified official valuation) and contract-drafting templates (a starting point, not a substitute for specialized legal advice)."},
     {h:"User responsibility", p:"You're responsible for the accuracy of any data you enter (property details, contract parties, contact information), and for verifying it before relying on it for any decision."},
     {h:"Intellectual property", p:"All content, design, and brand rights belong to Himmat Al Madinah Real Estate and may not be copied or reused without written permission."},
-    {h:"Limitation of liability", p:"Himmat Al Madinah Real Estate is not liable for any financial or legal decision made based solely on the guided estimates or contract templates without review by a licensed real estate or legal professional."},
+    {h:"Limitation of liability", p:"Himmat Al Madinah Real Estate is not liable for any financial or legal decision made based solely on the guided indicators or contract templates without review by a licensed real estate or legal professional."},
     {h:"Changes to these terms", p:"We reserve the right to modify these terms at any time; continued use of the site after changes constitutes acceptance."},
     {h:"Governing law", p:"These terms are governed by and construed in accordance with the laws of Saudi Arabia."},
     {h:"Contact", p:"For any question about these terms, please reach us via the Contact page."},
@@ -1287,10 +1287,10 @@ function runValuation(){
   const sourceNote = {
     ar: usingRealPrice
       ? `سعر المتر (${money(pricePerSqm)} ر.س) وسيط صفقات فعلية موثّقة لحي ${districtVal} — ${periodDesc.ar} (مصدر: وزارة العدل عبر رغدان العقارية) — قد يختلف عن سعر السوق الحالي بالضبط في الأحياء سريعة الارتفاع.`
-      : `سعر المتر (${money(pricePerSqm)} ر.س) هو متوسط تقديري لمدينة ${cityVal} بالكامل (ما فيه بيانات صفقات فعلية موثّقة لحي ${districtVal} بعد)، معدَّل بتصنيف الحي اليدوي.`,
+      : `سعر المتر (${money(pricePerSqm)} ر.س) هو متوسط استرشادي لمدينة ${cityVal} بالكامل (ما فيه بيانات صفقات فعلية موثّقة لحي ${districtVal} بعد)، معدَّل بتصنيف الحي اليدوي.`,
     en: usingRealPrice
       ? `The per-sqm price (${money(pricePerSqm)} SAR) is a median of documented transactions for ${districtVal} — ${periodDesc.en} (source: Ministry of Justice via Raghdan) — may differ from the exact current market price in fast-appreciating districts.`
-      : `The per-sqm price (${money(pricePerSqm)} SAR) is a citywide estimate for ${cityVal} (no verified transaction data for ${districtVal} yet), adjusted by the manual district grade.`,
+      : `The per-sqm price (${money(pricePerSqm)} SAR) is a citywide indicator for ${cityVal} (no verified transaction data for ${districtVal} yet), adjusted by the manual district grade.`,
   };
   const priceSourceEl = document.getElementById('v-price-source');
   priceSourceEl.className = 'notice ' + (usingRealPrice ? 'notice-ok-source' : 'notice-warn');
@@ -1960,7 +1960,7 @@ const ASSIST_I18N = {
     noResults:"I couldn't find an exact match — try broadening your search or browse all offers.",
     resultsIntro: n => `Found ${n} roughly matching result(s):`,
     rules: [
-      { kw:['valuation','estimate'], reply:"Use the “Valuation” section to get an instant guided estimate.", goto:'valuation' },
+      { kw:['valuation','estimate'], reply:"Use the “Valuation” section to get an instant guided indicator.", goto:'valuation' },
       { kw:['contract'], reply:"The “Contracts” section generates a residential or commercial contract with its payment schedule saved automatically.", goto:'contracts' },
       { kw:['list','add'], reply:"The “List Property” section lets you register your property — it goes live after a quick review.", goto:'add-property' },
       { kw:['offer'], reply:"The latest offers are in the “Offers” section.", goto:'offers' },
