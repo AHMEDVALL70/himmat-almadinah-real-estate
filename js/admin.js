@@ -184,19 +184,39 @@ document.getElementById('btn-add-district')?.addEventListener('click', async ()=
 });
 
 /* ============================================================================
-   فريق العمل — إضافة عضو جديد (owner فقط، عبر Edge Function آمنة)
+   فريق العمل — إضافة/عرض/حذف/تعطيل/تغيير كلمة مرور (owner فقط، عبر Edge Function آمنة)
    ========================================================================== */
+const TEAM_IDTYPE_CONFIG = {
+  email:    { label: 'البريد الإلكتروني', type: 'email', placeholder: 'colleague@example.com' },
+  username: { label: 'اسم الدخول',        type: 'text',  placeholder: 'مثال: sara_ahmed (حروف/أرقام إنجليزية بس)' },
+  phone:    { label: 'رقم الجوال (بالصيغة الدولية)', type: 'tel', placeholder: 'مثال: 966501234567+' },
+};
+
+document.getElementById('team-new-idtype')?.addEventListener('change', (e)=>{
+  const cfg = TEAM_IDTYPE_CONFIG[e.target.value] || TEAM_IDTYPE_CONFIG.email;
+  document.getElementById('team-new-identifier-label').textContent = cfg.label;
+  const input = document.getElementById('team-new-identifier');
+  input.type = cfg.type;
+  input.placeholder = cfg.placeholder;
+  input.value = '';
+});
+
+function roleArabicLabel(role){
+  return { owner:'صلاحيات كاملة', editor:'كل الصلاحيات إلا المدن/الفريق', viewer:'مشاهدة بس' }[role] || role;
+}
+
 document.getElementById('btn-add-team-member')?.addEventListener('click', async ()=>{
-  const emailInput = document.getElementById('team-new-email');
+  const idType = document.getElementById('team-new-idtype').value;
+  const identifierInput = document.getElementById('team-new-identifier');
   const passwordInput = document.getElementById('team-new-password');
   const roleSelect = document.getElementById('team-new-role');
   const msg = document.getElementById('team-new-msg');
-  const email = emailInput.value.trim();
+  const identifier = identifierInput.value.trim();
   const password = passwordInput.value;
   const role = roleSelect.value;
 
-  if (!email || !password){
-    msg.textContent = '⚠️ عبّئ البريد وكلمة المرور.';
+  if (!identifier || !password){
+    msg.textContent = '⚠️ عبّئ الحقل وكلمة المرور.';
     msg.style.color = 'var(--danger)';
     return;
   }
@@ -208,23 +228,93 @@ document.getElementById('btn-add-team-member')?.addEventListener('click', async 
   msg.textContent = 'جارٍ الإضافة...';
   msg.style.color = 'var(--text-600)';
   try {
-    const { data, error } = await supa.functions.invoke('manage-admin-users', {
-      body: { email, password, role },
-    });
+    const payload = { action: 'create', password, role, identifierType: idType };
+    if (idType === 'email') payload.email = identifier;
+    else if (idType === 'username') payload.username = identifier;
+    else if (idType === 'phone') payload.phone = identifier;
+
+    const { data, error } = await supa.functions.invoke('manage-admin-users', { body: payload });
     if (error || data?.error){
       msg.textContent = '⚠️ ' + (data?.error || error.message);
       msg.style.color = 'var(--danger)';
       return;
     }
-    msg.textContent = `✅ تمت إضافة ${email} بصلاحية ${role === 'owner' ? 'كاملة' : 'مشاهدة بس'}.`;
+    msg.textContent = `✅ تمت الإضافة بصلاحية ${roleArabicLabel(role)}.`;
     msg.style.color = 'var(--ok)';
-    emailInput.value = ''; passwordInput.value = '';
+    identifierInput.value = ''; passwordInput.value = '';
+    loadTeamMembers();
   } catch (e) {
     msg.textContent = '⚠️ تعذّر الاتصال بالخادم.';
     msg.style.color = 'var(--danger)';
     console.error('btn-add-team-member failed', e);
   }
 });
+
+async function loadTeamMembers(){
+  const tbody = document.getElementById('team-members-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5">جارٍ التحميل...</td></tr>';
+  try {
+    const { data, error } = await supa.functions.invoke('manage-admin-users', { body: { action: 'list' } });
+    if (error || data?.error){
+      tbody.innerHTML = `<tr><td colspan="5">⚠️ ${escapeAdmin(data?.error || error.message)}</td></tr>`;
+      return;
+    }
+    const callerId = data.callerId;
+    tbody.innerHTML = (data.users || []).map(u=>{
+      const idLabel = u.email || (u.username ? `${escapeAdmin(u.username)} (اسم دخول)` : '') || u.phone || '—';
+      const isSelf = u.id === callerId;
+      const dateLabel = u.created_at ? new Date(u.created_at).toLocaleDateString('ar-SA') : '—';
+      return `<tr>
+        <td>${idLabel}</td>
+        <td>${roleArabicLabel(u.role)}</td>
+        <td>${u.banned ? '<span class="badge badge-closed">معطّل</span>' : '<span class="badge badge-approved">فعّال</span>'}</td>
+        <td>${dateLabel}</td>
+        <td class="actions-cell">
+          ${isSelf ? '<span style="color:var(--text-600);font-size:12px">هذا حسابك</span>' : `
+            <button class="btn btn-ghost" onclick="resetTeamMemberPassword('${u.id}')">كلمة مرور</button>
+            <button class="btn btn-ghost" onclick="toggleTeamMemberBan('${u.id}', ${!u.banned})">${u.banned ? 'تفعيل' : 'تعطيل'}</button>
+            <button class="btn btn-danger" onclick="deleteTeamMember('${u.id}')">حذف</button>
+          `}
+        </td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5">لا يوجد أعضاء</td></tr>';
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="5">⚠️ تعذّر الاتصال بالخادم</td></tr>';
+    console.error('loadTeamMembers failed', e);
+  }
+}
+
+async function deleteTeamMember(id){
+  if (!confirm('حذف هذا العضو نهائياً؟ لا يمكن التراجع.')) return;
+  try {
+    const { data, error } = await supa.functions.invoke('manage-admin-users', { body: { action: 'delete', userId: id } });
+    if (error || data?.error){ showToast('⚠️ ' + (data?.error || error.message)); return; }
+    showToast('🗑️ تم الحذف');
+    loadTeamMembers();
+  } catch (e) { console.error(e); showToast('⚠️ تعذّر الحذف'); }
+}
+
+async function toggleTeamMemberBan(id, ban){
+  if (!confirm(ban ? 'تعطيل هذا العضو؟ ما يقدر يسجّل دخول لين تفعّله مرة ثانية.' : 'إعادة تفعيل هذا العضو؟')) return;
+  try {
+    const { data, error } = await supa.functions.invoke('manage-admin-users', { body: { action: 'toggle_ban', userId: id, ban } });
+    if (error || data?.error){ showToast('⚠️ ' + (data?.error || error.message)); return; }
+    showToast(ban ? '⏸️ تم التعطيل' : '▶️ تم التفعيل');
+    loadTeamMembers();
+  } catch (e) { console.error(e); showToast('⚠️ تعذّر التحديث'); }
+}
+
+async function resetTeamMemberPassword(id){
+  const newPassword = prompt('اكتب كلمة المرور الجديدة لهذا العضو (6 أحرف على الأقل):');
+  if (!newPassword) return;
+  if (newPassword.length < 6){ showToast('⚠️ كلمة المرور قصيرة جداً'); return; }
+  try {
+    const { data, error } = await supa.functions.invoke('manage-admin-users', { body: { action: 'set_password', userId: id, newPassword } });
+    if (error || data?.error){ showToast('⚠️ ' + (data?.error || error.message)); return; }
+    showToast('🔑 تم تغيير كلمة المرور');
+  } catch (e) { console.error(e); showToast('⚠️ تعذّر التحديث'); }
+}
 
 function money(n){ return Math.round(n || 0).toLocaleString('en-US'); }
 // بيانات الأطراف تجي من نموذج عام بالموقع الرئيسي (مو محمي بتسجيل دخول)،
@@ -280,13 +370,25 @@ supa.auth.onAuthStateChange((_event, session) => {
 });
 
 document.getElementById('btn-login').addEventListener('click', async ()=>{
-  const email = document.getElementById('login-email').value.trim();
+  const raw = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   const msg = document.getElementById('login-msg');
   msg.style.color = 'var(--text-600)';
   msg.textContent = 'جاري الدخول...';
+  // يدعم 3 صيغ تلقائياً حسب المكتوب: بريد إلكتروني عادي، رقم جوال (أرقام بس)،
+  // أو اسم دخول (أي شي ثاني) — نحوّله لنفس البريد الوهمي اللي استخدمناه وقت
+  // إنشاء الحساب بـ manage-admin-users (@team.himmat.local)
+  let credentials;
+  if (raw.includes('@')) {
+    credentials = { email: raw };
+  } else if (/^\+?\d{6,15}$/.test(raw)) {
+    credentials = { phone: raw };
+  } else {
+    const clean = raw.toLowerCase().replace(/[^a-z0-9_.-]/g, '');
+    credentials = { email: `${clean}@team.himmat.local` };
+  }
   try {
-    const { error } = await supa.auth.signInWithPassword({ email, password });
+    const { error } = await supa.auth.signInWithPassword({ ...credentials, password });
     if (error){
       msg.style.color = 'var(--danger)';
       msg.textContent = '⚠️ ' + error.message;
@@ -369,6 +471,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     if (btn.dataset.tab === 'offers') loadOffers();
     if (btn.dataset.tab === 'inquiries') loadInquiries();
     if (btn.dataset.tab === 'contracts') loadContracts();
+    if (btn.dataset.tab === 'team') loadTeamMembers();
   });
 });
 
