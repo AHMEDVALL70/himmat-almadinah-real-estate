@@ -225,6 +225,8 @@ document.getElementById('btn-add-team-member')?.addEventListener('click', async 
     console.error('btn-add-team-member failed', e);
   }
 });
+
+function money(n){ return Math.round(n || 0).toLocaleString('en-US'); }
 // بيانات الأطراف تجي من نموذج عام بالموقع الرئيسي (مو محمي بتسجيل دخول)،
 // فلازم تعقيمها قبل عرضها هنا لمنع أي حقن HTML/script بحقول العقد.
 function escapeAdmin(s){ const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
