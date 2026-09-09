@@ -248,7 +248,7 @@ async function checkSession(){
 let currentUserRole = null;
 
 function applyRoleUI(){
-  document.body.classList.toggle('viewer-mode', currentUserRole !== 'owner');
+  document.body.dataset.role = currentUserRole || 'viewer';
 }
 
 function applySessionUI(session){
@@ -499,10 +499,10 @@ async function loadProperties(){
         <td><span class="badge badge-${p.status}">${statusLabel(p.status)}</span></td>
         <td>${p.submitted_by_contact || '—'}</td>
         <td class="actions-cell">
-          ${p.status !== 'approved' ? `<button class="btn btn-ok" data-owner-only onclick="setPropertyStatus('${p.id}','approved')">اعتماد</button>` : ''}
-          ${p.status !== 'rejected' ? `<button class="btn btn-danger" data-owner-only onclick="setPropertyStatus('${p.id}','rejected')">رفض</button>` : ''}
-          ${p.status === 'approved' ? `<button class="btn btn-ghost" data-owner-only onclick="convertToOffer('${p.id}')">تحويل لعرض</button>` : ''}
-          <button class="btn btn-ghost" data-owner-only onclick="deleteProperty('${p.id}')">حذف</button>
+          ${p.status !== 'approved' ? `<button class="btn btn-ok" data-staff-only onclick="setPropertyStatus('${p.id}','approved')">اعتماد</button>` : ''}
+          ${p.status !== 'rejected' ? `<button class="btn btn-danger" data-staff-only onclick="setPropertyStatus('${p.id}','rejected')">رفض</button>` : ''}
+          ${p.status === 'approved' ? `<button class="btn btn-ghost" data-staff-only onclick="convertToOffer('${p.id}')">تحويل لعرض</button>` : ''}
+          <button class="btn btn-ghost" data-staff-only onclick="deleteProperty('${p.id}')">حذف</button>
         </td>
       </tr>`;
     }).join('');
@@ -739,9 +739,9 @@ async function loadOffers(){
         </td>
         <td class="actions-cell">
           <button class="btn btn-ghost" onclick="editOffer('${o.id}')">تعديل</button>
-          <button class="btn btn-ghost" data-owner-only onclick="toggleOfferPublish('${o.id}', ${!o.is_published})">${o.is_published ? 'إخفاء' : 'نشر'}</button>
-          <button class="btn btn-ghost" data-owner-only onclick="toggleOfferSold('${o.id}', ${!o.is_sold})">${o.is_sold ? 'إرجاع للمتاح' : 'تم البيع'}</button>
-          <button class="btn btn-danger" data-owner-only onclick="deleteOffer('${o.id}')">حذف</button>
+          <button class="btn btn-ghost" data-staff-only onclick="toggleOfferPublish('${o.id}', ${!o.is_published})">${o.is_published ? 'إخفاء' : 'نشر'}</button>
+          <button class="btn btn-ghost" data-staff-only onclick="toggleOfferSold('${o.id}', ${!o.is_sold})">${o.is_sold ? 'إرجاع للمتاح' : 'تم البيع'}</button>
+          <button class="btn btn-danger" data-staff-only onclick="deleteOffer('${o.id}')">حذف</button>
         </td>
       </tr>`).join('');
   } catch (e) {
@@ -840,8 +840,8 @@ async function loadInquiries(){
         <td><span class="badge badge-${i.status}">${statusLabel(i.status)}</span></td>
         <td>${new Date(i.created_at).toLocaleDateString('ar-SA')}</td>
         <td class="actions-cell">
-          ${i.status !== 'contacted' ? `<button class="btn btn-ghost" data-owner-only onclick="setInquiryStatus('${i.id}','contacted')">تم التواصل</button>` : ''}
-          ${i.status !== 'closed' ? `<button class="btn btn-ghost" data-owner-only onclick="setInquiryStatus('${i.id}','closed')">إغلاق</button>` : ''}
+          ${i.status !== 'contacted' ? `<button class="btn btn-ghost" data-staff-only onclick="setInquiryStatus('${i.id}','contacted')">تم التواصل</button>` : ''}
+          ${i.status !== 'closed' ? `<button class="btn btn-ghost" data-staff-only onclick="setInquiryStatus('${i.id}','closed')">إغلاق</button>` : ''}
         </td>
       </tr>`).join('');
   } catch (e) {
@@ -991,7 +991,7 @@ async function toggleInstallments(contractId){
                <td>${new Date(i.due_date).toLocaleDateString('ar-SA')}</td>
                <td>${money(i.total_installment)} ر.س</td>
                <td>${i.payment_status === 'PAID' ? '✅ مدفوعة' : '⏳ قيد الانتظار'}</td>
-               <td>${i.payment_status !== 'PAID' ? `<button class="btn btn-ghost" data-owner-only onclick="markInstallmentPaid('${i.id}', '${contractId}')">تم السداد</button>` : ''}</td>
+               <td>${i.payment_status !== 'PAID' ? `<button class="btn btn-ghost" data-staff-only onclick="markInstallmentPaid('${i.id}', '${contractId}')">تم السداد</button>` : ''}</td>
              </tr>`).join('')}</tbody>
          </table>`
       : 'لا توجد دفعات مسجّلة لهذا العقد.';

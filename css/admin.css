@@ -66,6 +66,11 @@ tr:hover td{background:#fafbfc}
 .empty-row td{text-align:center;color:var(--text-600);padding:28px}
 #toast{position:fixed;bottom:20px;left:20px;background:var(--navy-900);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;display:none;z-index:50}
 .hide{display:none !important}
-/* حساب viewer (مشاهدة بس) — يخفي أي زر/قسم إجرائي (إضافة/تعديل/حذف) تلقائياً،
-   حتى لو أُضيف للصفحة لاحقاً بجدول متجدّد ديناميكياً */
-body.viewer-mode [data-owner-only]{display:none !important}
+/* نظام الأدوار الثلاثة (owner/editor/viewer) — يخفي عناصر الإجراءات تلقائياً
+   حتى لو أُضيفت للصفحة لاحقاً بجدول متجدّد ديناميكياً، بدون أي كود جافاسكربت
+   إضافي عند كل تحديث:
+   - data-staff-only: يظهر لـowner وeditor، يختفي لـviewer
+   - data-owner-only: يظهر لـowner بس (إضافة مدن/أحياء، فريق العمل) */
+body[data-role="viewer"] [data-staff-only],
+body[data-role="viewer"] [data-owner-only],
+body[data-role="editor"] [data-owner-only]{display:none !important}

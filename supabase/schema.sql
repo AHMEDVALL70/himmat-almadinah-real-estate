@@ -894,13 +894,15 @@ create policy districts_public_read on districts
 -- (لا سياسات select/insert تُضاف هنا عمداً؛ RLS بدون سياسات = رفض كل شيء)
 
 -- ============================================================================
--- 9.5) لوحة التحكم الإدارية (admin.html) — نظام أدوار: owner / viewer
+-- 9.5) لوحة التحكم الإدارية (admin.html) — نظام أدوار: owner / editor / viewer
 -- ============================================================================
 -- كل القراءة تبقى متاحة لأي حساب مسجَّل دخول (auth.role() = 'authenticated')
--- — owner أو viewer سواء. الكتابة (إضافة/تعديل/حذف) صارت محصورة بـowner بس،
--- عبر دالة is_owner() اللي تفحص حقل app_metadata.role بتوكن الحساب — حقل ما
--- يقدر المستخدم نفسه يعدّله (يحتاج المفتاح القوي service_role)، عكس
--- user_metadata اللي أي حساب يقدر يغيّره بنفسه ويرفّع صلاحياته بخداع.
+-- — الثلاثة أدوار سواء. الكتابة اليومية (عقارات/عروض/استفسارات/دفعات) تحتاج
+-- owner أو editor (دالة is_staff())، وإضافة مدن/أحياء أو أعضاء فريق جدد
+-- تحتاج owner حصراً (دالة is_owner()) — viewer ما يقدر يكتب أي شي إطلاقاً.
+-- الدور محفوظ بحقل app_metadata.role اللي المستخدم نفسه ما يقدر يعدّله
+-- (يحتاج المفتاح القوي service_role)، عكس user_metadata اللي أي حساب يقدر
+-- يغيّره بنفسه ويرفّع صلاحياته بخداع.
 --
 -- ⚠️ الحساب الوحيد الحالي لازم يترقّى لـowner صراحة قبل تفعيل هذي السياسات،
 -- وإلا ينقفل حتى هو من كل عمليات الكتابة. شغّل هذا مرة وحدة بمحرر SQL
@@ -922,27 +924,39 @@ as $$
   select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'owner', false);
 $$;
 
+-- editor: كل صلاحيات التشغيل اليومي (عقارات/عروض/استفسارات/دفعات) بدون
+-- إضافة مدن/أحياء ولا إدارة الفريق — دورين يقدرون يستخدموها: owner وeditor
+create or replace function public.is_staff()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') in ('owner', 'editor'), false);
+$$;
+
 drop policy if exists properties_admin_read on properties;
 create policy properties_admin_read on properties
     for select using (auth.role() = 'authenticated');
 drop policy if exists properties_admin_update on properties;
 create policy properties_admin_update on properties
-    for update using (public.is_owner());
+    for update using (public.is_staff());
 drop policy if exists properties_admin_delete on properties;
 create policy properties_admin_delete on properties
-    for delete using (public.is_owner());
+    for delete using (public.is_staff());
 
 drop policy if exists inquiries_admin_read on inquiries;
 create policy inquiries_admin_read on inquiries
     for select using (auth.role() = 'authenticated');
 drop policy if exists inquiries_admin_update on inquiries;
 create policy inquiries_admin_update on inquiries
-    for update using (public.is_owner());
+    for update using (public.is_staff());
 
 drop policy if exists offers_admin_write on offers;
 create policy offers_admin_write on offers
-    for all using (public.is_owner())
-    with check (public.is_owner());
+    for all using (public.is_staff())
+    with check (public.is_staff());
 
 -- العقود/الأطراف/الدفعات: قراءة إدارية فقط (نفس نمط بقية اللوحة) — كانت
 -- مفقودة تماماً؛ بدونها admin.html يقدر يكتب عقود (عبر create_contract_with_schedule
@@ -959,10 +973,10 @@ create policy contract_installments_admin_read on contract_installments
 -- تعليم دفعة "مدفوعة" يدوياً من لوحة التحكم (كانت ناقصة — العرض بس بدون تحديث ممكن)
 drop policy if exists contract_installments_admin_update on contract_installments;
 create policy contract_installments_admin_update on contract_installments
-    for update using (public.is_owner())
-    with check (public.is_owner());
+    for update using (public.is_staff())
+    with check (public.is_staff());
 
--- 9.6) إضافة مدن/أحياء جديدة — owner فقط (لوحة التحكم)
+-- 9.6) إضافة مدن/أحياء جديدة — owner فقط حصراً (مو editor) — لوحة التحكم
 -- قبل هذا لم يكن مسموحاً بالإضافة إطلاقاً (لا حتى للإدارة) — القراءة العامة
 -- فقط كانت مفعّلة (§ cities_public_read / districts_public_read أعلاه).
 -- هذا يفتح باب "إضافة مدينة/حي" من admin.html مباشرة لقاعدة البيانات، والموقع
@@ -1016,16 +1030,16 @@ drop policy if exists "property_images_public_read" on storage.objects;
 create policy "property_images_public_read" on storage.objects
     for select using (bucket_id = 'property-images');
 
--- الرفع والحذف والاستبدال حصراً لـowner (نفس نمط باقي اللوحة)
+-- الرفع والحذف والاستبدال لـowner وeditor (نفس نمط باقي اللوحة، owner فقط مستثنى بالمدن/الأحياء)
 drop policy if exists "property_images_admin_insert" on storage.objects;
 create policy "property_images_admin_insert" on storage.objects
-    for insert with check (bucket_id = 'property-images' and public.is_owner());
+    for insert with check (bucket_id = 'property-images' and public.is_staff());
 drop policy if exists "property_images_admin_update" on storage.objects;
 create policy "property_images_admin_update" on storage.objects
-    for update using (bucket_id = 'property-images' and public.is_owner());
+    for update using (bucket_id = 'property-images' and public.is_staff());
 drop policy if exists "property_images_admin_delete" on storage.objects;
 create policy "property_images_admin_delete" on storage.objects
-    for delete using (bucket_id = 'property-images' and public.is_owner());
+    for delete using (bucket_id = 'property-images' and public.is_staff());
 
 -- ============================================================================
 -- 11) مراقبة الوظائف التلقائية + إحصائيات زيارات خفيفة
