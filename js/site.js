@@ -1498,10 +1498,12 @@ function validateContractForm(){
   const errors = [];
   const required = {
     'c-lessor-name': 'اسم المؤجر', 'c-lessor-id': 'هوية المؤجر', 'c-lessor-phone': 'جوال المؤجر',
+    'c-lessor-id-type': 'نوع هوية المؤجر', 'c-lessor-nationality': 'جنسية المؤجر',
     'c-lessee-name': 'اسم المستأجر', 'c-lessee-id': 'هوية المستأجر', 'c-lessee-phone': 'جوال المستأجر',
+    'c-lessee-id-type': 'نوع هوية المستأجر', 'c-lessee-nationality': 'جنسية المستأجر',
     'c-city': 'المدينة', 'c-district': 'الحي', 'c-unit-type': 'نوع الوحدة',
     'c-area': 'المساحة', 'c-start': 'تاريخ البداية', 'c-end': 'تاريخ النهاية', 'c-rent': 'الإيجار السنوي',
-    'c-deed-number': 'رقم الصك', 'c-deed-date': 'تاريخ الصك',
+    'c-deed-number': 'رقم الصك', 'c-deed-date': 'تاريخ الصك', 'c-frequency': 'عدد الدفعات سنوياً',
   };
   Object.entries(required).forEach(([id, label]) => {
     if (!v(id)){ errors.push(`${label} مطلوب.`); mark(id); }
