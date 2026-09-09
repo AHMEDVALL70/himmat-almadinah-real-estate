@@ -2239,6 +2239,16 @@ async function handleAssistSend(textOverride, isPredefinedChip){
   // عروض. لازم نوع محدَّد أو سعر أو عدد غرف كمان عشان نعتبرها بحث فعلي.
   const isSearch = !!(q.type || q.maxPrice || q.minPrice || q.rooms);
 
+  // لو الرسالة المكتوبة يدوياً تطابق أحد أقسام الموقع المعروفة (تقييم/عقد/
+  // إضافة/عرض/تواصل) وما هي سؤال أسعار، نرجّع لها نفس الرد الثابت الدقيق
+  // اللي يرجع لزر Quick Chip بالضبط — بدل ما نخاطر بمرور Gemini يختلق
+  // إجراء غير مطابق للموقع الفعلي (صار فعلاً بسؤال "كيف اضيف عقار": رجّع
+  // خطوات تسجيل دخول وترخيص إجباري، وكلاهما غلط — الإضافة عامة بدون تسجيل
+  // دخول والترخيص اختياري).
+  const lowerText = text.toLowerCase();
+  const matchedRule = t.rules.find(r => r.kw.some(k => lowerText.includes(k.toLowerCase())));
+  const useStaticRule = matchedRule && !looksLikePriceQuestion(text);
+
   if (isSearch){
     const results = await searchProperties(q);
     await sleep(350);
@@ -2257,9 +2267,10 @@ async function handleAssistSend(textOverride, isPredefinedChip){
       addAssistMsg(t.resultsIntro(results.length), 'bot', cardsHtml);
     }
     showPage('offers');
-  } else if (isPredefinedChip){
-    // الأزرار الجاهزة إجاباتها معروفة مسبقاً 100% — لا داعي لانتظار الذكاء
-    // الاصطناعي (أبطأ وأحياناً مزدحم)، نروح للرد الثابت مباشرة
+  } else if (isPredefinedChip || useStaticRule){
+    // الأزرار الجاهزة، أو رسالة مكتوبة يدوياً تطابق قسم معروف بدقة —
+    // إجاباتها معروفة مسبقاً 100%، لا داعي لانتظار الذكاء الاصطناعي (أبطأ،
+    // وأحياناً غير دقيق بإجراءات الموقع الخاصة)، نروح للرد الثابت مباشرة
     await sleep(300);
     hideTyping();
     const { reply, goto } = assistantReply(text);
@@ -2270,13 +2281,14 @@ async function handleAssistSend(textOverride, isPredefinedChip){
     await sleep(300);
     hideTyping();
     if (aiReply.ok){
-      if (window.__lastDebug) addAssistMsg(window.__lastDebug, 'bot');
+      // __lastDebug تشخيص للمطورين فقط (console) — ما يُعرض للزائر العادي
+      if (window.__lastDebug) console.log(window.__lastDebug);
       addAssistMsg(aiReply.reply, 'bot');
     } else {
-      // الذكاء الاصطناعي غير متاح مؤقتاً (ازدحام أو انقطاع) — رجوع سلس
-      // للرد الثابت بدون إظهار تفاصيل تقنية للزائر العادي
+      // الذكاء الاصطناعي غير متاح مؤقتاً (ازدحام أو انقطاع أو تجاوز مهلة) —
+      // رجوع سلس للرد الثابت بدون إظهار أي تفاصيل تقنية داخلية للزائر
+      // العادي (تُسجَّل بـconsole للمطورين فقط)
       console.error('AI assistant unavailable, using static fallback:', aiReply.error);
-      addAssistMsg('🔧 [تشخيص مؤقت] ' + aiReply.error, 'bot');
       const { reply, goto } = assistantReply(text);
       addAssistMsg(reply, 'bot');
       if (goto) showPage(goto);
