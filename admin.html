@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=Almarai:wght@400;700&display=swap" rel="stylesheet">
 <script src="lib/supabase.min.js"></script>
-<link rel="stylesheet" href="css/admin.css?v=20260907e">
+<link rel="stylesheet" href="css/admin.css?v=20260907f">
 </head>
 <body>
 
@@ -138,7 +138,7 @@
         <div class="field"><label>الوصف التفصيلي</label><textarea id="offer-description" rows="6" style="width:100%"></textarea></div>
         <div class="field"><label><input type="checkbox" id="offer-published" checked style="width:auto;display:inline-block"> منشور (ظاهر للزوار)</label></div>
         <div style="display:flex;gap:10px">
-          <button class="btn btn-primary" id="btn-save-offer" data-owner-only>حفظ العرض</button>
+          <button class="btn btn-primary" id="btn-save-offer" data-staff-only>حفظ العرض</button>
           <button class="btn btn-ghost" id="btn-cancel-offer-edit" style="display:none">إلغاء التعديل</button>
         </div>
         <p id="offer-form-msg" style="font-size:13px;margin-top:8px"></p>
@@ -257,6 +257,7 @@
           <label>الصلاحية</label>
           <select id="team-new-role">
             <option value="viewer" selected>مشاهدة بس (viewer)</option>
+            <option value="editor">كل الصلاحيات إلا المدن/الفريق (editor)</option>
             <option value="owner">صلاحيات كاملة (owner)</option>
           </select>
         </div>
@@ -288,6 +289,6 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=20260907g"></script>
+<script src="js/admin.js?v=20260907h"></script>
 </body>
 </html>
