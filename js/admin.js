@@ -40,6 +40,149 @@ populateOfferTypeSelect();
 populateOfferDistrictSelect();
 document.getElementById('offer-city').addEventListener('change', populateOfferDistrictSelect);
 
+/* ============================================================================
+   المدن والأحياء — تحميل حي من قاعدة البيانات + إضافة جديد من لوحة التحكم
+   ========================================================================== */
+const CITY_PRICE_PER_SQM = {};
+
+// نفس منطق loadCitiesFromDb بملف site.js بالضبط — يدمج بيانات قاعدة البيانات
+// الحية مع القائمة الثابتة (بدل استبدالها)، فلو قاعدة البيانات تعطلت مؤقتاً
+// تبقى القائمة الأساسية شغّالة.
+async function loadCityDistrictsFromDb(){
+  try {
+    const [citiesRes, districtsRes] = await Promise.all([
+      supa.from('cities').select('name, price_per_sqm'),
+      supa.from('districts').select('name, cities(name)'),
+    ]);
+    const { data: cities, error: e1 } = citiesRes;
+    const { data: districts, error: e2 } = districtsRes;
+    if (e1 || !cities || !cities.length) return;
+    if (e2) return;
+    cities.forEach(c=>{
+      if (!CITY_DISTRICTS[c.name]) CITY_DISTRICTS[c.name] = [];
+      if (c.price_per_sqm) CITY_PRICE_PER_SQM[c.name] = c.price_per_sqm;
+    });
+    (districts || []).forEach(d=>{
+      const cityName = d.cities?.name;
+      if (!cityName) return;
+      if (!CITY_DISTRICTS[cityName]) CITY_DISTRICTS[cityName] = [];
+      if (!CITY_DISTRICTS[cityName].includes(d.name)) CITY_DISTRICTS[cityName].push(d.name);
+    });
+  } catch (e) {
+    console.error('loadCityDistrictsFromDb: Supabase call failed, keeping the built-in seed list.', e);
+  }
+}
+
+function populateDistrictNewCitySelect(){
+  const sel = document.getElementById('district-new-city');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = Object.keys(CITY_DISTRICTS).map(c => `<option value="${c}">${c}</option>`).join('');
+  if (prev && CITY_DISTRICTS[prev]) sel.value = prev;
+}
+
+function renderCitiesSummaryTable(){
+  const tbody = document.getElementById('cities-summary-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = Object.entries(CITY_DISTRICTS)
+    .map(([city, list]) => `<tr><td>${escapeAdmin(city)}</td><td>${list.length}</td></tr>`)
+    .join('') || '<tr><td colspan="2">لا يوجد</td></tr>';
+}
+
+// تُستدعى بعد تسجيل الدخول (نفس مكان loadDashboard) — تحدّث كل القوائم
+// المعتمدة على CITY_DISTRICTS دفعة وحدة بعد اكتمال الجلب من قاعدة البيانات
+async function refreshCityDistrictData(){
+  await loadCityDistrictsFromDb();
+  populateOfferCitySelect();
+  populateOfferDistrictSelect();
+  populateDistrictNewCitySelect();
+  renderCitiesSummaryTable();
+}
+
+populateDistrictNewCitySelect();
+renderCitiesSummaryTable();
+
+document.getElementById('btn-add-city')?.addEventListener('click', async ()=>{
+  const nameInput = document.getElementById('city-new-name');
+  const priceInput = document.getElementById('city-new-price');
+  const slugInput = document.getElementById('city-new-slug');
+  const msg = document.getElementById('city-new-msg');
+  const name = nameInput.value.trim();
+  if (!name){
+    msg.textContent = '⚠️ اكتب اسم المدينة.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+  if (CITY_DISTRICTS[name]){
+    msg.textContent = '⚠️ هذي المدينة مسجَّلة أصلاً.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+  const payload = { name };
+  if (priceInput.value) payload.price_per_sqm = parseFloat(priceInput.value);
+  if (slugInput.value.trim()) payload.raghdan_slug = slugInput.value.trim();
+  msg.textContent = 'جارٍ الإضافة...';
+  msg.style.color = 'var(--text-600)';
+  try {
+    const { error } = await supa.from('cities').insert(payload);
+    if (error){
+      msg.textContent = '⚠️ تعذّرت الإضافة: ' + error.message;
+      msg.style.color = 'var(--danger)';
+      return;
+    }
+    msg.textContent = '✅ تمت إضافة المدينة.';
+    msg.style.color = 'var(--ok)';
+    nameInput.value = ''; priceInput.value = ''; slugInput.value = '';
+    await refreshCityDistrictData();
+  } catch (e) {
+    msg.textContent = '⚠️ تعذّر الاتصال بقاعدة البيانات.';
+    msg.style.color = 'var(--danger)';
+    console.error('btn-add-city failed', e);
+  }
+});
+
+document.getElementById('btn-add-district')?.addEventListener('click', async ()=>{
+  const citySel = document.getElementById('district-new-city');
+  const nameInput = document.getElementById('district-new-name');
+  const msg = document.getElementById('district-new-msg');
+  const cityName = citySel.value;
+  const name = nameInput.value.trim();
+  if (!cityName || !name){
+    msg.textContent = '⚠️ اختر المدينة واكتب اسم الحي.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+  if ((CITY_DISTRICTS[cityName] || []).includes(name)){
+    msg.textContent = '⚠️ هذا الحي مسجَّل أصلاً بهذي المدينة.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+  msg.textContent = 'جارٍ الإضافة...';
+  msg.style.color = 'var(--text-600)';
+  try {
+    const { data: cityRow, error: cityErr } = await supa.from('cities').select('id').eq('name', cityName).single();
+    if (cityErr || !cityRow){
+      msg.textContent = '⚠️ تعذّر إيجاد المدينة بقاعدة البيانات.';
+      msg.style.color = 'var(--danger)';
+      return;
+    }
+    const { error } = await supa.from('districts').insert({ city_id: cityRow.id, name });
+    if (error){
+      msg.textContent = '⚠️ تعذّرت الإضافة: ' + error.message;
+      msg.style.color = 'var(--danger)';
+      return;
+    }
+    msg.textContent = '✅ تمت إضافة الحي.';
+    msg.style.color = 'var(--ok)';
+    nameInput.value = '';
+    await refreshCityDistrictData();
+  } catch (e) {
+    msg.textContent = '⚠️ تعذّر الاتصال بقاعدة البيانات.';
+    msg.style.color = 'var(--danger)';
+    console.error('btn-add-district failed', e);
+  }
+});
+
 function money(n){ return Math.round(n || 0).toLocaleString('en-US'); }
 // بيانات الأطراف تجي من نموذج عام بالموقع الرئيسي (مو محمي بتسجيل دخول)،
 // فلازم تعقيمها قبل عرضها هنا لمنع أي حقن HTML/script بحقول العقد.
@@ -67,6 +210,7 @@ function applySessionUI(session){
     if (preLoginLink) preLoginLink.style.display = 'none';
     document.getElementById('admin-email').textContent = session.user.email;
     loadDashboard();
+    refreshCityDistrictData();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
