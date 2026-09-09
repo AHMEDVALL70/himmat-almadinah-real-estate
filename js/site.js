@@ -2100,6 +2100,20 @@ function looksLikePriceQuestion(text){
   return keywords.some(k => text.includes(k));
 }
 
+/* تطبيع نص عربي للمطابقة فقط (ما نستخدمه للعرض) — يوحّد أشكال الهمزة
+   (أ/إ/آ/ا)، الألف المقصورة/الياء (ى/ي)، التاء المربوطة/الهاء (ة/ه)،
+   ويحذف التشكيل والتطويل. الهدف: مطابقة قصد الزائر بغض النظر عن دقة
+   إملائه — نفس الكلمة بعشر طرق كتابة مختلفة تطابق بعد التطبيع. */
+function normalizeArabicForMatch(str){
+  return String(str || '')
+    .replace(/[إأآ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه')
+    .replace(/[\u064B-\u065F\u0670]/g, '') // تشكيل
+    .replace(/ـ/g, '')                     // تطويل
+    .toLowerCase();
+}
+
 async function fetchAllDistrictPriceRows(){
   if (districtPriceRowsCache && (Date.now() - districtPriceContextCacheTime) < 600000){
     return districtPriceRowsCache;
@@ -2245,8 +2259,8 @@ async function handleAssistSend(textOverride, isPredefinedChip){
   // إجراء غير مطابق للموقع الفعلي (صار فعلاً بسؤال "كيف اضيف عقار": رجّع
   // خطوات تسجيل دخول وترخيص إجباري، وكلاهما غلط — الإضافة عامة بدون تسجيل
   // دخول والترخيص اختياري).
-  const lowerText = text.toLowerCase();
-  const matchedRule = t.rules.find(r => r.kw.some(k => lowerText.includes(k.toLowerCase())));
+  const lowerText = normalizeArabicForMatch(text);
+  const matchedRule = t.rules.find(r => r.kw.some(k => lowerText.includes(normalizeArabicForMatch(k))));
   const useStaticRule = matchedRule && !looksLikePriceQuestion(text);
 
   if (isSearch){
@@ -2283,7 +2297,18 @@ async function handleAssistSend(textOverride, isPredefinedChip){
     if (aiReply.ok){
       // __lastDebug تشخيص للمطورين فقط (console) — ما يُعرض للزائر العادي
       if (window.__lastDebug) console.log(window.__lastDebug);
-      addAssistMsg(aiReply.reply, 'bot');
+      // لو Gemini اكتشف إن السؤال إجرائي عن أحد الأقسام المعروفة (بأي صياغة
+      // أو مرادف، مو بس كلمات محددة)، يرجّع إشارة SITE_SECTION:<goto> بدل ما
+      // يحاول يشرح بنفسه — نستبدلها بالرد الثابت الدقيق دايماً، صفر مخاطرة
+      // اختلاق. لو ما فيه إشارة، نعرض رد Gemini الفعلي عادي.
+      const sectionMatch = /SITE_SECTION:(valuation|contracts|add-property|offers|contact)/.exec(aiReply.reply || '');
+      const sectionRule = sectionMatch && t.rules.find(r => r.goto === sectionMatch[1]);
+      if (sectionRule){
+        addAssistMsg(sectionRule.reply, 'bot');
+        showPage(sectionRule.goto);
+      } else {
+        addAssistMsg(aiReply.reply, 'bot');
+      }
     } else {
       // الذكاء الاصطناعي غير متاح مؤقتاً (ازدحام أو انقطاع أو تجاوز مهلة) —
       // رجوع سلس للرد الثابت بدون إظهار أي تفاصيل تقنية داخلية للزائر
