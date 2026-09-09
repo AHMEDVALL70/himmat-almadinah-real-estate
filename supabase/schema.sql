@@ -131,13 +131,18 @@ alter table properties add column if not exists units_per_floor integer;
 
 -- ============================================================================
 -- 3.5) المدن والأحياء — مرجع مركزي يغذي كل قوائم المدينة/الحي في الموقع
---      (التقييم، إضافة عقار، العقود). قابل للتوسعة: أي زائر يقدر يضيف مدينة
---      أو حياً غير موجود من واجهة الموقع، فتُحفظ ويستفيد منها كل الزوار لاحقاً.
+--      (التقييم، إضافة عقار، العقود). قابل للتوسعة: الإدارة تقدر تضيف مدينة
+--      أو حياً جديداً من لوحة التحكم (انظر §9.6)، فيُحفظ ويستفيد منه كل الزوار
+--      لاحقاً بدون أي تعديل كود أو نشر جديد.
 -- ============================================================================
 create table if not exists cities (
     id             uuid primary key default gen_random_uuid(),
     name           varchar(100) unique not null,
     price_per_sqm  numeric(10,2),           -- متوسط استرشادي يستخدمه التقييم
+    raghdan_slug   varchar(100),            -- اسم المدينة كما يظهر برابط raghdan.sa
+                                             -- (لتحديث الأسعار الأسبوعي التلقائي —
+                                             -- انظر update-district-prices). فاضي =
+                                             -- الدالة تجرّب اسم المدينة نفسه كافتراضي.
     created_at     timestamptz not null default now()
 );
 
@@ -150,6 +155,14 @@ create table if not exists districts (
 );
 
 create index if not exists idx_districts_city on districts(city_id);
+
+-- تعبئة raghdan_slug للمدن الأربعة الأساسية (كانت هذي الخريطة مكتوبة يدوياً
+-- بكود دالة update-district-prices فقط — نقلناها لقاعدة البيانات عشان مدن
+-- جديدة تُضاف من لوحة التحكم تشتغل تلقائياً بدون تعديل كود الدالة أبداً).
+update cities set raghdan_slug = 'مدينة المدينة المنورة' where name = 'المدينة المنورة' and raghdan_slug is null;
+update cities set raghdan_slug = 'مكة المكرمة'          where name = 'مكة المكرمة'      and raghdan_slug is null;
+update cities set raghdan_slug = 'جدة'                   where name = 'جدة'              and raghdan_slug is null;
+update cities set raghdan_slug = 'الرياض'                where name = 'الرياض'           and raghdan_slug is null;
 
 -- المدن الأساسية (لا تشمل الدمام بناءً على النطاق الحالي: المنطقة الغربية)
 insert into cities (name, price_per_sqm) values
@@ -929,6 +942,18 @@ drop policy if exists contract_installments_admin_update on contract_installment
 create policy contract_installments_admin_update on contract_installments
     for update using (auth.role() = 'authenticated')
     with check (auth.role() = 'authenticated');
+
+-- 9.6) إضافة مدن/أحياء جديدة — إدارة فقط (لوحة التحكم)
+-- قبل هذا لم يكن مسموحاً بالإضافة إطلاقاً (لا حتى للإدارة) — القراءة العامة
+-- فقط كانت مفعّلة (§ cities_public_read / districts_public_read أعلاه).
+-- هذا يفتح باب "إضافة مدينة/حي" من admin.html مباشرة لقاعدة البيانات، والموقع
+-- العام يقرأ النتيجة تلقائياً بدون أي نشر كود جديد.
+drop policy if exists cities_admin_insert on cities;
+create policy cities_admin_insert on cities
+    for insert with check (auth.role() = 'authenticated');
+drop policy if exists districts_admin_insert on districts;
+create policy districts_admin_insert on districts
+    for insert with check (auth.role() = 'authenticated');
 
 -- ============================================================================
 -- 10) جدولة فحص التنبيهات يومياً عبر pg_cron (بديل خادم Python الدائم)

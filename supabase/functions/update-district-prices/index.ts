@@ -34,15 +34,11 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
-// خريطة اسم المدينة عندنا → الاسم (slug) المستخدم فعلياً بروابط رغدان.
-// تحقّقنا يدوياً من الأربعة: المدينة المنورة تحديداً تحتاج بادئة "مدينة"
-// (على الأغلب لتفادي تعارض بمسارات رغدان الداخلية)، البقية بالاسم مباشرة.
-const RAGHDAN_CITY_SLUG: Record<string, string> = {
-  "المدينة المنورة": "مدينة المدينة المنورة",
-  "مكة المكرمة": "مكة المكرمة",
-  "جدة": "جدة",
-  "الرياض": "الرياض",
-};
+// ملاحظة (تحديث): خريطة المدينة → رابط raghdan.sa كانت مكتوبة هنا يدوياً
+// (RAGHDAN_CITY_SLUG) — نقلناها لعمود raghdan_slug بجدول cities نفسه، عشان
+// مدينة جديدة تُضاف من لوحة التحكم (admin.html) تشتغل تلقائياً هنا بدون أي
+// تعديل أو نشر جديد لهذي الدالة. لو المدينة ما عندها raghdan_slug محفوظ،
+// نجرّب اسم المدينة نفسه كافتراضي معقول.
 
 const ARABIC_INDIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
 
@@ -137,7 +133,7 @@ Deno.serve(async () => {
 
   const { data: districts, error } = await supabase
     .from("districts")
-    .select("id, name, cities(name)");
+    .select("id, name, cities(name, raghdan_slug)");
 
   if (error) {
     console.error("[update-district-prices] تعذّر جلب قائمة الأحياء:", error.message);
@@ -157,17 +153,25 @@ Deno.serve(async () => {
     id: string;
     name: string;
     cityName: string;
+    citySlug: string;
   }
 
+  // كل حي عنده مدينة يُحاول تحديثه — نستخدم raghdan_slug المحفوظ لو موجود،
+  // وإلا نجرّب اسم المدينة نفسه كافتراضي معقول (بدل استبعاد المدينة كلياً
+  // زي ما كان يصير قبل بالخريطة الثابتة).
   const targets: DistrictTarget[] = (districts ?? [])
-    .map((d: any) => ({ id: d.id, name: d.name, cityName: d.cities?.name }))
-    .filter((d: { cityName?: string }): d is DistrictTarget => !!d.cityName && !!RAGHDAN_CITY_SLUG[d.cityName]);
+    .map((d: any) => ({
+      id: d.id,
+      name: d.name,
+      cityName: d.cities?.name,
+      citySlug: d.cities?.raghdan_slug || d.cities?.name,
+    }))
+    .filter((d: { cityName?: string }): d is DistrictTarget => !!d.cityName);
 
   console.log(`[update-district-prices] بدء التحديث لـ ${targets.length} حي...`);
 
   await runBatched(targets, 10, async (d: DistrictTarget) => {
-    const slug = RAGHDAN_CITY_SLUG[d.cityName];
-    const result = await fetchDistrictPrice(slug, d.name);
+    const result = await fetchDistrictPrice(d.citySlug, d.name);
 
     if (!result.ok) {
       summary.failed++;

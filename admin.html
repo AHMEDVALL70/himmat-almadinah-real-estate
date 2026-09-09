@@ -54,6 +54,7 @@
     <button class="tab-btn" data-tab="offers">العروض</button>
     <button class="tab-btn" data-tab="inquiries">الاستفسارات</button>
     <button class="tab-btn" data-tab="contracts">العقود</button>
+    <button class="tab-btn" data-tab="cities">المدن والأحياء</button>
   </div>
 
   <main>
@@ -191,6 +192,50 @@
         </table>
       </div>
     </section>
+
+    <!-- Cities & Districts -->
+    <section class="tab-panel" id="panel-cities">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="card" style="flex:1 1 320px;padding:20px">
+          <h3 style="margin:0 0 14px">إضافة مدينة جديدة</h3>
+          <div class="field" style="margin-bottom:12px">
+            <label>اسم المدينة</label>
+            <input id="city-new-name" type="text" placeholder="مثال: الدمام">
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <label>متوسط سعر المتر (اختياري)</label>
+            <input id="city-new-price" type="number" placeholder="مثال: 5000">
+          </div>
+          <div class="field" style="margin-bottom:14px">
+            <label>معرّف رغدان (اختياري — لتحديث الأسعار الأسبوعي التلقائي)</label>
+            <input id="city-new-slug" type="text" placeholder="فاضي = يجرّب اسم المدينة نفسه">
+          </div>
+          <button class="btn btn-primary" id="btn-add-city" style="width:100%">إضافة المدينة</button>
+          <p id="city-new-msg" style="font-size:13px;margin-top:10px;min-height:18px"></p>
+        </div>
+
+        <div class="card" style="flex:1 1 320px;padding:20px">
+          <h3 style="margin:0 0 14px">إضافة حي جديد</h3>
+          <div class="field" style="margin-bottom:12px">
+            <label>المدينة</label>
+            <select id="district-new-city"></select>
+          </div>
+          <div class="field" style="margin-bottom:14px">
+            <label>اسم الحي</label>
+            <input id="district-new-name" type="text" placeholder="مثال: حي النخيل">
+          </div>
+          <button class="btn btn-primary" id="btn-add-district" style="width:100%">إضافة الحي</button>
+          <p id="district-new-msg" style="font-size:13px;margin-top:10px;min-height:18px"></p>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0;overflow-x:auto;margin-top:16px">
+        <table>
+          <thead><tr><th>المدينة</th><th>عدد الأحياء المسجَّلة</th></tr></thead>
+          <tbody id="cities-summary-tbody"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -215,6 +260,6 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=20260907d"></script>
+<script src="js/admin.js?v=20260907e"></script>
 </body>
 </html>
