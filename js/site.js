@@ -1531,8 +1531,49 @@ async function renderAnalytics(){
       if (analyticsChart) analyticsChart.destroy();
       analyticsChart = new Chart(document.getElementById('analytics-chart'), {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'متوسط سعر المتر', data: values, backgroundColor:'#c0a16b' }] },
-        options: { responsive:true, plugins:{legend:{display:false}} }
+        data: {
+          labels,
+          datasets: [{
+            label: 'متوسط سعر المتر',
+            data: values,
+            // تدرج ذهبي فخم (يستخدم نفس ألوان الهوية --gold-500/--gold-100) —
+            // لازم دالة (مو لون ثابت) عشان Chart.js يقدر يحسب مساحة الرسم
+            // الفعلية أول، وبعدين ننشئ التدرج بأبعادها بالضبط.
+            backgroundColor: (context) => {
+              const { chart } = context;
+              const { ctx, chartArea } = chart;
+              if (!chartArea) return '#c0a16b';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, '#c0a16b');
+              gradient.addColorStop(1, '#dccba9');
+              return gradient;
+            },
+            borderRadius: 10,
+            borderSkipped: false,
+            maxBarThickness: 56,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#101827',
+              titleColor: '#c0a16b',
+              titleFont: { weight: 'bold', size: 13 },
+              bodyColor: '#fff',
+              bodyFont: { size: 13 },
+              borderColor: '#c0a16b',
+              borderWidth: 1.5,
+              padding: 12,
+              cornerRadius: 10,
+              displayColors: false,
+              callbacks: {
+                label: (item) => `${money(item.parsed.y)} ريال/م²`,
+              },
+            },
+          },
+        }
       });
     }
   } catch (e) {
