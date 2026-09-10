@@ -74,3 +74,29 @@ tr:hover td{background:#fafbfc}
 body[data-role="viewer"] [data-staff-only],
 body[data-role="viewer"] [data-owner-only],
 body[data-role="editor"] [data-owner-only]{display:none !important}
+
+/* ============================================================================
+   تجاوب الجوال — الملف ما كان فيه أي استعلام وسائط قبل هذا. أهم النقاط:
+   شريط التبويبات (7 تبويبات الحين) يحتاج تمرير أفقي بدل ما ينقص أو يتزاحم،
+   والشريط العلوي يحتاج تكديس عمودي بدل صف واحد يفيض عن الشاشة.
+   ========================================================================== */
+@media(max-width:760px){
+  header.admin-bar{flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px}
+  header.admin-bar .brand{font-size:14px;line-height:1.4}
+  header.admin-bar .right{flex-wrap:wrap;gap:8px;width:100%}
+  header.admin-bar .right .btn{padding:7px 12px;font-size:12px}
+  #admin-email{font-size:12px;word-break:break-all}
+
+  .tabs-row{overflow-x:auto;flex-wrap:nowrap;padding:10px 14px 0;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .tab-btn{padding:10px 14px;font-size:13px;white-space:nowrap;flex-shrink:0}
+
+  main{padding:14px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat-card{padding:14px}
+  .stat-card b{font-size:21px}
+  .filter-row{gap:8px}
+  .filter-row select{min-width:110px;font-size:13px}
+}
+@media(max-width:420px){
+  .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
+}
