@@ -6,6 +6,39 @@ const SUPABASE_URL = "https://wlebcvwsleoieodjtrcf.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_KhUpsOF0OxVQWyWLakXx2g_yDsUlnxV";
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// مفتاح Turnstile العام — نفسه المستخدم بالموقع الرئيسي (الودجت يدعم حتى 10
+// دومينات، ونفس الدومين هنا). يثبت للخادم إن الطلب جاي من متصفح حقيقي، مو
+// سكربت يستدعي /describe مباشرة لاستنزاف حصة/فوترة Gemini.
+const TURNSTILE_SITE_KEY = '0x4AAAAAAEu3S6icGpBIUVnz';
+let turnstileWidgetId = null;
+function getTurnstileToken(){
+  return new Promise((resolve)=>{
+    if (!window.turnstile){ resolve(null); return; }
+    const container = document.getElementById('turnstile-container');
+    if (!container){ resolve(null); return; }
+    if (turnstileWidgetId !== null){
+      try { turnstile.remove(turnstileWidgetId); } catch(e) { /* الودجت أصلاً انتهى، تجاهل */ }
+      turnstileWidgetId = null;
+    }
+    container.innerHTML = '';
+    let done = false;
+    const finish = (token)=>{ if (done) return; done = true; resolve(token); };
+    try {
+      turnstileWidgetId = turnstile.render(container, {
+        sitekey: TURNSTILE_SITE_KEY,
+        size: 'invisible',
+        callback: (token)=> finish(token),
+        'error-callback': ()=> finish(null),
+        'timeout-callback': ()=> finish(null),
+      });
+    } catch (e) {
+      console.error('Turnstile render failed', e);
+      finish(null);
+    }
+    setTimeout(()=> finish(null), 8000);
+  });
+}
+
 /* ============================================================================
    بيانات المدن/الأحياء/أنواع العقار — نفس القوائم المستخدمة بالموقع العام،
    عشان قيم العروض تتطابق تماماً (بحث، تصفية، أسعار حقيقية بالتقييم...الخ)
@@ -671,6 +704,55 @@ function readOfferForm(){
     is_published: document.getElementById('offer-published').checked,
   };
 }
+
+const AI_DESCRIBE_URL = 'https://himmat-ai-backend.ahmedvall.workers.dev/describe';
+document.getElementById('btn-generate-description')?.addEventListener('click', async ()=>{
+  const btn = document.getElementById('btn-generate-description');
+  const msg = document.getElementById('generate-description-msg');
+  const f = readOfferForm();
+
+  if (!f.property_type || !f.city || !f.district){
+    msg.textContent = '⚠️ عبّئ المدينة والحي ونوع العقار أول (أقل معلومات لازمة للتوليد).';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+
+  const infoParts = [
+    `نوع العقار: ${f.property_type}`,
+    `الموقع: حي ${f.district}، ${f.city}`,
+  ];
+  if (f.area_sqm) infoParts.push(`المساحة: ${f.area_sqm} م²`);
+  if (f.rooms) infoParts.push(`عدد الغرف: ${f.rooms}`);
+  if (f.price_final) infoParts.push(`السعر: ${money(f.price_final)} ر.س`);
+  if (f.title) infoParts.push(`العنوان المبدئي: ${f.title}`);
+
+  btn.disabled = true;
+  msg.textContent = 'جارٍ التوليد...';
+  msg.style.color = 'var(--text-600)';
+  try {
+    const turnstileToken = await getTurnstileToken();
+    const res = await fetch(AI_DESCRIBE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ info: infoParts.join('\n'), turnstileToken }),
+    });
+    const data = await res.json().catch(()=> ({}));
+    if (!res.ok || data.error){
+      msg.textContent = '⚠️ ' + (data.error || `تعذّر التوليد (HTTP ${res.status})`);
+      msg.style.color = 'var(--danger)';
+      return;
+    }
+    document.getElementById('offer-description').value = data.reply || '';
+    msg.textContent = '✅ تم التوليد — راجع النص وعدّل حسب الحاجة قبل الحفظ.';
+    msg.style.color = 'var(--ok)';
+  } catch (e) {
+    console.error('generate-description failed', e);
+    msg.textContent = '⚠️ تعذّر الاتصال بالخادم.';
+    msg.style.color = 'var(--danger)';
+  } finally {
+    btn.disabled = false;
+  }
+});
 /* ضغط الصورة بالمتصفح قبل الرفع — تصغير الأبعاد لحد أقصى معقول (1600px)
    وإعادة الترميز كـJPEG بجودة 80%. يقلل حجم الملف المرفوع بشكل كبير
    (عادة 60-90% أصغر) بدون فرق ملموس بالجودة على الشاشة. لو فشل الضغط لأي
