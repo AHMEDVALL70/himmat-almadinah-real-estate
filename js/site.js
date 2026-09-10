@@ -73,6 +73,7 @@ const I18N = {
     analytics_desc:"أرقام حقيقية من عقارات حقيقية — تتحدّث كل ما أُضيف عقار جديد.",
     t_city:"المدينة", t_district:"الحي", t_type:"النوع", t_price:"السعر", t_area:"المساحة",
     analytics_empty:"لا توجد عقارات معتمدة بعد — كن أول من يضيف عقاراً.",
+    analytics_chart_title:"متوسط سعر المتر حسب المدينة",
     contracts_eyebrow:"كتابة العقود", contracts_title:"العقود",
     contracts_desc:"عبّئ البيانات، واحصل على عقد متكامل بجدول دفعات جاهز للطباعة والتوقيع.",
     tab_residential:"عقد سكني", tab_commercial:"عقد تجاري",
@@ -172,6 +173,7 @@ const I18N = {
     analytics_desc:"Real numbers from real properties — updated every time a new one is added.",
     t_city:"City", t_district:"District", t_type:"Type", t_price:"Price", t_area:"Area",
     analytics_empty:"No approved properties yet — be the first to add one.",
+    analytics_chart_title:"Average price per sqm by city",
     contracts_eyebrow:"Contract Drafting", contracts_title:"Contracts",
     contracts_desc:"Fill in the details and get a complete contract with a print-ready payment schedule.",
     tab_residential:"Residential", tab_commercial:"Commercial",
@@ -1493,22 +1495,6 @@ document.getElementById('btn-add-property').addEventListener('click', async ()=>
 /* ============================================================================
    6) Analytics — reads real approved properties, shared by everyone
    ========================================================================== */
-let analyticsChart = null;
-// Chart.js (208KB) كانت تتحمّل لكل زائر دايماً رغم إن قسم التحليلات مخفي
-// افتراضياً وناس قليلة تفتحه — نحمّلها بس أول لحظة يُفتح القسم فعلياً.
-let chartJsLoadPromise = null;
-function ensureChartJsLoaded(){
-  if (window.Chart) return Promise.resolve();
-  if (chartJsLoadPromise) return chartJsLoadPromise;
-  chartJsLoadPromise = new Promise((resolve, reject)=>{
-    const script = document.createElement('script');
-    script.src = 'lib/chart.min.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('تعذّر تحميل مكتبة الرسم البياني'));
-    document.head.appendChild(script);
-  });
-  return chartJsLoadPromise;
-}
 async function renderAnalytics(){
   const tbody = document.getElementById('analytics-tbody');
   if (!dbReady) return;
@@ -1522,63 +1508,33 @@ async function renderAnalytics(){
 
     const byCity = {};
     data.forEach(p=>{ byCity[p.city] = byCity[p.city] || []; byCity[p.city].push(p.price / p.area_sqm); });
-    const rawCities = Object.keys(byCity);
-    const labels = rawCities.map(c => cityLabel(c));
-    const values = rawCities.map(c => byCity[c].reduce((a,b)=>a+b,0) / byCity[c].length);
+    const rows = Object.keys(byCity)
+      .map(c => ({ city: c, value: byCity[c].reduce((a,b)=>a+b,0) / byCity[c].length }))
+      .sort((a,b) => b.value - a.value); // الأغلى أول — يعطي إحساس ترتيب/تصنيف واضح
 
-    try { await ensureChartJsLoaded(); } catch (loadErr) { console.error('Chart.js lazy load failed', loadErr); }
-    if (window.Chart){
-      if (analyticsChart) analyticsChart.destroy();
-      analyticsChart = new Chart(document.getElementById('analytics-chart'), {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'متوسط سعر المتر',
-            data: values,
-            // تدرج ذهبي فخم (يستخدم نفس ألوان الهوية --gold-500/--gold-100) —
-            // لازم دالة (مو لون ثابت) عشان Chart.js يقدر يحسب مساحة الرسم
-            // الفعلية أول، وبعدين ننشئ التدرج بأبعادها بالضبط.
-            backgroundColor: (context) => {
-              const { chart } = context;
-              const { ctx, chartArea } = chart;
-              if (!chartArea) return '#c0a16b';
-              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-              gradient.addColorStop(0, '#c0a16b');
-              gradient.addColorStop(1, '#dccba9');
-              return gradient;
-            },
-            borderRadius: 10,
-            borderSkipped: false,
-            maxBarThickness: 56,
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#101827',
-              titleColor: '#c0a16b',
-              titleFont: { weight: 'bold', size: 13 },
-              bodyColor: '#fff',
-              bodyFont: { size: 13 },
-              borderColor: '#c0a16b',
-              borderWidth: 1.5,
-              padding: 12,
-              cornerRadius: 10,
-              displayColors: false,
-              callbacks: {
-                label: (item) => `${money(item.parsed.y)} ريال/م²`,
-              },
-            },
-          },
-        }
-      });
-    }
+    renderPriceBars(rows);
   } catch (e) {
     console.error('renderAnalytics: Supabase call failed — analytics table stays empty, but the rest of the page still loads.', e);
   }
+}
+
+/* إنفوجرافيك أفقي مخصَّص (بدون أي مكتبة رسم بياني — صفر كيلوبايت إضافية):
+   أشرطة Pill-shaped بتدرج ذهبي فخم، بدل الأعمدة الرأسية التقليدية. كل صف
+   "بطاقة" مستقلة (أيقونة + اسم + شريط + قيمة)، مرتّبة تنازلياً من الأغلى. */
+function renderPriceBars(rows){
+  const container = document.getElementById('analytics-chart');
+  if (!container) return;
+  if (!rows.length){ container.innerHTML = ''; return; }
+  const maxVal = Math.max(...rows.map(r => r.value));
+  container.innerHTML = rows.map(r=>{
+    const pct = Math.max(8, Math.round((r.value / maxVal) * 100)); // حد أدنى 8% عشان أي قيمة تبقى مرئية
+    return `
+    <div class="price-bar-row">
+      <div class="price-bar-label"><span class="price-bar-icon">🏙️</span><span>${cityLabel(r.city)}</span></div>
+      <div class="price-bar-track"><div class="price-bar-fill" style="width:${pct}%"></div></div>
+      <div class="price-bar-value">${money(r.value)} <small>ر.س/م²</small></div>
+    </div>`;
+  }).join('');
 }
 
 /* ============================================================================
