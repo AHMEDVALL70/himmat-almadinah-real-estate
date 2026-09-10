@@ -449,6 +449,7 @@ document.getElementById('btn-logout').addEventListener('click', async ()=>{
    بعض مزوّدي البريد يفتح الرابط قبل المستخدم ويستهلكه).
    ========================================================================== */
 function openChangePasswordModal(){
+  document.getElementById('current-password-input').value = '';
   document.getElementById('new-password-input').value = '';
   document.getElementById('confirm-password-input').value = '';
   document.getElementById('change-password-msg').textContent = '';
@@ -462,9 +463,15 @@ document.getElementById('btn-cancel-password-change').addEventListener('click', 
 
 document.getElementById('btn-save-new-password').addEventListener('click', async ()=>{
   const msg = document.getElementById('change-password-msg');
+  const currentPass = document.getElementById('current-password-input').value;
   const newPass = document.getElementById('new-password-input').value;
   const confirmPass = document.getElementById('confirm-password-input').value;
 
+  if (!currentPass){
+    msg.textContent = '⚠️ اكتب كلمة المرور الحالية.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
   if (newPass.length < 6){
     msg.textContent = '⚠️ كلمة المرور لازم تكون 6 أحرف على الأقل.';
     msg.style.color = 'var(--danger)';
@@ -479,7 +486,7 @@ document.getElementById('btn-save-new-password').addEventListener('click', async
   msg.textContent = 'جاري الحفظ...';
   msg.style.color = 'var(--text-600)';
   try {
-    const { error } = await supa.auth.updateUser({ password: newPass });
+    const { error } = await supa.auth.updateUser({ password: newPass, current_password: currentPass });
     if (error) throw error;
     msg.textContent = '✅ تم تغيير كلمة المرور بنجاح.';
     msg.style.color = 'var(--ok)';
