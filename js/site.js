@@ -388,6 +388,7 @@ const PRIVACY_I18N = {
     {h:"كيف نستخدم بياناتك", p:"للرد على استفساراتك، لمراجعة واعتماد العقارات المُضافة قبل نشرها، لإصدار جدول دفعات العقود، ولتحسين جودة خدماتنا."},
     {h:"أين تُخزَّن بياناتك", p:"في قاعدة بيانات Supabase مركزية محمية بصلاحيات وصول محكومة (Row Level Security)، وليست في متصفحك فقط — تبقى محفوظة ومرئية لفريقنا حتى لو غيّرت جهازك."},
     {h:"مشاركة البيانات", p:"لا نبيع بياناتك لأي طرف ثالث. قد نستخدم واتساب للتواصل المباشر بناءً على اختيارك أنت عند الضغط على زر واتساب."},
+    {h:"التحقق الأمني (Cloudflare Turnstile)", p:"نستخدم خدمة Cloudflare Turnstile للتحقق التلقائي والخفي من إن زوار المساعد الذكي أشخاص حقيقيون، وليس بوتات. هذي الخدمة قد تعالج بعض بيانات جهازك ومتصفحك وفق سياسة Cloudflare نفسها — راجع <a href=\"https://www.cloudflare.com/turnstile-privacy-policy/\" target=\"_blank\" rel=\"noopener\">ملحق خصوصية Turnstile</a> لمزيد من التفاصيل."},
     {h:"حقوقك", p:"يحق لك طلب الاطلاع على بياناتك أو تعديلها أو حذفها بالتواصل معنا عبر البريد الإلكتروني الموضّح في صفحة «تواصل»."},
     {h:"الاحتفاظ بالبيانات", p:"نحتفظ ببياناتك طالما لزم لتقديم الخدمة أو للالتزام بالمتطلبات النظامية المعمول بها في المملكة العربية السعودية."},
     {h:"تحديثات على هذه السياسة", p:"قد نحدّث هذه السياسة من وقت لآخر، وسيُنشر أي تحديث على هذه الصفحة مباشرة."},
@@ -398,6 +399,7 @@ const PRIVACY_I18N = {
     {h:"How we use your data", p:"To respond to your inquiries, review and approve listed properties before they go live, generate contract payment schedules, and improve our services."},
     {h:"Where your data is stored", p:"In a central Supabase database protected by row-level security policies — not just in your browser. It stays saved and visible to our team even if you switch devices."},
     {h:"Data sharing", p:"We do not sell your data to any third party. WhatsApp may be used for direct contact only when you choose to click the WhatsApp button."},
+    {h:"Security verification (Cloudflare Turnstile)", p:"We use Cloudflare Turnstile to automatically and invisibly verify that assistant visitors are real people, not bots. This service may process some data about your device and browser under Cloudflare's own policy — see the <a href=\"https://www.cloudflare.com/turnstile-privacy-policy/\" target=\"_blank\" rel=\"noopener\">Turnstile Privacy Addendum</a> for details."},
     {h:"Your rights", p:"You may request access to, correction of, or deletion of your data by contacting us via the email listed on the Contact page."},
     {h:"Data retention", p:"We keep your data as long as needed to provide the service or to comply with applicable regulations in Saudi Arabia."},
     {h:"Updates to this policy", p:"We may update this policy from time to time; any update will be published directly on this page."},
@@ -2087,6 +2089,39 @@ function renderQuickChips(){
 const AI_BACKEND_URL = 'https://himmat-ai-backend.ahmedvall.workers.dev/chat';
 let assistantHistory = [];
 
+// مفتاح عام (Site Key) — آمن يظهر بكود المتصفح، عكس المفتاح السري اللي
+// يبقى فقط على الخادم. يثبت للـWorker إن الطلب جاي من متصفح حقيقي بموقعنا،
+// مو سكربت/بوت يستدعي رابط الـWorker مباشرة لاستنزاف حصة/فوترة Gemini.
+const TURNSTILE_SITE_KEY = '0x4AAAAAAEu3S6icGpBIUVnz';
+
+/* يولّد توكن Turnstile جديد (خفي بالكامل، الزائر ما يشوف ولا يحس) ويرجّعه
+   — نطلب توكن جديد قبل كل رسالة للمساعد الذكي (التوكن صالح لاستخدام وحيد
+   وينتهي بسرعة). لو السكربت ما تحمّل لأي سبب (حجب إعلانات، مشكلة شبكة)،
+   نرجّع null ونكمل عادي — الـWorker يتعامل مع هالحالة بلطف من طرفه. */
+function getTurnstileToken(){
+  return new Promise((resolve)=>{
+    if (!window.turnstile){ resolve(null); return; }
+    const container = document.getElementById('turnstile-container');
+    if (!container){ resolve(null); return; }
+    container.innerHTML = '';
+    let done = false;
+    const finish = (token)=>{ if (done) return; done = true; resolve(token); };
+    try {
+      turnstile.render(container, {
+        sitekey: TURNSTILE_SITE_KEY,
+        size: 'invisible',
+        callback: (token)=> finish(token),
+        'error-callback': ()=> finish(null),
+        'timeout-callback': ()=> finish(null),
+      });
+    } catch (e) {
+      console.error('Turnstile render failed', e);
+      finish(null);
+    }
+    setTimeout(()=> finish(null), 8000); // شبكة أمان لو أي callback ما انطلق
+  });
+}
+
 /* بيانات أسعار الأحياء الحقيقية — نجيبها بس لما السؤال يبدو متعلق
    بالأسعار/الأحياء (توفير تكلفة، مو كل سؤال)، ونخزّنها مؤقتاً 10 دقائق
    لأنها ما تتغيّر إلا أسبوعياً. نخزّن الصفوف الخام كاملة (يتيح البحث عن حي
@@ -2193,13 +2228,14 @@ async function askAiAssistant(text){
   }
 
   const AI_TIMEOUT_MS = 20000; // 20 ثانية — أطول من قبل لأن سؤال الأسعار يحتاج جلب بيانات إضافية قبل الاتصال بالذكاء الاصطناعي
+  const turnstileToken = await getTurnstileToken();
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
   try {
     const res = await fetch(AI_BACKEND_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: messagesToSend }),
+      body: JSON.stringify({ messages: messagesToSend, turnstileToken }),
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
