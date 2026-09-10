@@ -129,10 +129,12 @@ async function refreshCityDistrictData(){
   populateOfferCitySelect();
   populateOfferDistrictSelect();
   populateDistrictNewCitySelect();
+  populatePriceManualCitySelect();
   renderCitiesSummaryTable();
 }
 
 populateDistrictNewCitySelect();
+populatePriceManualCitySelect();
 renderCitiesSummaryTable();
 
 document.getElementById('btn-add-city')?.addEventListener('click', async ()=>{
@@ -213,6 +215,142 @@ document.getElementById('btn-add-district')?.addEventListener('click', async ()=
     msg.textContent = '⚠️ تعذّر الاتصال بقاعدة البيانات.';
     msg.style.color = 'var(--danger)';
     console.error('btn-add-district failed', e);
+  }
+});
+
+/* ============================================================================
+   تحديث سعر حي يدوياً (owner فقط) — لحي فشل التحديث التلقائي من راغدان.
+   يُخزَّن نطاق (أدنى/أعلى)، والمتوسط بينهم يُستخدم كـprice_per_sqm العادي
+   (نفس حقل راغدان بالضبط) — باقي الموقع يحسب عليه بدون أي منطق خاص. علامة
+   source='manual' توقف التحديث الأسبوعي عن لمس هذا الحي لحد "إرجاع للتلقائي".
+   ========================================================================== */
+function populatePriceManualCitySelect(){
+  const sel = document.getElementById('price-manual-city');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = Object.keys(CITY_DISTRICTS).map(c => `<option value="${c}">${c}</option>`).join('');
+  if (prev && CITY_DISTRICTS[prev]) sel.value = prev;
+  populatePriceManualDistrictSelect();
+}
+function populatePriceManualDistrictSelect(){
+  const citySel = document.getElementById('price-manual-city');
+  const distSel = document.getElementById('price-manual-district');
+  if (!citySel || !distSel) return;
+  const list = CITY_DISTRICTS[citySel.value] || [];
+  distSel.innerHTML = list.map(d => `<option value="${d}">${d}</option>`).join('');
+  loadManualPriceStatus();
+}
+document.getElementById('price-manual-city')?.addEventListener('change', populatePriceManualDistrictSelect);
+document.getElementById('price-manual-district')?.addEventListener('change', loadManualPriceStatus);
+
+async function findDistrictId(cityName, districtName){
+  const { data: cityRow, error: cityErr } = await supa.from('cities').select('id').eq('name', cityName).single();
+  if (cityErr || !cityRow) return null;
+  const { data: distRow, error: distErr } = await supa.from('districts').select('id').eq('city_id', cityRow.id).eq('name', districtName).single();
+  if (distErr || !distRow) return null;
+  return distRow.id;
+}
+
+async function loadManualPriceStatus(){
+  const statusEl = document.getElementById('price-manual-status');
+  const revertBtn = document.getElementById('btn-revert-manual-price');
+  const lowInput = document.getElementById('price-manual-low');
+  const highInput = document.getElementById('price-manual-high');
+  const noteInput = document.getElementById('price-manual-note');
+  const cityName = document.getElementById('price-manual-city').value;
+  const districtName = document.getElementById('price-manual-district').value;
+  if (!cityName || !districtName){ statusEl.textContent = ''; revertBtn.style.display = 'none'; return; }
+
+  statusEl.textContent = 'جارٍ التحقق...';
+  lowInput.value = ''; highInput.value = ''; noteInput.value = '';
+  revertBtn.style.display = 'none';
+  try {
+    const districtId = await findDistrictId(cityName, districtName);
+    if (!districtId){ statusEl.textContent = '⚠️ تعذّر إيجاد الحي بقاعدة البيانات.'; return; }
+    const { data: row } = await supa.from('district_prices').select('price_per_sqm, source, manual_price_low, manual_price_high, manual_source_note').eq('district_id', districtId).maybeSingle();
+    if (!row){
+      statusEl.textContent = 'الحالة الحالية: لا يوجد سعر مسجَّل بعد.';
+      return;
+    }
+    if (row.source === 'manual'){
+      statusEl.textContent = `الحالة الحالية: يدوي — ${money(row.manual_price_low)}–${money(row.manual_price_high)} ر.س/م²${row.manual_source_note ? ' (' + row.manual_source_note + ')' : ''}`;
+      lowInput.value = row.manual_price_low || '';
+      highInput.value = row.manual_price_high || '';
+      noteInput.value = row.manual_source_note || '';
+      revertBtn.style.display = '';
+    } else {
+      statusEl.textContent = `الحالة الحالية: ${money(row.price_per_sqm)} ر.س/م² (تلقائي — ${row.source})`;
+    }
+  } catch (e) {
+    console.error('loadManualPriceStatus failed', e);
+    statusEl.textContent = '⚠️ تعذّر الاتصال بقاعدة البيانات.';
+  }
+}
+
+document.getElementById('btn-save-manual-price')?.addEventListener('click', async ()=>{
+  const msg = document.getElementById('price-manual-msg');
+  const cityName = document.getElementById('price-manual-city').value;
+  const districtName = document.getElementById('price-manual-district').value;
+  const low = parseFloat(document.getElementById('price-manual-low').value);
+  const high = parseFloat(document.getElementById('price-manual-high').value);
+  const note = document.getElementById('price-manual-note').value.trim() || null;
+
+  if (!cityName || !districtName){ msg.textContent = '⚠️ اختر المدينة والحي.'; msg.style.color = 'var(--danger)'; return; }
+  if (!Number.isFinite(low) || !Number.isFinite(high) || low <= 0 || high <= 0){
+    msg.textContent = '⚠️ عبّئ السعرين الأدنى والأعلى بأرقام صحيحة.'; msg.style.color = 'var(--danger)'; return;
+  }
+  if (low > high){ msg.textContent = '⚠️ السعر الأدنى لازم يكون أقل من أو يساوي الأعلى.'; msg.style.color = 'var(--danger)'; return; }
+
+  msg.textContent = 'جارٍ الحفظ...';
+  msg.style.color = 'var(--text-600)';
+  try {
+    const districtId = await findDistrictId(cityName, districtName);
+    if (!districtId){ msg.textContent = '⚠️ تعذّر إيجاد الحي بقاعدة البيانات.'; msg.style.color = 'var(--danger)'; return; }
+    const { error } = await supa.from('district_prices').upsert({
+      district_id: districtId,
+      price_per_sqm: (low + high) / 2,
+      manual_price_low: low,
+      manual_price_high: high,
+      manual_source_note: note,
+      source: 'manual',
+      period_note: 'إدخال يدوي (owner)',
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'district_id' });
+    if (error){ msg.textContent = '⚠️ تعذّر الحفظ: ' + error.message; msg.style.color = 'var(--danger)'; return; }
+    msg.textContent = '✅ تم الحفظ — التحديث الأسبوعي التلقائي ما يلمس هذا الحي بعد الحين.';
+    msg.style.color = 'var(--ok)';
+    loadManualPriceStatus();
+  } catch (e) {
+    console.error('btn-save-manual-price failed', e);
+    msg.textContent = '⚠️ تعذّر الاتصال بقاعدة البيانات.';
+    msg.style.color = 'var(--danger)';
+  }
+});
+
+document.getElementById('btn-revert-manual-price')?.addEventListener('click', async ()=>{
+  const msg = document.getElementById('price-manual-msg');
+  const cityName = document.getElementById('price-manual-city').value;
+  const districtName = document.getElementById('price-manual-district').value;
+  if (!confirm('إرجاع هذا الحي للتحديث التلقائي؟ السعر الحالي يبقى مؤقتاً لحد أول تشغيلة أسبوعية جاية.')) return;
+  msg.textContent = 'جارٍ التحديث...';
+  msg.style.color = 'var(--text-600)';
+  try {
+    const districtId = await findDistrictId(cityName, districtName);
+    if (!districtId){ msg.textContent = '⚠️ تعذّر إيجاد الحي بقاعدة البيانات.'; msg.style.color = 'var(--danger)'; return; }
+    const { error } = await supa.from('district_prices').update({
+      source: 'raghdan.sa',
+      manual_price_low: null,
+      manual_price_high: null,
+      manual_source_note: null,
+    }).eq('district_id', districtId);
+    if (error){ msg.textContent = '⚠️ تعذّر التحديث: ' + error.message; msg.style.color = 'var(--danger)'; return; }
+    msg.textContent = '✅ رجع للتحديث التلقائي — بيتحدَّث أول تشغيلة أسبوعية جاية.';
+    msg.style.color = 'var(--ok)';
+    loadManualPriceStatus();
+  } catch (e) {
+    console.error('btn-revert-manual-price failed', e);
+    msg.textContent = '⚠️ تعذّر الاتصال بقاعدة البيانات.';
+    msg.style.color = 'var(--danger)';
   }
 });
 
