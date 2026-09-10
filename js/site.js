@@ -777,6 +777,15 @@ document.addEventListener('mouseout', (e)=>{
 /* ============================================================================
    Detail modal — full listing info: description, specs, marketer, licenses.
    ========================================================================== */
+function galleryNav(btn, dir){
+  const container = btn.closest('.detail-gallery');
+  if (!container) return;
+  const images = JSON.parse(container.dataset.images);
+  let index = (parseInt(container.dataset.index, 10) + dir + images.length) % images.length;
+  container.dataset.index = index;
+  container.querySelector('img').src = images[index];
+  container.querySelector('.gallery-counter').textContent = `${index + 1} / ${images.length}`;
+}
 function openDetailModal(key){
   const o = OFFER_REGISTRY[key];
   if (!o) return;
@@ -809,7 +818,15 @@ function openDetailModal(key){
   const contactPhone = o.marketer_phone || '966530500906';
   const waLink = `https://wa.me/${contactPhone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(o.title + ' — ' + o.city)}`;
   const mapButton = o.map_url ? `<a href="${o.map_url}" target="_blank" rel="noopener" class="btn btn-ghost">📍 ${t.detail_map}</a>` : '';
-  const imageHtml = o.image_url ? `<img src="${o.image_url}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.remove()">` : '';
+  const galleryImages = (o.image_urls && o.image_urls.length) ? o.image_urls : (o.image_url ? [o.image_url] : []);
+  const imageHtml = galleryImages.length > 1
+    ? `<div class="detail-gallery" data-images='${JSON.stringify(galleryImages)}' data-index="0">
+         <img src="${galleryImages[0]}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.parentElement.remove()">
+         <button type="button" class="gallery-arrow gallery-prev" onclick="galleryNav(this,-1)" aria-label="prev">‹</button>
+         <button type="button" class="gallery-arrow gallery-next" onclick="galleryNav(this,1)" aria-label="next">›</button>
+         <span class="gallery-counter">1 / ${galleryImages.length}</span>
+       </div>`
+    : (galleryImages.length === 1 ? `<img src="${galleryImages[0]}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.remove()">` : '');
 
   document.getElementById('detail-content').innerHTML = `
     ${imageHtml}
