@@ -613,6 +613,14 @@ create table if not exists district_prices (
     -- يوصف الفترة بدقة بدل الادّعاء بسنة واحدة (راجع نص v-price-source بالموقع).
     period_note        varchar(100) not null default 'تراكمي (منصة رغدان)',
     source              varchar(50) not null default 'raghdan.sa',
+    -- إدخال يدوي (owner فقط، من لوحة التحكم) — لحي فشل raghdan.sa بتسعيره
+    -- تلقائياً. price_per_sqm يُحسب كمتوسط (low+high)/2 فيستخدمه باقي الموقع
+    -- بدون أي منطق حساب مختلف. source = 'manual' يجعل التحديث الأسبوعي
+    -- التلقائي يتجاوز هذا الحي (لا يمحي الإدخال اليدوي)، لحد ما owner يضغط
+    -- "إرجاع للتحديث التلقائي" (يمسح هالثلاثة أعمدة ويرجّع source الافتراضي).
+    manual_price_low   numeric(10,2),
+    manual_price_high  numeric(10,2),
+    manual_source_note text,
     updated_at         timestamptz not null default now(),
     unique (district_id)
 );
@@ -620,11 +628,17 @@ create index if not exists idx_district_prices_district on district_prices(distr
 
 alter table district_prices enable row level security;
 
--- قراءة عامة (يحتاجها التقييم بالموقع العام)؛ الكتابة حصراً من Edge Function
--- عبر service_role (يتجاوز RLS تلقائياً، فلا داعي لسياسة insert/update هنا).
+-- قراءة عامة (يحتاجها التقييم بالموقع العام).
 drop policy if exists district_prices_public_read on district_prices;
 create policy district_prices_public_read on district_prices
     for select using (true);
+
+-- كتابة: التحديث الأسبوعي التلقائي عبر service_role (يتجاوز RLS)، والإدخال
+-- اليدوي عبر owner فقط من لوحة التحكم (نفس قيد المدن/الأحياء بالضبط).
+drop policy if exists district_prices_admin_write on district_prices;
+create policy district_prices_admin_write on district_prices
+    for all using (public.is_owner())
+    with check (public.is_owner());
 
 -- ============================================================================
 -- 4) العقود

@@ -1140,7 +1140,7 @@ async function loadDistrictPricesFromDb(){
   try {
     const { data, error } = await withTimeout(
       supa.from('district_prices')
-        .select('price_per_sqm, transaction_count, period_note, updated_at, districts(name, cities(name))'),
+        .select('price_per_sqm, transaction_count, period_note, updated_at, source, manual_price_low, manual_price_high, manual_source_note, districts(name, cities(name))'),
       3000
     );
     if (error || !data) return;
@@ -1156,6 +1156,10 @@ async function loadDistrictPricesFromDb(){
         count: row.transaction_count,
         periodNote: row.period_note,
         updatedAt: row.updated_at,
+        source: row.source,
+        manualLow: row.manual_price_low,
+        manualHigh: row.manual_price_high,
+        manualNote: row.manual_source_note,
       };
     });
   } catch (e) {
@@ -1351,17 +1355,22 @@ function runValuation(){
       : 'cumulative documented data (not a single specific year — see source for details)',
   };
 
+  const isManual = priceMeta?.source === 'manual';
   const sourceNote = {
-    ar: usingRealPrice
+    ar: isManual
+      ? `سعر المتر (${money(pricePerSqm)} ر.س) متوسط نطاق سعري مُدخَل يدوياً لحي ${districtVal}: ${money(priceMeta.manualLow)}–${money(priceMeta.manualHigh)} ر.س/م²${priceMeta.manualNote ? ' — المصدر: ' + priceMeta.manualNote : ''}.`
+      : usingRealPrice
       ? `سعر المتر (${money(pricePerSqm)} ر.س) وسيط صفقات فعلية موثّقة لحي ${districtVal} — ${periodDesc.ar} (مصدر: وزارة العدل عبر رغدان العقارية) — قد يختلف عن سعر السوق الحالي بالضبط في الأحياء سريعة الارتفاع.`
       : `سعر المتر (${money(pricePerSqm)} ر.س) هو متوسط استرشادي لمدينة ${cityVal} بالكامل (ما فيه بيانات صفقات فعلية موثّقة لحي ${districtVal} بعد)، معدَّل بتصنيف الحي اليدوي.`,
-    en: usingRealPrice
+    en: isManual
+      ? `The per-sqm price (${money(pricePerSqm)} SAR) is the midpoint of a manually entered range for ${districtVal}: ${money(priceMeta.manualLow)}–${money(priceMeta.manualHigh)} SAR/sqm${priceMeta.manualNote ? ' — source: ' + priceMeta.manualNote : ''}.`
+      : usingRealPrice
       ? `The per-sqm price (${money(pricePerSqm)} SAR) is a median of documented transactions for ${districtVal} — ${periodDesc.en} (source: Ministry of Justice via Raghdan) — may differ from the exact current market price in fast-appreciating districts.`
       : `The per-sqm price (${money(pricePerSqm)} SAR) is a citywide indicator for ${cityVal} (no verified transaction data for ${districtVal} yet), adjusted by the manual district grade.`,
   };
   const priceSourceEl = document.getElementById('v-price-source');
-  priceSourceEl.className = 'notice ' + (usingRealPrice ? 'notice-ok-source' : 'notice-warn');
-  priceSourceEl.innerHTML = (usingRealPrice ? '✅ ' : '⚠️ ') + (sourceNote[currentLang] || sourceNote.ar);
+  priceSourceEl.className = 'notice ' + ((usingRealPrice || isManual) ? 'notice-ok-source' : 'notice-warn');
+  priceSourceEl.innerHTML = ((usingRealPrice || isManual) ? '✅ ' : '⚠️ ') + (sourceNote[currentLang] || sourceNote.ar);
 
   const bd = {
     ar: `السعر الأساسي = ${money(pricePerSqm)} ر.س/م² × ${area} م² × معامل النوع ${typeMult} = ${money(base)} ر.س<br>
