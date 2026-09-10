@@ -128,12 +128,13 @@ Deno.serve(async () => {
   const summary = {
     updated: 0,
     failed: 0,
+    skippedManual: 0,
     failures: [] as { city: string; district: string; reason: string }[],
   };
 
   const { data: districts, error } = await supabase
     .from("districts")
-    .select("id, name, cities(name, raghdan_slug)");
+    .select("id, name, cities(name, raghdan_slug), district_prices(source)");
 
   if (error) {
     console.error("[update-district-prices] تعذّر جلب قائمة الأحياء:", error.message);
@@ -158,15 +159,24 @@ Deno.serve(async () => {
 
   // كل حي عنده مدينة يُحاول تحديثه — نستخدم raghdan_slug المحفوظ لو موجود،
   // وإلا نجرّب اسم المدينة نفسه كافتراضي معقول (بدل استبعاد المدينة كلياً
-  // زي ما كان يصير قبل بالخريطة الثابتة).
-  const targets: DistrictTarget[] = (districts ?? [])
-    .map((d: any) => ({
-      id: d.id,
-      name: d.name,
-      cityName: d.cities?.name,
-      citySlug: d.cities?.raghdan_slug || d.cities?.name,
-    }))
-    .filter((d: { cityName?: string }): d is DistrictTarget => !!d.cityName);
+  // زي ما كان يصير قبل بالخريطة الثابتة). الأحياء المعلَّمة يدوياً
+  // (source='manual' — أدخلها owner من لوحة التحكم) تُستبعد هنا بالكامل،
+  // عشان التحديث الأسبوعي التلقائي ما يمحي إدخالاً موثَّقاً من مصدر رسمي.
+  const allTargets = (districts ?? [])
+    .map((d: any) => {
+      const priceRow = Array.isArray(d.district_prices) ? d.district_prices[0] : d.district_prices;
+      return {
+        id: d.id,
+        name: d.name,
+        cityName: d.cities?.name,
+        citySlug: d.cities?.raghdan_slug || d.cities?.name,
+        isManual: priceRow?.source === "manual",
+      };
+    })
+    .filter((d: { cityName?: string }) => !!d.cityName);
+
+  const targets: DistrictTarget[] = allTargets.filter((d: any) => !d.isManual);
+  summary.skippedManual = allTargets.length - targets.length;
 
   console.log(`[update-district-prices] بدء التحديث لـ ${targets.length} حي...`);
 
@@ -203,13 +213,13 @@ Deno.serve(async () => {
 
   const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
   console.log(
-    `[update-district-prices] انتهى خلال ${seconds}ث — نجح: ${summary.updated} — فشل: ${summary.failed} من أصل ${targets.length}`
+    `[update-district-prices] انتهى خلال ${seconds}ث — نجح: ${summary.updated} — فشل: ${summary.failed} — تجاوز (يدوي): ${summary.skippedManual} من أصل ${allTargets.length}`
   );
 
   await supabase.from("job_runs").insert({
     job_name: "update-district-prices",
     status: summary.failed === 0 ? "success" : (summary.updated > 0 ? "partial" : "failed"),
-    summary: { total: targets.length, updated: summary.updated, failed: summary.failed, seconds },
+    summary: { total: targets.length, updated: summary.updated, failed: summary.failed, skippedManual: summary.skippedManual, seconds },
     started_at: new Date(startedAt).toISOString(),
   });
 
