@@ -121,6 +121,9 @@ alter table properties add column if not exists real_estate_license varchar(50);
 alter table properties add column if not exists ad_license varchar(50);
 alter table offers add column if not exists image_url text;
 alter table properties add column if not exists image_url text;
+-- image_urls: كل صور العرض (اختياري، للمعرض بنافذة التفاصيل) — image_url
+-- يبقى "صورة الغلاف" المستخدمة بالبطاقات وشريحة الهيرو، ما يتأثر بهذا العمود
+alter table offers add column if not exists image_urls text[];
 alter table properties add column if not exists floors_count integer;
 alter table properties add column if not exists has_elevator boolean not null default false;
 alter table properties add column if not exists has_maid_room boolean not null default false;
