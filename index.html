@@ -705,9 +705,11 @@
     <input id="assist-input" type="text" data-i18n-placeholder="assist_placeholder" placeholder="اكتب سؤالك...">
     <button id="assist-send" aria-label="send">➤</button>
   </div>
+  <div id="turnstile-container" style="display:none"></div>
 </div>
 
-<script src="js/site.js?v=20260907ab"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="js/site.js?v=20260907ac"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>
