@@ -136,6 +136,10 @@
           <div class="field"><label>رقم الترخيص الإعلاني</label><input id="offer-ad-license" type="text"></div>
         </div>
         <div class="field"><label>الوصف التفصيلي</label><textarea id="offer-description" rows="6" style="width:100%"></textarea></div>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px" data-staff-only>
+          <button class="btn btn-ghost" id="btn-generate-description" type="button">✨ توليد بالذكاء الاصطناعي</button>
+          <span id="generate-description-msg" style="font-size:12.5px;color:var(--text-600)"></span>
+        </div>
         <div class="field"><label><input type="checkbox" id="offer-published" checked style="width:auto;display:inline-block"> منشور (ظاهر للزوار)</label></div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-primary" id="btn-save-offer" data-staff-only>حفظ العرض</button>
@@ -304,6 +308,8 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=20260907i"></script>
+<div id="turnstile-container" style="display:none"></div>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="js/admin.js?v=20260907j"></script>
 </body>
 </html>
