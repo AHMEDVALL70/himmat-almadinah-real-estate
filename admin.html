@@ -125,10 +125,11 @@
           <div class="field"><label>رابط الخريطة</label><input id="offer-map-url" type="url" placeholder="https://maps.app.goo.gl/..."></div>
           <div class="field">
             <label>صورة العقار</label>
-            <input id="offer-image-file" type="file" accept="image/*">
+            <input id="offer-image-file" type="file" accept="image/*" multiple>
             <div id="offer-image-upload-status" style="font-size:12.5px;color:var(--text-600);margin-top:4px"></div>
-            <img id="offer-image-preview" style="display:none;max-width:160px;border-radius:8px;margin-top:8px;border:1px solid var(--line)">
+            <div id="offer-image-thumbs" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
             <input id="offer-image-url" type="hidden">
+            <input id="offer-image-urls" type="hidden">
           </div>
           <div class="field"><label>اسم المسوّق</label><input id="offer-marketer-name" type="text"></div>
           <div class="field"><label>جوال المسوّق</label><input id="offer-marketer-phone" type="text" placeholder="9665xxxxxxxx"></div>
@@ -310,6 +311,6 @@
 
 <div id="turnstile-container" style="display:none"></div>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/admin.js?v=20260907j"></script>
+<script src="js/admin.js?v=20260907k"></script>
 </body>
 </html>

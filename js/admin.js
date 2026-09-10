@@ -684,6 +684,7 @@ async function deleteProperty(id){
    Offers — rich marketing listings (description, map, marketer, licenses)
    ========================================================================== */
 function readOfferForm(){
+  const parsedImageUrls = JSON.parse(document.getElementById('offer-image-urls').value || '[]');
   return {
     title: document.getElementById('offer-title').value.trim(),
     city: document.getElementById('offer-city').value.trim(),
@@ -696,6 +697,7 @@ function readOfferForm(){
     price_final: parseFloat(document.getElementById('offer-price-final').value) || null,
     map_url: document.getElementById('offer-map-url').value.trim() || null,
     image_url: document.getElementById('offer-image-url').value.trim() || null,
+    image_urls: parsedImageUrls.length ? parsedImageUrls : null,
     marketer_name: document.getElementById('offer-marketer-name').value.trim() || null,
     marketer_phone: document.getElementById('offer-marketer-phone').value.trim() || null,
     real_estate_license: document.getElementById('offer-re-license').value.trim() || null,
@@ -784,29 +786,29 @@ function compressImage(file, maxWidth = 1600, quality = 0.8){
 }
 
 /* ============================================================================
-   رفع صورة العرض مباشرة من الجهاز إلى مخزن Supabase Storage
+   رفع صور العرض (تدعم عدة صور دفعة وحدة) مباشرة من الجهاز إلى مخزن Supabase
+   Storage — أول صورة بالقائمة تصير تلقائياً "صورة الغلاف" (image_url)
+   المستخدمة بالبطاقات وشريحة الهيرو، والباقي يظهر كمعرض بنافذة التفاصيل.
    ========================================================================== */
-document.getElementById('offer-image-file').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  const statusEl = document.getElementById('offer-image-upload-status');
-  const previewEl = document.getElementById('offer-image-preview');
-  const urlField = document.getElementById('offer-image-url');
-  if (!file) return;
+let currentOfferImages = []; // مصفوفة روابط الصور بالنموذج الحالي (بالترتيب)
 
-  if (!file.type.startsWith('image/')) {
-    statusEl.textContent = '⚠️ الملف المختار مو صورة.';
-    statusEl.style.color = 'var(--danger)';
-    return;
-  }
-  if (file.size > 5 * 1024 * 1024) {
-    statusEl.textContent = '⚠️ حجم الصورة أكبر من 5 ميجابايت — اختر صورة أصغر.';
-    statusEl.style.color = 'var(--danger)';
-    return;
-  }
+function renderOfferImageThumbs(){
+  const wrap = document.getElementById('offer-image-thumbs');
+  wrap.innerHTML = currentOfferImages.map((url, i) => `
+    <div style="position:relative">
+      <img src="${url}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--line)${i===0 ? ';outline:2px solid var(--gold-500)' : ''}">
+      <button type="button" onclick="removeOfferImage(${i})" title="حذف" style="position:absolute;top:-6px;left:-6px;width:20px;height:20px;border-radius:50%;background:var(--danger);color:#fff;border:none;font-size:12px;line-height:1;cursor:pointer">✕</button>
+      ${i===0 ? '<span style="position:absolute;bottom:2px;right:2px;background:var(--gold-500);color:#020617;font-size:9px;padding:1px 4px;border-radius:4px">غلاف</span>' : ''}
+    </div>`).join('');
+  document.getElementById('offer-image-url').value = currentOfferImages[0] || '';
+  document.getElementById('offer-image-urls').value = JSON.stringify(currentOfferImages);
+}
+function removeOfferImage(index){
+  currentOfferImages.splice(index, 1);
+  renderOfferImageThumbs();
+}
 
-  statusEl.textContent = 'جاري ضغط الصورة...';
-  statusEl.style.color = 'var(--text-600)';
-
+async function uploadOneOfferImage(file){
   let uploadBlob = file;
   try {
     uploadBlob = await compressImage(file, 1600, 0.8);
@@ -814,26 +816,49 @@ document.getElementById('offer-image-file').addEventListener('change', async (e)
     console.error('compressImage: فشل الضغط، سيتم رفع الصورة الأصلية بدلاً منه.', compressErr);
     uploadBlob = file;
   }
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const { error: uploadError } = await supa.storage.from('property-images').upload(fileName, uploadBlob, { contentType: 'image/jpeg' });
+  if (uploadError) throw uploadError;
+  const { data: urlData } = supa.storage.from('property-images').getPublicUrl(fileName);
+  return urlData.publicUrl;
+}
 
-  statusEl.textContent = 'جاري الرفع...';
-  statusEl.style.color = 'var(--text-600)';
+document.getElementById('offer-image-file').addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files || []);
+  const statusEl = document.getElementById('offer-image-upload-status');
+  if (!files.length) return;
 
-  try {
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
-    const { error: uploadError } = await supa.storage.from('property-images').upload(fileName, uploadBlob, { contentType: 'image/jpeg' });
-    if (uploadError) throw uploadError;
-
-    const { data: urlData } = supa.storage.from('property-images').getPublicUrl(fileName);
-    urlField.value = urlData.publicUrl;
-    previewEl.src = urlData.publicUrl;
-    previewEl.style.display = 'block';
-    statusEl.textContent = '✅ اترفعت بنجاح.';
-    statusEl.style.color = 'var(--ok)';
-  } catch (err) {
-    console.error('offer image upload failed', err);
-    statusEl.textContent = '⚠️ تعذّر الرفع: ' + (err.message || 'خطأ غير معروف');
+  const invalid = files.find(f => !f.type.startsWith('image/'));
+  if (invalid) {
+    statusEl.textContent = '⚠️ فيه ملف مختار مو صورة.';
     statusEl.style.color = 'var(--danger)';
+    return;
   }
+  const tooBig = files.find(f => f.size > 5 * 1024 * 1024);
+  if (tooBig) {
+    statusEl.textContent = '⚠️ فيه صورة أكبر من 5 ميجابايت — اختر صور أصغر.';
+    statusEl.style.color = 'var(--danger)';
+    return;
+  }
+
+  let doneCount = 0;
+  for (const file of files) {
+    statusEl.textContent = `جاري رفع الصورة ${++doneCount} من ${files.length}...`;
+    statusEl.style.color = 'var(--text-600)';
+    try {
+      const url = await uploadOneOfferImage(file);
+      currentOfferImages.push(url);
+      renderOfferImageThumbs();
+    } catch (err) {
+      console.error('offer image upload failed', err);
+      statusEl.textContent = '⚠️ تعذّر رفع إحدى الصور: ' + (err.message || 'خطأ غير معروف');
+      statusEl.style.color = 'var(--danger)';
+      return;
+    }
+  }
+  statusEl.textContent = `✅ اترفعت ${files.length} صورة بنجاح.`;
+  statusEl.style.color = 'var(--ok)';
+  e.target.value = ''; // يسمح تختار نفس الملفات مرة ثانية لو احتجت
 });
 
 function clearOfferForm(){
@@ -845,7 +870,8 @@ function clearOfferForm(){
   });
   populateOfferDistrictSelect();
   document.getElementById('offer-image-file').value = '';
-  document.getElementById('offer-image-preview').style.display = 'none';
+  currentOfferImages = [];
+  renderOfferImageThumbs();
   document.getElementById('offer-image-upload-status').textContent = '';
   document.getElementById('offer-discount').value = '0';
   document.getElementById('offer-published').checked = true;
@@ -950,10 +976,8 @@ function editOffer(id){
   document.getElementById('offer-discount').value = o.discount_pct || 0;
   document.getElementById('offer-price-final').value = o.price_final || '';
   document.getElementById('offer-map-url').value = o.map_url || '';
-  document.getElementById('offer-image-url').value = o.image_url || '';
-  const editPreview = document.getElementById('offer-image-preview');
-  if (o.image_url){ editPreview.src = o.image_url; editPreview.style.display = 'block'; }
-  else { editPreview.style.display = 'none'; }
+  currentOfferImages = (o.image_urls && o.image_urls.length) ? [...o.image_urls] : (o.image_url ? [o.image_url] : []);
+  renderOfferImageThumbs();
   document.getElementById('offer-marketer-name').value = o.marketer_name || '';
   document.getElementById('offer-marketer-phone').value = o.marketer_phone || '';
   document.getElementById('offer-re-license').value = o.real_estate_license || '';
