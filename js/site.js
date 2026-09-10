@@ -2098,16 +2098,21 @@ const TURNSTILE_SITE_KEY = '0x4AAAAAAEu3S6icGpBIUVnz';
    — نطلب توكن جديد قبل كل رسالة للمساعد الذكي (التوكن صالح لاستخدام وحيد
    وينتهي بسرعة). لو السكربت ما تحمّل لأي سبب (حجب إعلانات، مشكلة شبكة)،
    نرجّع null ونكمل عادي — الـWorker يتعامل مع هالحالة بلطف من طرفه. */
+let turnstileWidgetId = null;
 function getTurnstileToken(){
   return new Promise((resolve)=>{
     if (!window.turnstile){ resolve(null); return; }
     const container = document.getElementById('turnstile-container');
     if (!container){ resolve(null); return; }
+    if (turnstileWidgetId !== null){
+      try { turnstile.remove(turnstileWidgetId); } catch(e) { /* الودجت أصلاً انتهى، تجاهل */ }
+      turnstileWidgetId = null;
+    }
     container.innerHTML = '';
     let done = false;
     const finish = (token)=>{ if (done) return; done = true; resolve(token); };
     try {
-      turnstile.render(container, {
+      turnstileWidgetId = turnstile.render(container, {
         sitekey: TURNSTILE_SITE_KEY,
         size: 'invisible',
         callback: (token)=> finish(token),
