@@ -1621,6 +1621,10 @@ document.querySelectorAll('#contracts .field input, #contracts .field select').f
   el.addEventListener('change', ()=> el.classList.remove('input-error'));
 });
 
+// نص رسالة واتساب الجاهز لآخر عقد تولّد — يُخزَّن هنا ويُستخدم بزر "طباعة
+// العقد" (مو يُفتح فوراً وقت التوليد)، عشان واتساب يفتح بنفس لحظة حفظ PDF.
+let lastContractWhatsAppText = null;
+
 document.getElementById('btn-generate-contract').addEventListener('click', async ()=>{
   const msg = document.getElementById('contract-msg');
   const pre = document.getElementById('contract-text');
@@ -1702,10 +1706,10 @@ ${t.contract_frequency_label}: ${frequencyDisplay}`;
     : `This contract was issued via the Himmat Al Madinah Real Estate platform on ${new Date().toLocaleDateString('en-GB')}`);
   document.getElementById('btn-print-contract').classList.remove('hide');
 
-  // يُفتح واتساب همة المدينة فوراً بمجرّد توليد نص العقد — بغض النظر عن نجاح
-  // الحفظ بقاعدة البيانات، حتى ما يضيع العقد على الوسيط لو صار عطل بالاتصال
-  // (نفس فلسفة نموذج "تواصل" بالأسفل).
-  window.open(`https://wa.me/966530500906?text=${encodeURIComponent(text)}`, '_blank');
+  // نخزّن النص بدل ما نفتح واتساب فوراً — يفتح لاحقاً بالضبط لحظة ضغط زر
+  // "طباعة العقد" (نفس ضغطة الزر، عشان المتصفح ما يحجبه كنافذة منبثقة)،
+  // فيصير حفظ PDF وفتح واتساب متزامنين، وتقدر ترفق الملف يدوياً بنفس المحادثة.
+  lastContractWhatsAppText = text;
 
   if (!dbReady){
     msg.textContent = '⚠️ ' + (currentLang==='ar'
@@ -1757,6 +1761,9 @@ ${t.contract_frequency_label}: ${frequencyDisplay}`;
 });
 
 document.getElementById('btn-print-contract').addEventListener('click', ()=>{
+  if (lastContractWhatsAppText){
+    window.open(`https://wa.me/966530500906?text=${encodeURIComponent(lastContractWhatsAppText)}`, '_blank');
+  }
   window.print();
 });
 
