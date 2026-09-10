@@ -1494,6 +1494,21 @@ document.getElementById('btn-add-property').addEventListener('click', async ()=>
    6) Analytics — reads real approved properties, shared by everyone
    ========================================================================== */
 let analyticsChart = null;
+// Chart.js (208KB) كانت تتحمّل لكل زائر دايماً رغم إن قسم التحليلات مخفي
+// افتراضياً وناس قليلة تفتحه — نحمّلها بس أول لحظة يُفتح القسم فعلياً.
+let chartJsLoadPromise = null;
+function ensureChartJsLoaded(){
+  if (window.Chart) return Promise.resolve();
+  if (chartJsLoadPromise) return chartJsLoadPromise;
+  chartJsLoadPromise = new Promise((resolve, reject)=>{
+    const script = document.createElement('script');
+    script.src = 'lib/chart.min.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('تعذّر تحميل مكتبة الرسم البياني'));
+    document.head.appendChild(script);
+  });
+  return chartJsLoadPromise;
+}
 async function renderAnalytics(){
   const tbody = document.getElementById('analytics-tbody');
   if (!dbReady) return;
@@ -1511,6 +1526,7 @@ async function renderAnalytics(){
     const labels = rawCities.map(c => cityLabel(c));
     const values = rawCities.map(c => byCity[c].reduce((a,b)=>a+b,0) / byCity[c].length);
 
+    try { await ensureChartJsLoaded(); } catch (loadErr) { console.error('Chart.js lazy load failed', loadErr); }
     if (window.Chart){
       if (analyticsChart) analyticsChart.destroy();
       analyticsChart = new Chart(document.getElementById('analytics-chart'), {
