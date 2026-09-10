@@ -721,10 +721,58 @@ function offerCardHtml(o, matchScore){
       <h4>${typeLabel(o.property_type)} · ${districtLabel(o.district)}</h4>
       <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} ${t.rooms_suffix}</div>
       ${priceHtml}
-      <button type="button" class="offer-details-btn">${t.detail_view_btn}</button>
+      <button type="button" class="offer-details-btn" data-offer-key="${key}">${t.detail_view_btn}</button>
     </div>
   </div>`;
 }
+
+/* معاينة الوصف الكامل عند تمرير الماوس على زر "عرض التفاصيل الكاملة" —
+   عنصر واحد مشترك (مو نسخة داخل كل بطاقة) لأن .offer-card فيها overflow:
+   hidden لازمة لقص الصورة والشريط المائل بشكل صحيح، وأي عنصر معاينة
+   بداخلها بينقص. نحسب موضعه (position:fixed) بجافاسكربت بدل الاعتماد
+   على تموضع CSS تابع للبطاقة. */
+let offerPreviewEl = null;
+let offerPreviewHideTimer = null;
+function ensureOfferPreviewEl(){
+  if (offerPreviewEl) return offerPreviewEl;
+  offerPreviewEl = document.createElement('div');
+  offerPreviewEl.id = 'offer-preview-tooltip';
+  offerPreviewEl.style.display = 'none';
+  offerPreviewEl.addEventListener('click', e => e.stopPropagation()); // يسمح بتحديد/نسخ النص بدون فتح نافذة التفاصيل
+  document.body.appendChild(offerPreviewEl);
+  return offerPreviewEl;
+}
+function showOfferPreview(key, anchorEl){
+  const o = OFFER_REGISTRY[key];
+  if (!o || !o.description) return;
+  clearTimeout(offerPreviewHideTimer);
+  const el = ensureOfferPreviewEl();
+  el.textContent = o.description;
+  const elWidth = Math.min(300, window.innerWidth - 20);
+  el.style.width = elWidth + 'px';
+  el.style.display = 'block';
+  el.style.visibility = 'hidden'; // نقيس الارتفاع الفعلي بدون وميض بمكان خاطئ
+  const rect = anchorEl.getBoundingClientRect();
+  const elHeight = el.offsetHeight;
+  const top = (rect.top >= elHeight + 12) ? (rect.top - elHeight - 8) : (rect.bottom + 8);
+  let left = rect.left + rect.width / 2 - elWidth / 2;
+  left = Math.max(10, Math.min(left, window.innerWidth - elWidth - 10));
+  el.style.top = top + 'px';
+  el.style.left = left + 'px';
+  el.style.visibility = 'visible';
+}
+function scheduleHideOfferPreview(){
+  clearTimeout(offerPreviewHideTimer);
+  offerPreviewHideTimer = setTimeout(()=>{ if (offerPreviewEl) offerPreviewEl.style.display = 'none'; }, 150);
+}
+document.addEventListener('mouseover', (e)=>{
+  const btn = e.target.closest('.offer-details-btn');
+  if (btn){ showOfferPreview(btn.dataset.offerKey, btn); return; }
+  if (e.target.closest('#offer-preview-tooltip')) clearTimeout(offerPreviewHideTimer);
+});
+document.addEventListener('mouseout', (e)=>{
+  if (e.target.closest('.offer-details-btn') || e.target.closest('#offer-preview-tooltip')) scheduleHideOfferPreview();
+});
 
 /* ============================================================================
    Detail modal — full listing info: description, specs, marketer, licenses.
