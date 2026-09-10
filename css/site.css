@@ -32,6 +32,7 @@
 [data-theme="light"] header.site{background:rgba(255,255,255,.92)}
 [data-theme="light"] .badge-ok{background:rgba(79,174,118,.14);color:#1f8a4c}
 [data-theme="light"] .notice-ok-source{background:rgba(79,174,118,.1);color:#1f8a4c}
+[data-theme="light"] .notice-info{background:rgba(30,41,59,.06);color:var(--text-900)}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
