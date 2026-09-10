@@ -134,7 +134,7 @@
         <div class="hero-search-row">
           <select id="hero-search-city" aria-label="المدينة"></select>
           <select id="hero-search-type" aria-label="نوع العقار"></select>
-          <input id="hero-search-budget" type="number" min="0" placeholder="الميزانية القصوى (ر.س)" data-i18n-placeholder="hero_search_budget">
+          <input id="hero-search-budget" type="number" min="0" placeholder="الميزانية القصوى (ر.س)" data-i18n-placeholder="hero_search_budget" aria-label="الميزانية القصوى">
           <button type="button" class="btn btn-primary" id="hero-search-btn" data-i18n="hero_search_btn">ابحث</button>
         </div>
         <p class="hero-search-count" id="hero-search-count"></p>
@@ -181,11 +181,11 @@
     </div>
     <div class="card" style="padding:18px;margin-bottom:24px">
       <div class="grid grid-4">
-        <div class="field" style="margin-bottom:0"><label data-i18n="f_city">المدينة</label><select id="filter-city" class="city-select-filter"></select></div>
-        <div class="field" style="margin-bottom:0"><label data-i18n="f_type">نوع العقار</label><select id="filter-type" class="type-select-filter"></select></div>
-        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_price">أقل سعر (ر.س)</label><input id="filter-min-price" type="number" min="0"></div>
-        <div class="field" style="margin-bottom:0"><label data-i18n="f_max_price">أعلى سعر (ر.س)</label><input id="filter-max-price" type="number" min="0"></div>
-        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_rooms">أقل عدد غرف</label><input id="filter-min-rooms" type="number" min="0"></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_city" for="filter-city">المدينة</label><select id="filter-city" class="city-select-filter"></select></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_type" for="filter-type">نوع العقار</label><select id="filter-type" class="type-select-filter"></select></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_price" for="filter-min-price">أقل سعر (ر.س)</label><input id="filter-min-price" type="number" min="0"></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_max_price" for="filter-max-price">أعلى سعر (ر.س)</label><input id="filter-max-price" type="number" min="0"></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_rooms" for="filter-min-rooms">أقل عدد غرف</label><input id="filter-min-rooms" type="number" min="0"></div>
         <div class="field" style="margin-bottom:0;grid-column:span 2;flex-direction:row;align-items:end;gap:8px">
           <button class="btn btn-primary" id="btn-apply-filters" data-i18n="filter_apply">بحث</button>
           <button class="btn btn-ghost" id="btn-reset-filters" data-i18n="filter_reset">إعادة تعيين</button>
@@ -239,39 +239,39 @@
       <div class="card" style="padding:22px">
         <div class="grid grid-2">
           <div class="field">
-            <label data-i18n="f_city">المدينة</label>
+            <label data-i18n="f_city" for="v-city">المدينة</label>
             <select id="v-city" class="city-select"></select>
           </div>
           <div class="field">
-            <label data-i18n="f_district">الحي</label>
+            <label data-i18n="f_district" for="v-district">الحي</label>
             <select id="v-district" class="district-select" data-city-of="v-city"></select>
           </div>
           <div class="field">
-            <label data-i18n="f_type">نوع العقار</label>
+            <label data-i18n="f_type" for="v-type">نوع العقار</label>
             <select id="v-type" class="type-select"></select>
           </div>
           <div class="field">
-            <label data-i18n="f_area">المساحة (م²)</label>
+            <label data-i18n="f_area" for="v-area">المساحة (م²)</label>
             <input id="v-area" type="number" min="10" value="200">
           </div>
           <div class="field" id="v-rooms-wrap">
-            <label data-i18n="f_rooms">عدد الغرف</label>
+            <label data-i18n="f_rooms" for="v-rooms">عدد الغرف</label>
             <input id="v-rooms" type="number" min="0" value="4">
           </div>
           <div class="field" id="v-age-wrap">
-            <label data-i18n="f_age">عمر العقار (سنوات)</label>
+            <label data-i18n="f_age" for="v-age">عمر العقار (سنوات)</label>
             <input id="v-age" type="number" min="0" value="3">
           </div>
           <div class="field" id="v-floors-wrap" style="display:none">
-            <label data-i18n="f_floors">عدد الأدوار</label>
+            <label data-i18n="f_floors" for="v-floors">عدد الأدوار</label>
             <input id="v-floors" type="number" min="1" value="4">
           </div>
           <div class="field" id="v-units-wrap" style="display:none">
-            <label data-i18n="f_units_per_floor">عدد الشقق بكل دور</label>
+            <label data-i18n="f_units_per_floor" for="v-units-per-floor">عدد الشقق بكل دور</label>
             <input id="v-units-per-floor" type="number" min="1" value="2">
           </div>
           <div class="field">
-            <label data-i18n="f_facade">الواجهة</label>
+            <label data-i18n="f_facade" for="v-facade">الواجهة</label>
             <select id="v-facade">
               <option value="شرقية" data-adj="0.05" data-i18n="opt_east">شرقية (+5%)</option>
               <option value="شمالية" data-adj="0.04" data-i18n="opt_north">شمالية (+4%)</option>
@@ -280,7 +280,7 @@
             </select>
           </div>
           <div class="field" id="v-grade-wrap">
-            <label data-i18n="f_grade">تصنيف الحي</label>
+            <label data-i18n="f_grade" for="v-grade">تصنيف الحي</label>
             <select id="v-grade">
               <option value="راقي" data-adj="0.25" data-i18n="opt_upscale">حي راقي (+25%)</option>
               <option value="استثماري" data-adj="0.15" data-i18n="opt_investment">حي استثماري (+15%)</option>
@@ -321,10 +321,10 @@
 
     <h3 data-i18n="finance_title">حاسبة التمويل العقاري</h3>
     <div class="grid grid-4" style="margin-top:14px">
-      <div class="field"><label data-i18n="f_price">قيمة العقار (ر.س)</label><input id="fin-price" type="number" value="900000"></div>
-      <div class="field"><label data-i18n="f_down">الدفعة المقدمة (ر.س)</label><input id="fin-down" type="number" value="180000"></div>
-      <div class="field"><label data-i18n="f_rate">النسبة السنوية %</label><input id="fin-rate" type="number" step="0.1" value="4.5"></div>
-      <div class="field"><label data-i18n="f_years">المدة (سنوات)</label><input id="fin-years" type="number" value="20"></div>
+      <div class="field"><label data-i18n="f_price" for="fin-price">قيمة العقار (ر.س)</label><input id="fin-price" type="number" value="900000"></div>
+      <div class="field"><label data-i18n="f_down" for="fin-down">الدفعة المقدمة (ر.س)</label><input id="fin-down" type="number" value="180000"></div>
+      <div class="field"><label data-i18n="f_rate" for="fin-rate">النسبة السنوية %</label><input id="fin-rate" type="number" step="0.1" value="4.5"></div>
+      <div class="field"><label data-i18n="f_years" for="fin-years">المدة (سنوات)</label><input id="fin-years" type="number" value="20"></div>
     </div>
     <div class="card" style="padding:20px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div>
@@ -348,32 +348,32 @@
     </div>
     <div class="card" style="padding:24px;max-width:760px">
       <div class="grid grid-2">
-        <div class="field"><label data-i18n="f_city">المدينة</label>
+        <div class="field"><label data-i18n="f_city" for="add-city">المدينة</label>
           <select id="add-city" class="city-select"></select>
         </div>
-        <div class="field"><label data-i18n="f_district">الحي</label><select id="add-district" class="district-select" data-city-of="add-city"></select></div>
-        <div class="field"><label data-i18n="f_type">نوع العقار</label>
+        <div class="field"><label data-i18n="f_district" for="add-district">الحي</label><select id="add-district" class="district-select" data-city-of="add-city"></select></div>
+        <div class="field"><label data-i18n="f_type" for="add-type">نوع العقار</label>
           <select id="add-type" class="type-select"></select>
         </div>
-        <div class="field"><label data-i18n="f_price">السعر (ر.س)</label><input id="add-price" type="number"></div>
-        <div class="field"><label data-i18n="f_area">المساحة (م²)</label><input id="add-area" type="number"></div>
-        <div class="field" id="add-rooms-wrap"><label data-i18n="f_rooms">عدد الغرف</label><input id="add-rooms" type="number" min="0"></div>
-        <div class="field" id="add-age-wrap"><label data-i18n="f_age">عمر العقار (سنوات)</label><input id="add-age" type="number" min="0"></div>
-        <div class="field" id="add-floors-wrap" style="display:none"><label data-i18n="f_floors">عدد الأدوار</label><input id="add-floors" type="number" min="1"></div>
-        <div class="field" id="add-units-wrap" style="display:none"><label data-i18n="f_units_per_floor">عدد الشقق بكل دور</label><input id="add-units-per-floor" type="number" min="1"></div>
-        <div class="field"><label data-i18n="f_contact">وسيلة تواصل (اختياري)</label><input id="add-contact" type="text" placeholder="جوال أو بريد"></div>
+        <div class="field"><label data-i18n="f_price" for="add-price">السعر (ر.س)</label><input id="add-price" type="number"></div>
+        <div class="field"><label data-i18n="f_area" for="add-area">المساحة (م²)</label><input id="add-area" type="number"></div>
+        <div class="field" id="add-rooms-wrap"><label data-i18n="f_rooms" for="add-rooms">عدد الغرف</label><input id="add-rooms" type="number" min="0"></div>
+        <div class="field" id="add-age-wrap"><label data-i18n="f_age" for="add-age">عمر العقار (سنوات)</label><input id="add-age" type="number" min="0"></div>
+        <div class="field" id="add-floors-wrap" style="display:none"><label data-i18n="f_floors" for="add-floors">عدد الأدوار</label><input id="add-floors" type="number" min="1"></div>
+        <div class="field" id="add-units-wrap" style="display:none"><label data-i18n="f_units_per_floor" for="add-units-per-floor">عدد الشقق بكل دور</label><input id="add-units-per-floor" type="number" min="1"></div>
+        <div class="field"><label data-i18n="f_contact" for="add-contact">وسيلة تواصل (اختياري)</label><input id="add-contact" type="text" placeholder="جوال أو بريد"></div>
       </div>
       <div class="field">
-        <label data-i18n="f_description">وصف تفصيلي (اختياري)</label>
+        <label data-i18n="f_description" for="add-description">وصف تفصيلي (اختياري)</label>
         <textarea id="add-description" rows="5" data-i18n-placeholder="f_description_ph" placeholder="اكتب تفاصيل الغرف، المرافق، القرب من المعالم..."></textarea>
       </div>
       <div class="grid grid-2">
-        <div class="field"><label data-i18n="f_map_url">رابط الموقع على الخريطة (اختياري)</label><input id="add-map-url" type="url" placeholder="https://maps.app.goo.gl/..."></div>
+        <div class="field"><label data-i18n="f_map_url" for="add-map-url">رابط الموقع على الخريطة (اختياري)</label><input id="add-map-url" type="url" placeholder="https://maps.app.goo.gl/..."></div>
       </div>
       <div class="notice notice-info" style="margin-bottom:14px" data-i18n="license_optional_note">الحقلين التاليين للمسوّقين والمكاتب العقارية المرخّصة فقط — اتركهما فارغين إن كنت مالكاً فردياً.</div>
       <div class="grid grid-2">
-        <div class="field"><label data-i18n="f_re_license">رقم الرخصة العقارية (اختياري)</label><input id="add-re-license" type="text"></div>
-        <div class="field"><label data-i18n="f_ad_license">رقم الترخيص الإعلاني (اختياري)</label><input id="add-ad-license" type="text"></div>
+        <div class="field"><label data-i18n="f_re_license" for="add-re-license">رقم الرخصة العقارية (اختياري)</label><input id="add-re-license" type="text"></div>
+        <div class="field"><label data-i18n="f_ad_license" for="add-ad-license">رقم الترخيص الإعلاني (اختياري)</label><input id="add-ad-license" type="text"></div>
       </div>
       <div class="field" id="add-amenities-wrap">
         <label data-i18n="f_amenities">إضافات تؤثر على السعر</label>
@@ -437,46 +437,46 @@
 
     <div class="card" style="padding:24px;max-width:820px">
       <div class="grid grid-2">
-        <div class="field"><label data-i18n="f_lessor_name">اسم المؤجر</label><input id="c-lessor-name" type="text"></div>
-        <div class="field"><label data-i18n="f_lessor_id">هوية المؤجر</label><input id="c-lessor-id" type="text"></div>
-        <div class="field"><label data-i18n="f_lessor_phone">جوال المؤجر</label><input id="c-lessor-phone" type="text"></div>
-        <div class="field"><label data-i18n="f_lessor_dob">تاريخ ميلاد المؤجر</label><input id="c-lessor-dob" type="date"></div>
-        <div class="field"><label data-i18n="f_lessor_id_type">نوع هوية المؤجر</label>
+        <div class="field"><label data-i18n="f_lessor_name" for="c-lessor-name">اسم المؤجر</label><input id="c-lessor-name" type="text"></div>
+        <div class="field"><label data-i18n="f_lessor_id" for="c-lessor-id">هوية المؤجر</label><input id="c-lessor-id" type="text"></div>
+        <div class="field"><label data-i18n="f_lessor_phone" for="c-lessor-phone">جوال المؤجر</label><input id="c-lessor-phone" type="text"></div>
+        <div class="field"><label data-i18n="f_lessor_dob" for="c-lessor-dob">تاريخ ميلاد المؤجر</label><input id="c-lessor-dob" type="date"></div>
+        <div class="field"><label data-i18n="f_lessor_id_type" for="c-lessor-id-type">نوع هوية المؤجر</label>
           <select id="c-lessor-id-type">
             <option value="national_id" data-i18n="id_type_national">هوية وطنية</option>
             <option value="iqama" data-i18n="id_type_iqama">إقامة</option>
             <option value="other" data-i18n="id_type_other">أخرى</option>
           </select>
         </div>
-        <div class="field"><label data-i18n="f_lessor_nationality">جنسية المؤجر</label><input id="c-lessor-nationality" type="text"></div>
-        <div class="field"><label data-i18n="f_lessee_name">اسم المستأجر</label><input id="c-lessee-name" type="text"></div>
-        <div class="field"><label data-i18n="f_lessee_id">هوية المستأجر</label><input id="c-lessee-id" type="text"></div>
-        <div class="field"><label data-i18n="f_lessee_phone">جوال المستأجر</label><input id="c-lessee-phone" type="text"></div>
-        <div class="field"><label data-i18n="f_lessee_dob">تاريخ ميلاد المستأجر</label><input id="c-lessee-dob" type="date"></div>
-        <div class="field"><label data-i18n="f_lessee_id_type">نوع هوية المستأجر</label>
+        <div class="field"><label data-i18n="f_lessor_nationality" for="c-lessor-nationality">جنسية المؤجر</label><input id="c-lessor-nationality" type="text"></div>
+        <div class="field"><label data-i18n="f_lessee_name" for="c-lessee-name">اسم المستأجر</label><input id="c-lessee-name" type="text"></div>
+        <div class="field"><label data-i18n="f_lessee_id" for="c-lessee-id">هوية المستأجر</label><input id="c-lessee-id" type="text"></div>
+        <div class="field"><label data-i18n="f_lessee_phone" for="c-lessee-phone">جوال المستأجر</label><input id="c-lessee-phone" type="text"></div>
+        <div class="field"><label data-i18n="f_lessee_dob" for="c-lessee-dob">تاريخ ميلاد المستأجر</label><input id="c-lessee-dob" type="date"></div>
+        <div class="field"><label data-i18n="f_lessee_id_type" for="c-lessee-id-type">نوع هوية المستأجر</label>
           <select id="c-lessee-id-type">
             <option value="national_id" data-i18n="id_type_national">هوية وطنية</option>
             <option value="iqama" data-i18n="id_type_iqama">إقامة</option>
             <option value="other" data-i18n="id_type_other">أخرى</option>
           </select>
         </div>
-        <div class="field"><label data-i18n="f_lessee_nationality">جنسية المستأجر</label><input id="c-lessee-nationality" type="text"></div>
-        <div class="field"><label data-i18n="f_city">المدينة</label>
+        <div class="field"><label data-i18n="f_lessee_nationality" for="c-lessee-nationality">جنسية المستأجر</label><input id="c-lessee-nationality" type="text"></div>
+        <div class="field"><label data-i18n="f_city" for="c-city">المدينة</label>
           <select id="c-city" class="city-select"></select>
         </div>
-        <div class="field"><label data-i18n="f_district">الحي</label><select id="c-district" class="district-select" data-city-of="c-city"></select></div>
-        <div class="field"><label data-i18n="f_unit_type">نوع الوحدة</label>
+        <div class="field"><label data-i18n="f_district" for="c-district">الحي</label><select id="c-district" class="district-select" data-city-of="c-city"></select></div>
+        <div class="field"><label data-i18n="f_unit_type" for="c-unit-type">نوع الوحدة</label>
           <select id="c-unit-type" class="type-select"></select>
         </div>
-        <div class="field"><label data-i18n="f_floor_number">رقم الدور (اختياري)</label><input id="c-floor-number" type="text" placeholder="مثال: الثالث"></div>
-        <div class="field"><label data-i18n="f_area">المساحة (م²)</label><input id="c-area" type="number"></div>
-        <div class="field"><label data-i18n="f_deed_number">رقم الصك</label><input id="c-deed-number" type="text"></div>
-        <div class="field"><label data-i18n="f_deed_date">تاريخ الصك</label><input id="c-deed-date" type="date"></div>
-        <div class="field"><label data-i18n="f_deposit">الضمان (ر.س)</label><input id="c-deposit" type="number" value="0"></div>
-        <div class="field"><label data-i18n="f_start">تاريخ البداية</label><input id="c-start" type="date"></div>
-        <div class="field"><label data-i18n="f_end">تاريخ النهاية</label><input id="c-end" type="date"></div>
-        <div class="field"><label data-i18n="f_rent">الإيجار السنوي (ر.س)</label><input id="c-rent" type="number"></div>
-        <div class="field"><label data-i18n="f_frequency">عدد الدفعات سنوياً</label>
+        <div class="field"><label data-i18n="f_floor_number" for="c-floor-number">رقم الدور (اختياري)</label><input id="c-floor-number" type="text" placeholder="مثال: الثالث"></div>
+        <div class="field"><label data-i18n="f_area" for="c-area">المساحة (م²)</label><input id="c-area" type="number"></div>
+        <div class="field"><label data-i18n="f_deed_number" for="c-deed-number">رقم الصك</label><input id="c-deed-number" type="text"></div>
+        <div class="field"><label data-i18n="f_deed_date" for="c-deed-date">تاريخ الصك</label><input id="c-deed-date" type="date"></div>
+        <div class="field"><label data-i18n="f_deposit" for="c-deposit">الضمان (ر.س)</label><input id="c-deposit" type="number" value="0"></div>
+        <div class="field"><label data-i18n="f_start" for="c-start">تاريخ البداية</label><input id="c-start" type="date"></div>
+        <div class="field"><label data-i18n="f_end" for="c-end">تاريخ النهاية</label><input id="c-end" type="date"></div>
+        <div class="field"><label data-i18n="f_rent" for="c-rent">الإيجار السنوي (ر.س)</label><input id="c-rent" type="number"></div>
+        <div class="field"><label data-i18n="f_frequency" for="c-frequency">عدد الدفعات سنوياً</label>
           <select id="c-frequency"><option value="1">سنوي (دفعة واحدة)</option><option value="2" selected>نصف سنوي</option><option value="4">ربع سنوي</option><option value="12">شهري</option></select>
         </div>
       </div>
@@ -594,9 +594,9 @@
         </div>
       </div>
       <div class="card" style="padding:22px">
-        <div class="field"><label data-i18n="f_name">الاسم</label><input id="ct-name" type="text"></div>
-        <div class="field"><label data-i18n="f_reach">جوالك أو بريدك الإلكتروني</label><input id="ct-reach" type="text" placeholder="05xxxxxxxx / name@email.com"></div>
-        <div class="field"><label data-i18n="f_inquiry_type">نوع الاستفسار</label>
+        <div class="field"><label data-i18n="f_name" for="ct-name">الاسم</label><input id="ct-name" type="text"></div>
+        <div class="field"><label data-i18n="f_reach" for="ct-reach">جوالك أو بريدك الإلكتروني</label><input id="ct-reach" type="text" placeholder="05xxxxxxxx / name@email.com"></div>
+        <div class="field"><label data-i18n="f_inquiry_type" for="ct-type">نوع الاستفسار</label>
           <select id="ct-type">
             <option data-i18n="opt_buy">شراء عقار</option>
             <option data-i18n="opt_sell">بيع عقار</option>
@@ -605,7 +605,7 @@
             <option data-i18n="opt_general">استفسار عام</option>
           </select>
         </div>
-        <div class="field"><label data-i18n="f_message">الرسالة</label><textarea id="ct-message" rows="3"></textarea></div>
+        <div class="field"><label data-i18n="f_message" for="ct-message">الرسالة</label><textarea id="ct-message" rows="3"></textarea></div>
         <button class="btn btn-primary" id="btn-send-contact" data-i18n="contact_send_form">إرسال الطلب</button>
         <p id="contact-form-msg" style="font-size:13px;margin-top:8px"></p>
         <p style="font-size:12px;color:var(--text-600);margin-top:10px" data-i18n="contact_send_note">يُحفظ طلبك في نظامنا ويفتح واتساب أيضاً لتواصل أسرع.</p>
@@ -715,7 +715,7 @@
   <div class="assist-body" id="assist-body"></div>
   <div class="assist-quick" id="assist-quick"></div>
   <div class="assist-input">
-    <input id="assist-input" type="text" data-i18n-placeholder="assist_placeholder" placeholder="اكتب سؤالك...">
+    <input id="assist-input" type="text" data-i18n-placeholder="assist_placeholder" placeholder="اكتب سؤالك..." aria-label="اكتب سؤالك للمساعد الذكي">
     <button id="assist-send" aria-label="send">➤</button>
   </div>
   <div id="turnstile-container" style="display:none"></div>
