@@ -724,6 +724,7 @@ function offerCardHtml(o, matchScore){
     ? `<img src="${o.image_url}" alt="${escapeHtml(o.title)}" class="offer-img" loading="lazy" onerror="this.remove()">`
     : '';
   const soldRibbon = o.is_sold ? `<span class="sold-ribbon">${t.sold_ribbon_label}</span>` : '';
+  const pinnedBadge = o.is_pinned ? `<span class="pinned-badge">📌 ${currentLang==='ar' ? 'مميّز' : 'Featured'}</span>` : '';
   const matchBadge = (matchScore !== null && matchScore !== undefined)
     ? `<span class="match-badge" title="${t.match_badge_hint}">🎯 ${matchScore}% ${t.match_badge_label}</span>`
     : '';
@@ -735,6 +736,7 @@ function offerCardHtml(o, matchScore){
     </button>
     ${imageHtml}
     ${soldRibbon}
+    ${pinnedBadge}
     <div class="offer-top"><b>${o.title}</b>${o.discount_pct > 0 ? `<span class="offer-discount">-${o.discount_pct}%</span>` : ''}</div>
     <div class="offer-body">
       ${matchBadge}
@@ -1000,11 +1002,12 @@ let currentOfferSort = 'newest';
 function sortOffersList(list, sortKey){
   const arr = [...list];
   const price = o => o.price_final ?? o.price ?? o.price_original ?? 0;
+  const pinned = o => o.is_pinned ? 1 : 0;
   switch(sortKey){
-    case 'discount': return arr.sort((a,b) => (b.discount_pct||0) - (a.discount_pct||0));
-    case 'price_desc': return arr.sort((a,b) => price(b) - price(a));
-    case 'price_asc': return arr.sort((a,b) => price(a) - price(b));
-    default: return arr.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)); // newest
+    case 'discount': return arr.sort((a,b) => (pinned(b) - pinned(a)) || ((b.discount_pct||0) - (a.discount_pct||0)));
+    case 'price_desc': return arr.sort((a,b) => (pinned(b) - pinned(a)) || (price(b) - price(a)));
+    case 'price_asc': return arr.sort((a,b) => (pinned(b) - pinned(a)) || (price(a) - price(b)));
+    default: return arr.sort((a,b) => (pinned(b) - pinned(a)) || (new Date(b.created_at) - new Date(a.created_at))); // newest
   }
 }
 
@@ -1027,7 +1030,7 @@ async function renderOffers(filters){
     try {
       // نُبقي فلترة المدينة صارمة (أغلب المشترين ما يفكرون بمدينة ثانية)،
       // وبقية التفضيلات (نوع، سعر، غرف) تُحسب كنسبة توافق بدل استبعاد صارم
-      let query = supa.from('offers').select('*').eq('is_published', true).order('created_at', { ascending: false }).limit(30);
+      let query = supa.from('offers').select('*').eq('is_published', true).order('is_pinned', { ascending: false }).order('created_at', { ascending: false }).limit(30);
       if (f.city) query = query.eq('city', f.city);
       const { data, error } = await withTimeout(query);
       if (!error && data && data.length){
@@ -1068,7 +1071,7 @@ async function renderFeatured(){
   let items = [];
   if (dbReady){
     try {
-      const { data, error } = await withTimeout(supa.from('offers').select('*').eq('is_published', true).order('created_at', { ascending: false }).limit(3));
+      const { data, error } = await withTimeout(supa.from('offers').select('*').eq('is_published', true).order('is_pinned', { ascending: false }).order('created_at', { ascending: false }).limit(3));
       if (!error && data && data.length) items = data;
     } catch (e) {
       console.error('renderFeatured: Supabase call failed, falling back to demo data.', e);
