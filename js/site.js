@@ -717,8 +717,13 @@ function toggleFavorite(key){
 function offerCardHtml(o, matchScore){
   const t = I18N[currentLang];
   const key = registerOffer(o);
-  const priceHtml = o.price_original
-    ? `<span class="price">${money(o.price_final)} ${currentLang==='ar' ? 'ر.س' : 'SAR'} <s>${money(o.price_original)} ${currentLang==='ar' ? 'ر.س' : 'SAR'}</s></span>`
+  const currency = currentLang === 'ar' ? 'ر.س' : 'SAR';
+  const cardDisplayPrice = o.price_final ?? o.price_original;
+  const cardHasRealDiscount = o.price_original && o.price_final && o.price_original !== o.price_final;
+  const priceHtml = cardDisplayPrice
+    ? (cardHasRealDiscount
+        ? `<span class="price">${money(o.price_final)} ${currency} <s>${money(o.price_original)} ${currency}</s></span>`
+        : `<span class="price">${money(cardDisplayPrice)} ${currency}</span>`)
     : `<span class="price">${t.price_on_request}</span>`;
   const imageHtml = o.image_url
     ? `<img src="${o.image_url}" alt="${escapeHtml(o.title)}" class="offer-img" loading="lazy" onerror="this.remove()">`
@@ -815,8 +820,12 @@ function openDetailModal(key){
   const t = I18N[currentLang];
   const currency = currentLang === 'ar' ? 'ر.س' : 'SAR';
 
-  const priceHtml = o.price_original
-    ? `${money(o.price_final)} ${currency} <s>${money(o.price_original)} ${currency}</s>`
+  const modalDisplayPrice = o.price_final ?? o.price_original;
+  const modalHasRealDiscount = o.price_original && o.price_final && o.price_original !== o.price_final;
+  const priceHtml = modalDisplayPrice
+    ? (modalHasRealDiscount
+        ? `${money(o.price_final)} ${currency} <s>${money(o.price_original)} ${currency}</s>`
+        : `${money(modalDisplayPrice)} ${currency}`)
     : t.price_on_request;
 
   const specs = [];
