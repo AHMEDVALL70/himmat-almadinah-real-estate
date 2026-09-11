@@ -66,7 +66,7 @@
 <script src="lib/supabase.min.js"></script>
 
 
-<link rel="stylesheet" href="css/site.css?v=20260907i">
+<link rel="stylesheet" href="css/site.css?v=20260907j">
 </head>
 <body>
 
@@ -170,9 +170,56 @@
 </section>
 
 <!-- ==========================================================================
-     Featured Properties — a direct "taste" of real listings right under the
-     hero, so a visitor sees actual content before clicking anything.
+     Journey — 4 simple steps, reduces anxiety by making the process feel
+     known and simple. Reuses .about-icon/.about-card styling for visual
+     consistency with the existing "About" section (same gold gradient badge).
      ========================================================================== -->
+<section class="journey-section fade-up">
+  <div class="container">
+    <div class="section-head" style="text-align:center;max-width:560px;margin-left:auto;margin-right:auto">
+      <p class="eyebrow" data-i18n="journey_eyebrow">بساطة من البداية للنهاية</p>
+      <h2 data-i18n="journey_title">رحلتك معنا</h2>
+    </div>
+    <div class="grid grid-4">
+      <div class="card about-card fade-up" style="padding:22px;text-align:center">
+        <div class="about-icon">🔍</div>
+        <h4 data-i18n="journey1_title">تصفّح</h4>
+        <p style="color:var(--text-600);font-size:13.5px" data-i18n="journey1_text">عقارات حقيقية بأسعار شفافة، محدَّثة أولاً بأول.</p>
+      </div>
+      <div class="card about-card fade-up" style="padding:22px;text-align:center">
+        <div class="about-icon">🤝</div>
+        <h4 data-i18n="journey2_title">تواصل بثقة</h4>
+        <p style="color:var(--text-600);font-size:13.5px" data-i18n="journey2_text">فريق محلي يجاوبك بوضوح، بدون ضغط أو تسرّع.</p>
+      </div>
+      <div class="card about-card fade-up" style="padding:22px;text-align:center">
+        <div class="about-icon">📝</div>
+        <h4 data-i18n="journey3_title">عقد موثّق</h4>
+        <p style="color:var(--text-600);font-size:13.5px" data-i18n="journey3_text">كل بند واضح ومكتوب قبل ما توقّع — بدون تعقيد.</p>
+      </div>
+      <div class="card about-card fade-up" style="padding:22px;text-align:center">
+        <div class="about-icon">🔑</div>
+        <h4 data-i18n="journey4_title">مفتاحك بيدك</h4>
+        <p style="color:var(--text-600);font-size:13.5px" data-i18n="journey4_text">نرافقك للخطوة الأخيرة، بثقة من البداية للنهاية.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     Explicit promises bar — names specific real-estate anxieties and
+     defuses them directly, using facts already true about the site (not
+     new marketing claims).
+     ========================================================================== -->
+<section class="promises-bar fade-up">
+  <div class="container">
+    <div class="promises-grid">
+      <div class="promise-item"><span class="promise-icon">🛡️</span><span data-i18n="promise1">مرخّصون رسمياً — فال + سجل تجاري</span></div>
+      <div class="promise-item"><span class="promise-icon">📊</span><span data-i18n="promise2">بياناتنا من مصادر رسمية (وزارة العدل)</span></div>
+      <div class="promise-item"><span class="promise-icon">🚫</span><span data-i18n="promise3">بدون عمولات خفية</span></div>
+      <div class="promise-item"><span class="promise-icon">🔒</span><span data-i18n="promise4">عقودك محفوظة بأمان</span></div>
+    </div>
+  </div>
+</section>
 <section class="featured-section">
   <div class="container">
     <div class="section-head">
@@ -747,7 +794,7 @@
 </div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/site.js?v=20260907ay"></script>
+<script src="js/site.js?v=20260907az"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>
