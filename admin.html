@@ -121,11 +121,11 @@
           <div class="field"><label for="offer-city">المدينة</label><select id="offer-city"></select></div>
           <div class="field"><label for="offer-district">الحي</label><input id="offer-district" type="text" list="offer-district-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="offer-district-datalist"></datalist></div>
           <div class="field"><label for="offer-type">نوع العقار</label><select id="offer-type"></select></div>
-          <div class="field"><label for="offer-area">المساحة (م²)</label><input id="offer-area" type="number"></div>
-          <div class="field"><label for="offer-rooms">عدد الغرف</label><input id="offer-rooms" type="number"></div>
-          <div class="field"><label for="offer-price-original">السعر الأصلي (ر.س)</label><input id="offer-price-original" type="number"></div>
-          <div class="field"><label for="offer-discount">نسبة الخصم %</label><input id="offer-discount" type="number" min="0" max="100" value="0"></div>
-          <div class="field"><label for="offer-price-final">السعر النهائي (ر.س)</label><input id="offer-price-final" type="number"></div>
+          <div class="field"><label for="offer-area">المساحة (م²)</label><input id="offer-area" type="text" inputmode="decimal"></div>
+          <div class="field"><label for="offer-rooms">عدد الغرف</label><input id="offer-rooms" type="text" inputmode="decimal"></div>
+          <div class="field"><label for="offer-price-original">السعر الأصلي (ر.س)</label><input id="offer-price-original" type="text" inputmode="decimal"></div>
+          <div class="field"><label for="offer-discount">نسبة الخصم %</label><input id="offer-discount" type="text" inputmode="decimal" min="0" max="100" value="0"></div>
+          <div class="field"><label for="offer-price-final">السعر النهائي (ر.س)</label><input id="offer-price-final" type="text" inputmode="decimal"></div>
           <div class="field"><label for="offer-map-url">رابط الخريطة</label><input id="offer-map-url" type="url" placeholder="https://maps.app.goo.gl/..."></div>
           <div class="field">
             <label for="offer-image-file">صورة العقار</label>
@@ -214,7 +214,7 @@
           </div>
           <div class="field" style="margin-bottom:12px">
             <label for="city-new-price">متوسط سعر المتر (اختياري)</label>
-            <input id="city-new-price" type="number" placeholder="مثال: 5000">
+            <input id="city-new-price" type="text" inputmode="decimal" placeholder="مثال: 5000">
           </div>
           <div class="field" style="margin-bottom:14px">
             <label for="city-new-slug">معرّف رغدان (اختياري — لتحديث الأسعار الأسبوعي التلقائي)</label>
@@ -253,8 +253,8 @@
           </div>
           <p id="price-manual-status" style="font-size:12px;color:var(--text-600);margin:0 0 12px;min-height:16px"></p>
           <div class="price-range-row" style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-            <div class="field" style="flex:1;min-width:110px"><label for="price-manual-low">الأدنى (ر.س/م²)</label><input id="price-manual-low" type="number" min="0"></div>
-            <div class="field" style="flex:1;min-width:110px"><label for="price-manual-high">الأعلى (ر.س/م²)</label><input id="price-manual-high" type="number" min="0"></div>
+            <div class="field" style="flex:1;min-width:110px"><label for="price-manual-low">الأدنى (ر.س/م²)</label><input id="price-manual-low" type="text" inputmode="decimal" min="0"></div>
+            <div class="field" style="flex:1;min-width:110px"><label for="price-manual-high">الأعلى (ر.س/م²)</label><input id="price-manual-high" type="text" inputmode="decimal" min="0"></div>
           </div>
           <div class="field" style="margin-bottom:14px">
             <label for="price-manual-note">مصدر الرقم (اختياري)</label>
@@ -346,6 +346,6 @@
 
 <div id="turnstile-container" style="display:none"></div>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/admin.js?v=20260907p"></script>
+<script src="js/admin.js?v=20260907q"></script>
 </body>
 </html>

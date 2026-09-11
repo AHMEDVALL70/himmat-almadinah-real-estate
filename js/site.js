@@ -1089,8 +1089,8 @@ document.getElementById('hero-search-btn')?.addEventListener('click', ()=>{
   document.getElementById('filter-city').value = f.city || '';
   document.getElementById('filter-type').value = f.type || '';
   document.getElementById('filter-max-price').value = f.maxPrice || '';
+  showPage('offers');
   renderOffers();
-  document.getElementById('offers')?.scrollIntoView({ behavior: 'smooth' });
 });
 
 function renderFaq(){
