@@ -416,6 +416,7 @@ const TERMS_I18N = {
   ar: [
     {h:"قبول الشروط", p:"باستخدامك هذا الموقع فإنك توافق على هذه الشروط بالكامل. إن لم توافق، يرجى عدم استخدام الموقع."},
     {h:"طبيعة الخدمة", p:"يقدّم الموقع مؤشراً عقارياً استرشادياً (معادلة حسابية شفافة، وليس تقييماً معتمداً رسمياً)، ونماذج توليد عقود (نقطة انطلاق وليست بديلاً عن استشارة قانونية متخصصة)."},
+    {h:"الملكية الفكرية", p:"كل محتوى هذا الموقع — التصميم والواجهات، الشيفرة البرمجية، خوارزميات حساب المؤشر السعري، قوالب العقود، النصوص، والشعار — ملكية حصرية لهمة المدينة العقارية، محمية بموجب أنظمة حماية حقوق المؤلف والملكية الفكرية المعمول بها بالمملكة العربية السعودية. يُمنع نسخ أي جزء من الموقع أو خوارزمياته أو واجهاته أو إعادة استخدامها بأي شكل (بما في ذلك النسخ، الهندسة العكسية، أو الاستخدام التجاري) دون إذن كتابي مسبق من المالك."},
     {h:"مسؤولية المستخدم", p:"أنت مسؤول عن دقة أي بيانات تُدخلها (بيانات العقار، أطراف العقد، معلومات التواصل)، وعن التحقق منها قبل الاعتماد عليها في أي قرار."},
     {h:"الملكية الفكرية", p:"جميع حقوق المحتوى والتصميم والعلامة التجارية محفوظة لهمة المدينة العقارية، ولا يجوز نسخها أو إعادة استخدامها دون إذن كتابي."},
     {h:"حدود المسؤولية", p:"لا تتحمل همة المدينة العقارية مسؤولية أي قرار مالي أو قانوني يُتخذ استناداً فقط إلى المؤشرات الاسترشادية أو نماذج العقود دون مراجعة مختص عقاري أو قانوني مرخّص."},
@@ -426,6 +427,7 @@ const TERMS_I18N = {
   en: [
     {h:"Acceptance of terms", p:"By using this site, you agree to these terms in full. If you don't agree, please don't use the site."},
     {h:"Nature of the service", p:"The site provides a guided property indicator (a transparent formula, not a certified official valuation) and contract-drafting templates (a starting point, not a substitute for specialized legal advice)."},
+    {h:"Intellectual Property", p:"All content on this website — the design and interfaces, source code, valuation-indicator calculation algorithms, contract templates, text content, and logo — is the exclusive property of Himmat Al Madinah Real Estate, protected under applicable copyright and intellectual property laws in the Kingdom of Saudi Arabia. Copying, reverse-engineering, or reusing any part of the site, its algorithms, or its interfaces in any way (including commercial use) without prior written permission from the owner is prohibited."},
     {h:"User responsibility", p:"You're responsible for the accuracy of any data you enter (property details, contract parties, contact information), and for verifying it before relying on it for any decision."},
     {h:"Intellectual property", p:"All content, design, and brand rights belong to Himmat Al Madinah Real Estate and may not be copied or reused without written permission."},
     {h:"Limitation of liability", p:"Himmat Al Madinah Real Estate is not liable for any financial or legal decision made based solely on the guided indicators or contract templates without review by a licensed real estate or legal professional."},
