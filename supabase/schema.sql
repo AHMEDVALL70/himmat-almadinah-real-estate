@@ -779,6 +779,14 @@ begin
     period_months  := greatest(1, 12 / greatest(p_frequency, 1));
     installments_n := greatest(1, ceil(months_total::numeric / period_months));
 
+    -- حاجز أمان حقيقي: حتى عقد شهري لمدة 40 سنة = 480 دفعة — 500 سقف سخي
+    -- يغطي أي عقد واقعي، ويمنع حلقة هائلة (آلاف/ملايين السطور) لو تاريخ
+    -- البداية/النهاية أُدخل غلط (سنة بدون الألفين مثلاً)، سواء بالخطأ أو
+    -- عمداً (هذي الدالة تُستدعى من أي زائر مجهول عبر anon key).
+    if installments_n > 500 then
+        raise exception 'مدة العقد بين % و% غير منطقية (% دفعة محسوبة) — تحقق من صحة التاريخين.', p_start_date, p_end_date, installments_n;
+    end if;
+
     base_per_inst := round(p_annual_rent / p_frequency, 2);
     vat_per_inst  := round(base_per_inst * p_vat_rate, 2);
     cur_date      := p_start_date;
