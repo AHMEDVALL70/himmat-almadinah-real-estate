@@ -2741,6 +2741,17 @@ document.getElementById('assist-input').addEventListener('keydown', e=>{
   e.stopPropagation(); // avoid the document-level Escape/outside-click handlers firing oddly while typing
 });
 
+/* زر "للأعلى" العائم — يظهر بس بعد تمرير مسافة معقولة، ويمرّر للأعلى بنعومة. */
+const backToTopBtn = document.getElementById('back-to-top');
+if (backToTopBtn){
+  window.addEventListener('scroll', ()=>{
+    backToTopBtn.classList.toggle('visible', window.scrollY > 500);
+  }, { passive: true });
+  backToTopBtn.addEventListener('click', ()=>{
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  });
+}
+
 /* ============================================================================
    11) Boot
    ========================================================================== */
