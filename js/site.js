@@ -695,6 +695,21 @@ function registerOffer(o){
    ولا أي جدول بقاعدة البيانات. تختفي لو الزائر مسح بيانات المتصفح.
    ========================================================================== */
 const FAVORITES_KEY = 'himmat_favorites';
+
+/* "شفته مؤخراً" — نفس مبدأ المفضلة بالضبط (localStorage بس، صفر قاعدة
+   بيانات)، يخزّن آخر 6 عروض فتح تفاصيلها الزائر. */
+const RECENTLY_VIEWED_KEY = 'himmat_recently_viewed';
+function getRecentlyViewed(){
+  try { return JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+function trackRecentlyViewed(o){
+  try {
+    let list = getRecentlyViewed().filter(x => x.id !== o.id);
+    list.unshift({ id: o.id, title: o.title, city: o.city, district: o.district, image_url: o.image_url, price_final: o.price_final, price_original: o.price_original });
+    localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(list.slice(0, 6)));
+  } catch (e) { console.error('trackRecentlyViewed failed', e); }
+}
 function getFavorites(){
   try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'); }
   catch(e) { return []; }
@@ -817,6 +832,7 @@ function openDetailModal(key){
   const o = OFFER_REGISTRY[key];
   if (!o) return;
   logOfferView(o.id); // إحصائية خفيفة، لا تنتظر ولا تعطّل فتح النافذة
+  trackRecentlyViewed(o);
   const t = I18N[currentLang];
   const currency = currentLang === 'ar' ? 'ر.س' : 'SAR';
 
@@ -876,6 +892,7 @@ function openDetailModal(key){
       <button type="button" class="btn btn-ghost" onclick="shareOffer('${o.id}','${escapeHtml(o.title).replace(/'/g,"\\'")}')">📤 ${currentLang==='ar' ? 'مشاركة عبر واتساب' : 'Share via WhatsApp'}</button>
     </div>
     <div id="similar-offers-section"></div>
+    ${recentlyViewedHtml(o.id)}
   `;
   document.getElementById('detail-modal').classList.add('open');
   renderSimilarOffers(o);
@@ -889,6 +906,21 @@ function shareOffer(offerId, title){
   const url = `${location.origin}${location.pathname}#offer-${offerId}`;
   const text = (currentLang === 'ar' ? 'شوف هالعرض: ' : 'Check out this listing: ') + title + '\n' + url;
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+/* يجلب عرض بمعرّفه من قاعدة البيانات فعلياً ويفتح تفاصيله — يضمن بيانات
+   كاملة وحديثة (مو بيانات جزئية مخزَّنة محلياً بـ"شفته مؤخراً"، اللي ممكن
+   تكون قديمة أو ناقصة حقول). */
+async function openOfferById(id){
+  if (!dbReady) return;
+  try {
+    const { data, error } = await withTimeout(supa.from('offers').select('*').eq('id', id).eq('is_published', true).maybeSingle());
+    if (error || !data) return;
+    const key = registerOffer(data);
+    openDetailModal(key);
+  } catch (e) {
+    console.error('openOfferById failed', e);
+  }
 }
 
 /* رابط مشاركة مباشر (#offer-<id>) يفتح تفاصيل نفس العرض تلقائياً — يُفحص
@@ -906,6 +938,30 @@ async function handleDeepLinkOffer(){
   } catch (e) {
     console.error('handleDeepLinkOffer failed', e);
   }
+}
+
+/* "شفته مؤخراً" — عرض فوري (بيانات محلية جاهزة، صفر انتظار)، يعيد استخدام
+   نفس تنسيق "عقارات مشابهة" (detail-similar) للاتساق البصري. */
+function recentlyViewedHtml(currentId){
+  const list = getRecentlyViewed().filter(o => o.id !== currentId).slice(0, 3);
+  if (!list.length) return '';
+  return `
+    <div class="detail-similar">
+      <h4>${currentLang === 'ar' ? 'شفته مؤخراً' : 'Recently viewed'}</h4>
+      <div class="detail-similar-grid">
+        ${list.map(o=>{
+          const price = o.price_final ?? o.price_original;
+          return `<div class="detail-similar-card" onclick="openOfferById('${o.id}')">
+            ${o.image_url ? `<img src="${o.image_url}" alt="${escapeHtml(o.title)}" loading="lazy" onerror="this.remove()">` : ''}
+            <div class="detail-similar-info">
+              <b>${escapeHtml(o.title)}</b>
+              <span>${districtLabel(o.district)} · ${cityLabel(o.city)}</span>
+              ${price ? `<span class="detail-similar-price">${money(price)} ${currentLang==='ar'?'ر.س':'SAR'}</span>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
 }
 
 /* عقارات مشابهة (نفس المدينة، ويُفضَّل نفس النوع لو متوفر) — تُحمَّل
@@ -1060,9 +1116,20 @@ function applySortTab(sortKey){
   observeFadeUps();
 }
 
+function skeletonCardsHtml(count){
+  return Array(count).fill(0).map(()=>`
+    <div class="card skeleton-card">
+      <div class="skeleton-img"></div>
+      <div class="skeleton-line" style="width:70%"></div>
+      <div class="skeleton-line" style="width:45%"></div>
+      <div class="skeleton-line" style="width:55%"></div>
+    </div>`).join('');
+}
+
 async function renderOffers(filters){
   const f = filters || readOfferFilters();
   const grid = document.getElementById('offers-grid');
+  if (!grid.children.length) grid.innerHTML = skeletonCardsHtml(6);
   if (dbReady){
     try {
       // نُبقي فلترة المدينة صارمة (أغلب المشترين ما يفكرون بمدينة ثانية)،
@@ -1105,6 +1172,7 @@ async function renderOffers(filters){
 async function renderFeatured(){
   const grid = document.getElementById('featured-grid');
   if (!grid) return;
+  grid.innerHTML = skeletonCardsHtml(3);
   let items = [];
   if (dbReady){
     try {
