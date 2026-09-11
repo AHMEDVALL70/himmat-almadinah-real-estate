@@ -496,8 +496,8 @@
         <div class="field"><label data-i18n="f_deed_number" for="c-deed-number">رقم الصك</label><input id="c-deed-number" type="text"></div>
         <div class="field"><label data-i18n="f_deed_date" for="c-deed-date">تاريخ الصك</label><input id="c-deed-date" type="date"></div>
         <div class="field"><label data-i18n="f_deposit" for="c-deposit">الضمان (ر.س)</label><input id="c-deposit" type="number" value="0"></div>
-        <div class="field"><label data-i18n="f_start" for="c-start">تاريخ البداية</label><input id="c-start" type="date"></div>
-        <div class="field"><label data-i18n="f_end" for="c-end">تاريخ النهاية</label><input id="c-end" type="date"></div>
+        <div class="field"><label data-i18n="f_start" for="c-start">تاريخ البداية</label><input id="c-start" type="date" min="2015-01-01" max="2045-12-31"></div>
+        <div class="field"><label data-i18n="f_end" for="c-end">تاريخ النهاية</label><input id="c-end" type="date" min="2015-01-01" max="2075-12-31"></div>
         <div class="field"><label data-i18n="f_rent" for="c-rent">الإيجار السنوي (ر.س)</label><input id="c-rent" type="number"></div>
         <div class="field"><label data-i18n="f_frequency" for="c-frequency">عدد الدفعات سنوياً</label>
           <select id="c-frequency"><option value="1">سنوي (دفعة واحدة)</option><option value="2" selected>نصف سنوي</option><option value="4">ربع سنوي</option><option value="12">شهري</option></select>
@@ -747,7 +747,7 @@
 </div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/site.js?v=20260907ap"></script>
+<script src="js/site.js?v=20260907aq"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>

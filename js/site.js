@@ -1613,8 +1613,13 @@ function validateContractForm(){
   if (v('c-rent') && (!Number.isFinite(rent) || rent <= 0)){ errors.push('الإيجار السنوي لازم يكون رقم أكبر من صفر.'); mark('c-rent'); }
 
   if (v('c-start') && v('c-end')){
-    if (new Date(v('c-end')) <= new Date(v('c-start'))){
+    const startD = new Date(v('c-start'));
+    const endD = new Date(v('c-end'));
+    if (endD <= startD){
       errors.push('تاريخ النهاية لازم يكون بعد تاريخ البداية.');
+      mark('c-start'); mark('c-end');
+    } else if (startD.getFullYear() < 2015 || endD.getFullYear() > 2075 || (endD - startD) > 50 * 365.25 * 24 * 3600 * 1000){
+      errors.push('مدة العقد غير منطقية — تحقق من صحة السنة بتاريخي البداية والنهاية (مثال شائع: كتابة 0026 بدل 2026).');
       mark('c-start'); mark('c-end');
     }
   }
