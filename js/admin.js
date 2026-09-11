@@ -756,14 +756,14 @@ function statusLabel(s){
 async function loadProperties(){
   const filter = document.getElementById('prop-filter').value;
   const tbody = document.getElementById('properties-tbody');
-  tbody.innerHTML = `<tr class="empty-row"><td colspan="9">جاري التحميل...</td></tr>`;
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="10">جاري التحميل...</td></tr>`;
   try {
     let query = supa.from('properties').select('*').order('created_at', { ascending: false }).limit(100);
     if (filter !== 'all') query = query.eq('status', filter);
     const { data, error } = await query;
     if (error) throw error;
     if (!data || !data.length){
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="9">لا توجد عقارات مطابقة.</td></tr>`;
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="10">لا توجد عقارات مطابقة.</td></tr>`;
       return;
     }
     window.__PROPERTIES_CACHE = {};
@@ -779,6 +779,7 @@ async function loadProperties(){
         <td>${money(p.price)} ر.س</td><td>${p.area_sqm} م²</td><td>${roomsOrFloors}</td>
         <td><span class="badge badge-${p.status}">${statusLabel(p.status)}</span>${p.converted_to_offer ? ' <span class="badge badge-approved" title="عندها عرض منشور أصلاً">✓ محوَّل لعرض</span>' : ''}</td>
         <td>${p.submitted_by_contact || '—'}</td>
+        <td>${new Date(p.created_at).toLocaleDateString('ar-SA')}</td>
         <td class="actions-cell">
           ${p.status !== 'approved' ? `<button class="btn btn-ok" data-staff-only onclick="setPropertyStatus('${p.id}','approved')">اعتماد</button>` : ''}
           ${p.status !== 'rejected' ? `<button class="btn btn-danger" data-staff-only onclick="setPropertyStatus('${p.id}','rejected')">رفض</button>` : ''}
@@ -789,7 +790,7 @@ async function loadProperties(){
     }).join('');
   } catch (e) {
     console.error('loadProperties failed', e);
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="9">⚠️ تعذّر تحميل العقارات.</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="10">⚠️ تعذّر تحميل العقارات.</td></tr>`;
   }
 }
 document.getElementById('prop-filter').addEventListener('change', loadProperties);
@@ -1084,12 +1085,12 @@ document.getElementById('btn-save-offer').addEventListener('click', async ()=>{
 
 async function loadOffers(){
   const tbody = document.getElementById('offers-tbody');
-  tbody.innerHTML = `<tr class="empty-row"><td colspan="7">جاري التحميل...</td></tr>`;
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="8">جاري التحميل...</td></tr>`;
   try {
     const { data, error } = await supa.from('offers').select('*').order('created_at', { ascending: false }).limit(100);
     if (error) throw error;
     if (!data || !data.length){
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">لا توجد عروض بعد.</td></tr>`;
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="8">لا توجد عروض بعد.</td></tr>`;
       return;
     }
     window.__OFFERS_CACHE = {};
@@ -1103,6 +1104,7 @@ async function loadOffers(){
           <span class="badge ${o.is_published ? 'badge-approved' : 'badge-pending'}">${o.is_published ? 'منشور' : 'مخفي'}</span>
           ${o.is_sold ? '<span class="badge badge-rejected">مباع</span>' : ''}
         </td>
+        <td>${new Date(o.created_at).toLocaleDateString('ar-SA')}</td>
         <td class="actions-cell">
           <button class="btn btn-ghost" onclick="editOffer('${o.id}')">تعديل</button>
           <button class="btn btn-ghost" data-staff-only onclick="toggleOfferPublish('${o.id}', ${!o.is_published})">${o.is_published ? 'إخفاء' : 'نشر'}</button>
@@ -1112,7 +1114,7 @@ async function loadOffers(){
       </tr>`).join('');
   } catch (e) {
     console.error('loadOffers failed', e);
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">⚠️ تعذّر تحميل العروض.</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">⚠️ تعذّر تحميل العروض.</td></tr>`;
   }
 }
 
