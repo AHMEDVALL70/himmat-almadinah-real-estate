@@ -267,7 +267,7 @@
           </div>
           <div class="field">
             <label data-i18n="f_district" for="v-district">الحي</label>
-            <select id="v-district" class="district-select" data-city-of="v-city"></select>
+            <input id="v-district" type="text" class="district-select" data-city-of="v-city" list="v-district-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="v-district-datalist"></datalist>
           </div>
           <div class="field">
             <label data-i18n="f_type" for="v-type">نوع العقار</label>
@@ -374,7 +374,7 @@
         <div class="field"><label data-i18n="f_city" for="add-city">المدينة</label>
           <select id="add-city" class="city-select"></select>
         </div>
-        <div class="field"><label data-i18n="f_district" for="add-district">الحي</label><select id="add-district" class="district-select" data-city-of="add-city"></select></div>
+        <div class="field"><label data-i18n="f_district" for="add-district">الحي</label><input id="add-district" type="text" class="district-select" data-city-of="add-city" list="add-district-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="add-district-datalist"></datalist></div>
         <div class="field"><label data-i18n="f_type" for="add-type">نوع العقار</label>
           <select id="add-type" class="type-select"></select>
         </div>
@@ -487,7 +487,7 @@
         <div class="field"><label data-i18n="f_city" for="c-city">المدينة</label>
           <select id="c-city" class="city-select"></select>
         </div>
-        <div class="field"><label data-i18n="f_district" for="c-district">الحي</label><select id="c-district" class="district-select" data-city-of="c-city"></select></div>
+        <div class="field"><label data-i18n="f_district" for="c-district">الحي</label><input id="c-district" type="text" class="district-select" data-city-of="c-city" list="c-district-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="c-district-datalist"></datalist></div>
         <div class="field"><label data-i18n="f_unit_type" for="c-unit-type">نوع الوحدة</label>
           <select id="c-unit-type" class="type-select"></select>
         </div>
@@ -747,7 +747,7 @@
 </div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/site.js?v=20260907ar"></script>
+<script src="js/site.js?v=20260907as"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>
