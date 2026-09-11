@@ -419,6 +419,9 @@ footer.site h4{color:#fff;margin:0 0 10px}
 footer.site a{color:var(--text-600);transition:color .15s ease}
 footer.site a:hover{color:var(--gold-500)}
 footer.site .bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:26px;padding-top:16px;font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-social-row{display:flex;gap:10px;margin-top:14px}
+.footer-social-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);color:var(--text-600);transition:transform .15s ease,background .15s ease,color .15s ease}
+.footer-social-icon:hover{background:var(--gold-500);color:#020617;transform:translateY(-2px)}
 
 .faq-item{border-bottom:1px solid var(--line);padding:16px 0}
 .faq-item summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between}
