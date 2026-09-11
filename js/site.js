@@ -1552,55 +1552,10 @@ function renderPriceBars(rows){
 /* ============================================================================
    7) Contracts — persisted via the secure RPC (create_contract_with_schedule)
    ========================================================================== */
-/* فصل بيانات تبويبي العقد (سكني/تجاري) — كل تبويب يحتفظ ببياناته الخاصة
-   بذاكرة المتصفح المؤقتة (تُمسح لو حدّثت الصفحة، هذا مو تخزين دائم). قبل
-   هذا كان النموذج مشترك بالكامل، فتعبئة تبويب تظهر بالتبويب الثاني —
-   بطلب صريح من المستخدم فصلناهم. */
-const CONTRACT_FIELD_IDS = [
-  'c-lessor-name','c-lessor-id-type','c-lessor-id','c-lessor-nationality','c-lessor-dob','c-lessor-phone',
-  'c-lessee-name','c-lessee-id-type','c-lessee-id','c-lessee-nationality','c-lessee-dob','c-lessee-phone',
-  'c-city','c-district','c-unit-type','c-area','c-floor-number','c-deed-number','c-deed-date',
-  'c-start','c-end','c-frequency','c-rent','c-deposit',
-];
-let contractDefaultState = null; // القيم الافتراضية الأصلية (قبل أي لمسة من المستخدم) — تُلتقط مرة وحدة عند التحميل
-function captureContractDefaultState(){
-  const state = {};
-  CONTRACT_FIELD_IDS.forEach(id=>{
-    const el = document.getElementById(id);
-    if (el) state[id] = el.value;
-  });
-  contractDefaultState = state;
-}
-const contractTabState = { residential: null, commercial: null };
-function saveContractTabState(tabKey){
-  if (!tabKey) return;
-  const state = {};
-  CONTRACT_FIELD_IDS.forEach(id=>{
-    const el = document.getElementById(id);
-    if (el) state[id] = el.value;
-  });
-  contractTabState[tabKey] = state;
-}
-function restoreContractTabState(tabKey){
-  const state = contractTabState[tabKey] || contractDefaultState;
-  if (!state) return;
-  CONTRACT_FIELD_IDS.forEach(id=>{
-    const el = document.getElementById(id);
-    if (el) el.value = state[id] ?? '';
-  });
-  populateDistrictSelectFor('c-city'); // يحدّث قائمة الأحياء لتطابق مدينة الحالة المستعادة
-}
-setTimeout(captureContractDefaultState, 0); // بعد ما تخلص كل دوال التعبئة الأولية (city/type selects) بنفس دورة الأحداث
-
 document.querySelectorAll('.tabs button[data-tab]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    const prevTab = document.querySelector('.tabs button.active')?.dataset.tab;
-    saveContractTabState(prevTab);
-
     document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-
-    restoreContractTabState(btn.dataset.tab);
   });
 });
 
