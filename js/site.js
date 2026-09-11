@@ -715,15 +715,26 @@ function getFavorites(){
   catch(e) { return []; }
 }
 function isFavorite(key){ return getFavorites().includes(key); }
+/* تنبيه Toast خفيف مؤقت — قابل لإعادة الاستخدام بأي مكان بالموقع. */
+function showToast(message){
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy-900);color:#fff;padding:10px 20px;border-radius:999px;font-size:13.5px;font-weight:700;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:toastPop .25s ease-out';
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(), 2200);
+}
+
 function toggleFavorite(key){
   let favs = getFavorites();
   const btn = document.getElementById('fav-' + key);
   if (favs.includes(key)){
     favs = favs.filter(k => k !== key);
     if (btn) btn.classList.remove('active');
+    showToast(currentLang === 'ar' ? '💔 أُزيل من المفضلة' : '💔 Removed from favorites');
   } else {
     favs.push(key);
     if (btn) btn.classList.add('active');
+    showToast(currentLang === 'ar' ? '❤️ أُضيف للمفضلة' : '❤️ Added to favorites');
   }
   try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs)); }
   catch(e) { console.error('toggleFavorite: تعذّر الحفظ بالمتصفح.', e); }
