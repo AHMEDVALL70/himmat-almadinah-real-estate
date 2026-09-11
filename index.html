@@ -156,7 +156,7 @@
       <div class="hero-search card">
         <div class="hero-search-row">
           <select id="hero-search-city" aria-label="المدينة"></select>
-          <select id="hero-search-type" aria-label="نوع العقار"></select>
+          <input id="hero-search-type" type="text" list="hero-search-type-datalist" autocomplete="off" aria-label="نوع العقار" placeholder="نوع العقار (الكل)"><datalist id="hero-search-type-datalist"></datalist>
           <input id="hero-search-budget" type="number" min="0" placeholder="الميزانية القصوى (ر.س)" data-i18n-placeholder="hero_search_budget" aria-label="الميزانية القصوى">
           <button type="button" class="btn btn-primary" id="hero-search-btn" data-i18n="hero_search_btn">ابحث</button>
         </div>
@@ -271,7 +271,7 @@
           </div>
           <div class="field">
             <label data-i18n="f_type" for="v-type">نوع العقار</label>
-            <select id="v-type" class="type-select"></select>
+            <input id="v-type" type="text" class="type-select" list="v-type-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="v-type-datalist"></datalist>
           </div>
           <div class="field">
             <label data-i18n="f_area" for="v-area">المساحة (م²)</label>
@@ -376,7 +376,7 @@
         </div>
         <div class="field"><label data-i18n="f_district" for="add-district">الحي</label><input id="add-district" type="text" class="district-select" data-city-of="add-city" list="add-district-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="add-district-datalist"></datalist></div>
         <div class="field"><label data-i18n="f_type" for="add-type">نوع العقار</label>
-          <select id="add-type" class="type-select"></select>
+          <input id="add-type" type="text" class="type-select" list="add-type-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="add-type-datalist"></datalist>
         </div>
         <div class="field"><label data-i18n="f_price" for="add-price">السعر (ر.س)</label><input id="add-price" type="number"></div>
         <div class="field"><label data-i18n="f_area" for="add-area">المساحة (م²)</label><input id="add-area" type="number"></div>
@@ -489,7 +489,7 @@
         </div>
         <div class="field"><label data-i18n="f_district" for="c-district">الحي</label><input id="c-district" type="text" class="district-select" data-city-of="c-city" list="c-district-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="c-district-datalist"></datalist></div>
         <div class="field"><label data-i18n="f_unit_type" for="c-unit-type">نوع الوحدة</label>
-          <select id="c-unit-type" class="type-select"></select>
+          <input id="c-unit-type" type="text" class="type-select" list="c-unit-type-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="c-unit-type-datalist"></datalist>
         </div>
         <div class="field"><label data-i18n="f_floor_number" for="c-floor-number">رقم الدور (اختياري)</label><input id="c-floor-number" type="text" placeholder="مثال: الثالث"></div>
         <div class="field"><label data-i18n="f_area" for="c-area">المساحة (م²)</label><input id="c-area" type="number"></div>
@@ -747,7 +747,7 @@
 </div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/site.js?v=20260907as"></script>
+<script src="js/site.js?v=20260907at"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>
