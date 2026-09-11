@@ -777,12 +777,12 @@ async function loadProperties(){
       <tr>
         <td>${p.city}</td><td>${p.district}</td><td>${p.property_type}</td>
         <td>${money(p.price)} ر.س</td><td>${p.area_sqm} م²</td><td>${roomsOrFloors}</td>
-        <td><span class="badge badge-${p.status}">${statusLabel(p.status)}</span></td>
+        <td><span class="badge badge-${p.status}">${statusLabel(p.status)}</span>${p.converted_to_offer ? ' <span class="badge badge-approved" title="عندها عرض منشور أصلاً">✓ محوَّل لعرض</span>' : ''}</td>
         <td>${p.submitted_by_contact || '—'}</td>
         <td class="actions-cell">
           ${p.status !== 'approved' ? `<button class="btn btn-ok" data-staff-only onclick="setPropertyStatus('${p.id}','approved')">اعتماد</button>` : ''}
           ${p.status !== 'rejected' ? `<button class="btn btn-danger" data-staff-only onclick="setPropertyStatus('${p.id}','rejected')">رفض</button>` : ''}
-          ${p.status === 'approved' ? `<button class="btn btn-ghost" data-staff-only onclick="convertToOffer('${p.id}')">تحويل لعرض</button>` : ''}
+          ${p.status === 'approved' ? `<button class="btn btn-ghost" data-staff-only onclick="convertToOffer('${p.id}', ${!!p.converted_to_offer})">${p.converted_to_offer ? 'تحويل مرة أخرى' : 'تحويل لعرض'}</button>` : ''}
           <button class="btn btn-ghost" data-staff-only onclick="deleteProperty('${p.id}')">حذف</button>
         </td>
       </tr>`;
@@ -1007,6 +1007,7 @@ document.getElementById('offer-image-file').addEventListener('change', async (e)
 });
 
 function clearOfferForm(){
+  convertingPropertyId = null;
   document.getElementById('offer-edit-id').value = '';
   ['offer-title','offer-city','offer-district','offer-type','offer-area','offer-rooms',
    'offer-price-original','offer-price-final','offer-map-url','offer-image-url','offer-marketer-name',
@@ -1025,10 +1026,13 @@ function clearOfferForm(){
 }
 document.getElementById('btn-cancel-offer-edit').addEventListener('click', clearOfferForm);
 
-function convertToOffer(propertyId){
+let convertingPropertyId = null; // العقار الجاري تحويله لعرض حالياً — يُستخدم لتحديث علامة "محوَّل" بعد نجاح الحفظ فقط
+function convertToOffer(propertyId, alreadyConverted){
+  if (alreadyConverted && !confirm('هذا العقار محوَّل لعرض من قبل أصلاً. متأكد تبي تسوّي عرض ثاني له؟')) return;
   const p = window.__PROPERTIES_CACHE?.[propertyId];
   if (!p) return;
   clearOfferForm();
+  convertingPropertyId = propertyId;
   document.getElementById('offer-title').value = `${p.property_type} — ${p.district}`;
   document.getElementById('offer-city').value = p.city || '';
   populateOfferDistrictSelect();
@@ -1053,6 +1057,7 @@ document.getElementById('btn-save-offer').addEventListener('click', async ()=>{
     return;
   }
   const editId = document.getElementById('offer-edit-id').value;
+  const propertyIdToMark = convertingPropertyId; // نسخة محلية قبل ما clearOfferForm يصفّرها
   try {
     let error;
     if (editId){
@@ -1061,6 +1066,11 @@ document.getElementById('btn-save-offer').addEventListener('click', async ()=>{
       ({ error } = await supa.from('offers').insert(payload));
     }
     if (error) throw error;
+    if (!editId && propertyIdToMark){
+      const { error: markError } = await supa.from('properties').update({ converted_to_offer: true }).eq('id', propertyIdToMark);
+      if (markError) console.error('تعذّر تحديث علامة converted_to_offer', markError);
+      loadProperties();
+    }
     msg.style.color = 'var(--ok)';
     msg.textContent = editId ? '✅ تم تحديث العرض' : '✅ تم إضافة العرض';
     clearOfferForm();
