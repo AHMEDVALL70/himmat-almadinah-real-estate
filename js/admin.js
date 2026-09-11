@@ -917,6 +917,7 @@ function readOfferForm(){
     ad_license: document.getElementById('offer-ad-license').value.trim() || null,
     description: document.getElementById('offer-description').value.trim() || null,
     is_published: document.getElementById('offer-published').checked,
+    is_pinned: document.getElementById('offer-pinned').checked,
   };
 }
 
@@ -1089,6 +1090,7 @@ function clearOfferForm(){
   document.getElementById('offer-image-upload-status').textContent = '';
   document.getElementById('offer-discount').value = '0';
   document.getElementById('offer-published').checked = true;
+  document.getElementById('offer-pinned').checked = false;
   document.getElementById('offer-form-title').textContent = 'إضافة عرض جديد';
   document.getElementById('btn-cancel-offer-edit').style.display = 'none';
 }
@@ -1215,6 +1217,7 @@ async function editOffer(id){
   document.getElementById('offer-ad-license').value = o.ad_license || '';
   document.getElementById('offer-description').value = o.description || '';
   document.getElementById('offer-published').checked = !!o.is_published;
+  document.getElementById('offer-pinned').checked = !!o.is_pinned;
   document.getElementById('offer-form-title').textContent = 'تعديل العرض';
   document.getElementById('btn-cancel-offer-edit').style.display = '';
   window.scrollTo({ top: 0, behavior: 'smooth' });
