@@ -1055,8 +1055,10 @@ function populateHeroSearch(){
 
   const typeSel = document.getElementById('hero-search-type');
   const prevType = typeSel.value;
-  typeSel.innerHTML = `<option value="">${t.filter_all}</option>` +
-    PROPERTY_TYPES.map(pt=>`<option value="${pt.v}">${pt[currentLang] || pt.ar}</option>`).join('');
+  const heroTypeDatalist = document.getElementById('hero-search-type-datalist');
+  if (heroTypeDatalist){
+    heroTypeDatalist.innerHTML = PROPERTY_TYPES.map(pt=>`<option value="${pt.v}" label="${pt[currentLang] || pt.ar}">`).join('');
+  }
   typeSel.value = prevType;
 }
 
@@ -1219,12 +1221,13 @@ document.getElementById('v-city')?.addEventListener('change', ()=>{
 });
 
 function populateTypeSelects(){
-  document.querySelectorAll('select.type-select').forEach(sel=>{
+  document.querySelectorAll('.type-select').forEach(sel=>{
     const prev = sel.value;
-    sel.innerHTML = PROPERTY_TYPES.map(t=>
-      `<option value="${t.v}" data-mult="${t.mult}">${t[currentLang] || t.ar}</option>`
-    ).join('');
-    if (prev && PROPERTY_TYPES.some(t=>t.v===prev)) sel.value = prev;
+    const datalist = document.getElementById(sel.getAttribute('list'));
+    if (datalist){
+      datalist.innerHTML = PROPERTY_TYPES.map(t=>`<option value="${t.v}" label="${t[currentLang] || t.ar}">`).join('');
+    }
+    if (PROPERTY_TYPES.some(t=>t.v===prev)) sel.value = prev;
   });
 }
 
@@ -1284,7 +1287,7 @@ function runValuation(){
   const typeSel = document.getElementById('v-type');
   const typeVal = typeSel.value;
   const group = propertyGroupFor(typeVal);
-  const typeMult = parseFloat(typeSel.selectedOptions[0].dataset.mult);
+  const typeMult = (PROPERTY_TYPES.find(t => t.v === typeSel.value) || {}).mult || 1;
   const facadeSel = document.getElementById('v-facade');
   const facadeAdj = parseFloat(facadeSel.selectedOptions[0].dataset.adj);
   const gradeSel = document.getElementById('v-grade');
