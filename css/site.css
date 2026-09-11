@@ -415,7 +415,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .assist-input button{width:38px;height:38px;border-radius:50%;background:var(--navy-900);color:#fff;font-size:15px;flex-shrink:0}
 .assist-input button:hover{background:var(--navy-700)}
 
-footer.site{background:#101827;color:var(--text-600);padding:48px 0 20px;margin-top:40px}
+footer.site{background:#101827;color:var(--text-600);padding:48px 0 100px;margin-top:40px}
 footer.site h4{color:#fff;margin:0 0 10px}
 footer.site a{color:var(--text-600);transition:color .15s ease}
 footer.site a:hover{color:var(--gold-500)}
