@@ -873,11 +873,51 @@ function openDetailModal(key){
     <div class="detail-actions">
       <a href="${waLink}" target="_blank" rel="noopener" class="btn btn-primary">${t.detail_whatsapp}</a>
       ${mapButton}
+      <button type="button" class="btn btn-ghost" onclick="shareOffer('${o.id}','${escapeHtml(o.title).replace(/'/g,"\\'")}')">🔗 ${currentLang==='ar' ? 'مشاركة' : 'Share'}</button>
     </div>
     <div id="similar-offers-section"></div>
   `;
   document.getElementById('detail-modal').classList.add('open');
   renderSimilarOffers(o);
+}
+
+/* مشاركة رابط مباشر لعرض معيّن — يفتح تفاصيل نفس العرض تلقائياً عند فتحه
+   (راجع handleDeepLinkOffer بأسفل). واجهة المشاركة الأصلية بالجوال، أو نسخ
+   الرابط للحافظة بالكمبيوتر مع رسالة تأكيد مؤقتة. */
+async function shareOffer(offerId, title){
+  const url = `${location.origin}${location.pathname}#offer-${offerId}`;
+  if (navigator.share){
+    try { await navigator.share({ title, url }); return; } catch (e) { /* المستخدم ألغى المشاركة أو فشلت — نكمل بنسخ الرابط كبديل */ }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    const msg = currentLang === 'ar' ? '✅ تم نسخ رابط العرض' : '✅ Offer link copied';
+    const toast = document.createElement('div');
+    toast.textContent = msg;
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy-900);color:#fff;padding:10px 20px;border-radius:999px;font-size:13.5px;font-weight:700;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.3)';
+    document.body.appendChild(toast);
+    setTimeout(()=>toast.remove(), 2200);
+  } catch (e) {
+    console.error('shareOffer: clipboard failed', e);
+    prompt(currentLang === 'ar' ? 'انسخ الرابط يدوياً:' : 'Copy this link manually:', url);
+  }
+}
+
+/* رابط مشاركة مباشر (#offer-<id>) يفتح تفاصيل نفس العرض تلقائياً — يُفحص
+   مرة عند تحميل الصفحة، بعد ما تجهز بيانات قاعدة البيانات. */
+async function handleDeepLinkOffer(){
+  const m = location.hash.match(/^#offer-(.+)$/);
+  if (!m || !dbReady) return;
+  const offerId = m[1];
+  try {
+    const { data, error } = await withTimeout(supa.from('offers').select('*').eq('id', offerId).eq('is_published', true).maybeSingle());
+    if (error || !data) return;
+    showPage('offers');
+    const key = registerOffer(data);
+    openDetailModal(key);
+  } catch (e) {
+    console.error('handleDeepLinkOffer failed', e);
+  }
 }
 
 /* عقارات مشابهة (نفس المدينة، ويُفضَّل نفس النوع لو متوفر) — تُحمَّل
@@ -2694,4 +2734,5 @@ async function loadLiveStatsCount(){
   await initHeroSlideshow();
   typewriterHeroDesc();
   showPage(location.hash.slice(1) || 'home');
+  handleDeepLinkOffer();
 });
