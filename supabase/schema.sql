@@ -883,15 +883,24 @@ create policy offers_public_read on offers
 drop policy if exists properties_public_read on properties;
 create policy properties_public_read on properties
     for select using (status = 'approved');
+-- الإدخال العام (بدون تسجيل دخول) يمر حصراً عبر Edge Function
+-- "public-submit" (تتحقق من Turnstile أولاً، وتستخدم service_role للإدخال
+-- الفعلي — يتجاوز RLS تماماً). هذي السياسة تسمح فقط لـstaff (owner/editor)
+-- بالإدخال المباشر من لوحة التحكم لو احتاجوا (حالة نادرة)، مو للزوار.
 drop policy if exists properties_public_insert on properties;
-create policy properties_public_insert on properties
-    for insert with check (true);
+drop policy if exists properties_staff_insert on properties;
+create policy properties_staff_insert on properties
+    for insert with check (public.is_staff());
 
 -- طلبات التواصل: إدخال عام (أي زائر يقدر يرسل استفساراً)، بلا قراءة عامة —
 -- فريق الدعم يراجعها لاحقاً عبر service_role، مو من كود الموقع العام.
+-- الإدخال العام (بدون تسجيل دخول) يمر حصراً عبر Edge Function
+-- "public-submit" (نفس مبدأ properties أعلاه بالضبط). هذي السياسة تسمح
+-- فقط لـstaff بالإدخال المباشر لو احتاجوا، مو للزوار.
 drop policy if exists inquiries_public_insert on inquiries;
-create policy inquiries_public_insert on inquiries
-    for insert with check (true);
+drop policy if exists inquiries_staff_insert on inquiries;
+create policy inquiries_staff_insert on inquiries
+    for insert with check (public.is_staff());
 
 -- المدن والأحياء: بيانات مرجعية عامة القراءة فقط. إضافة مدينة/حي جديد مهمة
 -- إدارية تتم مباشرة من لوحة Supabase (أو لوحة تحكم داخلية لاحقاً) وليس من

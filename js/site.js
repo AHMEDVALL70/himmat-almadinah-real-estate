@@ -1479,7 +1479,11 @@ document.getElementById('btn-add-property').addEventListener('click', async ()=>
     return;
   }
   try {
-    const { error } = await supa.from('properties').insert(payload);
+    const turnstileToken = await getTurnstileToken();
+    const { data, error: fnError } = await supa.functions.invoke('public-submit', {
+      body: { type: 'property', payload, turnstileToken },
+    });
+    const error = fnError || (data && data.error ? { message: data.error } : null);
     if (error){
       msg.textContent = '⚠️ تعذّر الحفظ: ' + error.message;
       msg.style.color = 'var(--danger)';
@@ -1790,13 +1794,21 @@ document.getElementById('btn-send-contact').addEventListener('click', async ()=>
   if (dbReady){
     try {
       const isEmail = reach.includes('@');
-      const { error } = await supa.from('inquiries').insert({
-        full_name: name,
-        email: isEmail ? reach : null,
-        phone: isEmail ? null : reach,
-        inquiry_type: type,
-        message: message,
+      const turnstileToken = await getTurnstileToken();
+      const { data, error: fnError } = await supa.functions.invoke('public-submit', {
+        body: {
+          type: 'inquiry',
+          payload: {
+            full_name: name,
+            email: isEmail ? reach : null,
+            phone: isEmail ? null : reach,
+            inquiry_type: type,
+            message: message,
+          },
+          turnstileToken,
+        },
       });
+      const error = fnError || (data && data.error ? { message: data.error } : null);
       if (error){
         msg.style.color = 'var(--danger)';
         msg.textContent = '⚠️ ' + (currentLang==='ar' ? 'تعذّر الحفظ: ' : 'Could not save: ') + error.message;
