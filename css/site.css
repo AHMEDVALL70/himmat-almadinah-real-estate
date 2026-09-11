@@ -73,6 +73,13 @@ section{padding:44px 0 60px}
 
 .about-icon{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--gold-500),var(--gold-100));display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;transition:transform .25s ease}
 
+.skeleton-card{padding:0;overflow:hidden}
+.skeleton-img,.skeleton-line{background:linear-gradient(90deg,var(--line) 25%,rgba(192,161,107,.18) 50%,var(--line) 75%);background-size:200% 100%;animation:skeletonShimmer 1.5s ease-in-out infinite}
+.skeleton-img{height:180px}
+.skeleton-line{height:14px;margin:14px 16px;border-radius:4px}
+@keyframes skeletonShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@media (prefers-reduced-motion: reduce){.skeleton-img,.skeleton-line{animation:none}}
+
 .journey-section{padding:56px 0}
 .promises-bar{padding:20px 0;background:rgba(192,161,107,.06);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .promises-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px 40px}
