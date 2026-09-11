@@ -57,6 +57,7 @@ section{padding:44px 0 60px}
 .btn-ghost{background:var(--surface);border:1.5px solid var(--line);color:var(--text-900)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);transition:transform .22s ease, box-shadow .22s ease}
 .card:hover{transform:translateY(-5px);box-shadow:0 16px 36px rgba(16,24,39,.14)}
+.offer-card:hover,.about-card:hover{transform:translateY(-8px);box-shadow:0 20px 44px rgba(16,24,39,.2);border-color:var(--gold-500)}
 .card .ic{transition:transform .22s ease}
 .card:hover .ic{transform:scale(1.12)}
 
@@ -79,11 +80,14 @@ section{padding:44px 0 60px}
 .promise-icon{font-size:18px}
 @media(max-width:680px){.promises-grid{gap:14px 22px;justify-content:flex-start}.promise-item{white-space:normal}}
 .about-card:hover .about-icon{transform:scale(1.12) rotate(-4deg)}
-.about-card:hover{transform:translateY(-6px)}
 
 /* Fade-up on scroll — cards/sections ease in as the visitor scrolls to them */
 .fade-up{opacity:0;transform:translateY(24px);transition:opacity .55s ease,transform .55s ease}
 .fade-up.visible{opacity:1;transform:translateY(0)}
+.grid-3 .fade-up:nth-child(1),.grid-4 .fade-up:nth-child(1){transition-delay:0s}
+.grid-3 .fade-up:nth-child(2),.grid-4 .fade-up:nth-child(2){transition-delay:.1s}
+.grid-3 .fade-up:nth-child(3),.grid-4 .fade-up:nth-child(3){transition-delay:.2s}
+.grid-4 .fade-up:nth-child(4){transition-delay:.3s}
 
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
@@ -220,12 +224,13 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .hero-image-card{width:100%;aspect-ratio:1/1;border-radius:24px;overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.4);border:1px solid rgba(192,161,107,.25)}
 .hero-bg-slides{position:absolute;inset:0}
 .hero-bg-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.8s ease}
-.hero-bg-slide.active{opacity:1}
+.hero-bg-slide.active{opacity:1;animation:kenburns 6s ease-out forwards}
+@keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.08)}}
 .hero-bg-caption{position:absolute;inset-inline-start:14px;bottom:14px;max-width:calc(100% - 28px);background:rgba(16,24,39,.78);color:#f8fafc;border:1px solid rgba(192,161,107,.35);padding:6px 14px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:680px){.hero-image-col{max-width:100%;margin-top:0}.hero-image-card{aspect-ratio:1/1}}
 @media(max-width:480px){.stats-row{grid-template-columns:repeat(2,1fr);gap:16px 20px}}
 @media (prefers-reduced-motion: reduce){
-  .hero-bg-slide{transition:none}
+  .hero-bg-slide{transition:none;animation:none}
 }
 
 /* Offers */
