@@ -307,8 +307,19 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 
 /* Social row */
 .social-row{display:flex;gap:14px;align-items:center;margin-top:14px;flex-wrap:wrap}
-.social-icon-link{display:inline-flex;transition:transform .15s ease;line-height:0}
-.social-icon-link:hover{transform:translateY(-3px)}
+.social-icon-link{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.06);transition:transform .15s ease,background .15s ease;line-height:0}
+.social-icon-link:hover{transform:translateY(-3px);background:rgba(255,255,255,.12)}
+[data-theme="light"] .social-icon-link{background:rgba(16,24,39,.05)}
+[data-theme="light"] .social-icon-link:hover{background:rgba(16,24,39,.1)}
+
+.contact-head{text-align:center;max-width:560px;margin-left:auto;margin-right:auto}
+.contact-head h2{position:relative;display:inline-block;padding-bottom:14px}
+.contact-head h2::after{content:'';position:absolute;bottom:0;right:50%;transform:translateX(50%);width:56px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--gold-100),var(--gold-500))}
+
+.contact-pill-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.contact-pill{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);font-size:13px;font-weight:700;color:var(--text-900);transition:border-color .2s ease,transform .2s ease}
+.contact-pill:hover{transform:translateY(-2px);border-color:var(--gold-500)}
+.contact-pill.is-primary{border-color:var(--gold-500);color:var(--gold-500)}
 
 /* Assistant — modern chat interface */
 .assist-close{background:transparent;color:#fff;font-size:15px;padding:4px 8px;border-radius:8px;position:absolute;inset-inline-end:12px;top:14px}
