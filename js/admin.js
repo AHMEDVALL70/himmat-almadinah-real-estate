@@ -8,7 +8,7 @@ const ARABIC_INDIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
 document.addEventListener('input', (e)=>{
   const el = e.target;
   if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') return;
-  if (['date','checkbox','radio','file','hidden','color'].includes(el.type)) return;
+  if (['checkbox','radio','file','hidden','color'].includes(el.type)) return;
   const normalized = el.value.replace(/[٠-٩]/g, d => String(ARABIC_INDIC_DIGITS.indexOf(d)));
   if (normalized !== el.value){
     const pos = el.selectionStart;

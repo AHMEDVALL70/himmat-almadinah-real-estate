@@ -1582,7 +1582,7 @@ function normalizeDigitsInput(e){
 document.addEventListener('input', (e)=>{
   const el = e.target;
   if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') return;
-  if (['date','checkbox','radio','file','hidden','color'].includes(el.type)) return;
+  if (['checkbox','radio','file','hidden','color'].includes(el.type)) return;
   normalizeDigitsInput(e);
 });
 
