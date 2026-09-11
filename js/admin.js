@@ -2,6 +2,21 @@
 /* ============================================================================
    Config — same project as the public site (index.html)
    ========================================================================== */
+// لوحات المفاتيح العربية أحياناً تكتب أرقام هندية (٠-٩) بدل اللاتينية —
+// نحوّلها فوراً بكل حقول لوحة التحكم تلقائياً (نفس آلية الموقع العام).
+const ARABIC_INDIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+document.addEventListener('input', (e)=>{
+  const el = e.target;
+  if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') return;
+  if (['date','checkbox','radio','file','hidden','color'].includes(el.type)) return;
+  const normalized = el.value.replace(/[٠-٩]/g, d => String(ARABIC_INDIC_DIGITS.indexOf(d)));
+  if (normalized !== el.value){
+    const pos = el.selectionStart;
+    el.value = normalized;
+    el.setSelectionRange(pos, pos);
+  }
+});
+
 const SUPABASE_URL = "https://wlebcvwsleoieodjtrcf.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_KhUpsOF0OxVQWyWLakXx2g_yDsUlnxV";
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

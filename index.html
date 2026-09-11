@@ -157,7 +157,7 @@
         <div class="hero-search-row">
           <select id="hero-search-city" aria-label="المدينة"></select>
           <input id="hero-search-type" type="text" list="hero-search-type-datalist" autocomplete="off" aria-label="نوع العقار" placeholder="نوع العقار (الكل)"><datalist id="hero-search-type-datalist"></datalist>
-          <input id="hero-search-budget" type="number" min="0" placeholder="الميزانية القصوى (ر.س)" data-i18n-placeholder="hero_search_budget" aria-label="الميزانية القصوى">
+          <input id="hero-search-budget" type="text" inputmode="decimal" min="0" placeholder="الميزانية القصوى (ر.س)" data-i18n-placeholder="hero_search_budget" aria-label="الميزانية القصوى">
           <button type="button" class="btn btn-primary" id="hero-search-btn" data-i18n="hero_search_btn">ابحث</button>
         </div>
         <p class="hero-search-count" id="hero-search-count"></p>
@@ -206,9 +206,9 @@
       <div class="grid grid-4">
         <div class="field" style="margin-bottom:0"><label data-i18n="f_city" for="filter-city">المدينة</label><select id="filter-city" class="city-select-filter"></select></div>
         <div class="field" style="margin-bottom:0"><label data-i18n="f_type" for="filter-type">نوع العقار</label><select id="filter-type" class="type-select-filter"></select></div>
-        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_price" for="filter-min-price">أقل سعر (ر.س)</label><input id="filter-min-price" type="number" min="0"></div>
-        <div class="field" style="margin-bottom:0"><label data-i18n="f_max_price" for="filter-max-price">أعلى سعر (ر.س)</label><input id="filter-max-price" type="number" min="0"></div>
-        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_rooms" for="filter-min-rooms">أقل عدد غرف</label><input id="filter-min-rooms" type="number" min="0"></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_price" for="filter-min-price">أقل سعر (ر.س)</label><input id="filter-min-price" type="text" inputmode="decimal" min="0"></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_max_price" for="filter-max-price">أعلى سعر (ر.س)</label><input id="filter-max-price" type="text" inputmode="decimal" min="0"></div>
+        <div class="field" style="margin-bottom:0"><label data-i18n="f_min_rooms" for="filter-min-rooms">أقل عدد غرف</label><input id="filter-min-rooms" type="text" inputmode="decimal" min="0"></div>
         <div class="field" style="margin-bottom:0;grid-column:span 2;flex-direction:row;align-items:end;gap:8px">
           <button class="btn btn-primary" id="btn-apply-filters" data-i18n="filter_apply">بحث</button>
           <button class="btn btn-ghost" id="btn-reset-filters" data-i18n="filter_reset">إعادة تعيين</button>
@@ -275,23 +275,23 @@
           </div>
           <div class="field">
             <label data-i18n="f_area" for="v-area">المساحة (م²)</label>
-            <input id="v-area" type="number" min="10" value="200">
+            <input id="v-area" type="text" inputmode="decimal" min="10" value="200">
           </div>
           <div class="field" id="v-rooms-wrap">
             <label data-i18n="f_rooms" for="v-rooms">عدد الغرف</label>
-            <input id="v-rooms" type="number" min="0" value="4">
+            <input id="v-rooms" type="text" inputmode="decimal" min="0" value="4">
           </div>
           <div class="field" id="v-age-wrap">
             <label data-i18n="f_age" for="v-age">عمر العقار (سنوات)</label>
-            <input id="v-age" type="number" min="0" value="3">
+            <input id="v-age" type="text" inputmode="decimal" min="0" value="3">
           </div>
           <div class="field" id="v-floors-wrap" style="display:none">
             <label data-i18n="f_floors" for="v-floors">عدد الأدوار</label>
-            <input id="v-floors" type="number" min="1" value="4">
+            <input id="v-floors" type="text" inputmode="decimal" min="1" value="4">
           </div>
           <div class="field" id="v-units-wrap" style="display:none">
             <label data-i18n="f_units_per_floor" for="v-units-per-floor">عدد الشقق بكل دور</label>
-            <input id="v-units-per-floor" type="number" min="1" value="2">
+            <input id="v-units-per-floor" type="text" inputmode="decimal" min="1" value="2">
           </div>
           <div class="field">
             <label data-i18n="f_facade" for="v-facade">الواجهة</label>
@@ -344,10 +344,10 @@
 
     <h3 data-i18n="finance_title">حاسبة التمويل العقاري</h3>
     <div class="grid grid-4" style="margin-top:14px">
-      <div class="field"><label data-i18n="f_price" for="fin-price">قيمة العقار (ر.س)</label><input id="fin-price" type="number" value="900000"></div>
-      <div class="field"><label data-i18n="f_down" for="fin-down">الدفعة المقدمة (ر.س)</label><input id="fin-down" type="number" value="180000"></div>
-      <div class="field"><label data-i18n="f_rate" for="fin-rate">النسبة السنوية %</label><input id="fin-rate" type="number" step="0.1" value="4.5"></div>
-      <div class="field"><label data-i18n="f_years" for="fin-years">المدة (سنوات)</label><input id="fin-years" type="number" value="20"></div>
+      <div class="field"><label data-i18n="f_price" for="fin-price">قيمة العقار (ر.س)</label><input id="fin-price" type="text" inputmode="decimal" value="900000"></div>
+      <div class="field"><label data-i18n="f_down" for="fin-down">الدفعة المقدمة (ر.س)</label><input id="fin-down" type="text" inputmode="decimal" value="180000"></div>
+      <div class="field"><label data-i18n="f_rate" for="fin-rate">النسبة السنوية %</label><input id="fin-rate" type="text" inputmode="decimal" step="0.1" value="4.5"></div>
+      <div class="field"><label data-i18n="f_years" for="fin-years">المدة (سنوات)</label><input id="fin-years" type="text" inputmode="decimal" value="20"></div>
     </div>
     <div class="card" style="padding:20px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div>
@@ -378,12 +378,12 @@
         <div class="field"><label data-i18n="f_type" for="add-type">نوع العقار</label>
           <input id="add-type" type="text" class="type-select" list="add-type-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="add-type-datalist"></datalist>
         </div>
-        <div class="field"><label data-i18n="f_price" for="add-price">السعر (ر.س)</label><input id="add-price" type="number"></div>
-        <div class="field"><label data-i18n="f_area" for="add-area">المساحة (م²)</label><input id="add-area" type="number"></div>
-        <div class="field" id="add-rooms-wrap"><label data-i18n="f_rooms" for="add-rooms">عدد الغرف</label><input id="add-rooms" type="number" min="0"></div>
-        <div class="field" id="add-age-wrap"><label data-i18n="f_age" for="add-age">عمر العقار (سنوات)</label><input id="add-age" type="number" min="0"></div>
-        <div class="field" id="add-floors-wrap" style="display:none"><label data-i18n="f_floors" for="add-floors">عدد الأدوار</label><input id="add-floors" type="number" min="1"></div>
-        <div class="field" id="add-units-wrap" style="display:none"><label data-i18n="f_units_per_floor" for="add-units-per-floor">عدد الشقق بكل دور</label><input id="add-units-per-floor" type="number" min="1"></div>
+        <div class="field"><label data-i18n="f_price" for="add-price">السعر (ر.س)</label><input id="add-price" type="text" inputmode="decimal"></div>
+        <div class="field"><label data-i18n="f_area" for="add-area">المساحة (م²)</label><input id="add-area" type="text" inputmode="decimal"></div>
+        <div class="field" id="add-rooms-wrap"><label data-i18n="f_rooms" for="add-rooms">عدد الغرف</label><input id="add-rooms" type="text" inputmode="decimal" min="0"></div>
+        <div class="field" id="add-age-wrap"><label data-i18n="f_age" for="add-age">عمر العقار (سنوات)</label><input id="add-age" type="text" inputmode="decimal" min="0"></div>
+        <div class="field" id="add-floors-wrap" style="display:none"><label data-i18n="f_floors" for="add-floors">عدد الأدوار</label><input id="add-floors" type="text" inputmode="decimal" min="1"></div>
+        <div class="field" id="add-units-wrap" style="display:none"><label data-i18n="f_units_per_floor" for="add-units-per-floor">عدد الشقق بكل دور</label><input id="add-units-per-floor" type="text" inputmode="decimal" min="1"></div>
         <div class="field"><label data-i18n="f_contact" for="add-contact">وسيلة تواصل (اختياري)</label><input id="add-contact" type="text" placeholder="جوال أو بريد"></div>
       </div>
       <div class="field">
@@ -492,13 +492,13 @@
           <input id="c-unit-type" type="text" class="type-select" list="c-unit-type-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="c-unit-type-datalist"></datalist>
         </div>
         <div class="field"><label data-i18n="f_floor_number" for="c-floor-number">رقم الدور (اختياري)</label><input id="c-floor-number" type="text" placeholder="مثال: الثالث"></div>
-        <div class="field"><label data-i18n="f_area" for="c-area">المساحة (م²)</label><input id="c-area" type="number"></div>
+        <div class="field"><label data-i18n="f_area" for="c-area">المساحة (م²)</label><input id="c-area" type="text" inputmode="decimal"></div>
         <div class="field"><label data-i18n="f_deed_number" for="c-deed-number">رقم الصك</label><input id="c-deed-number" type="text"></div>
         <div class="field"><label data-i18n="f_deed_date" for="c-deed-date">تاريخ الصك</label><input id="c-deed-date" type="date"></div>
-        <div class="field"><label data-i18n="f_deposit" for="c-deposit">الضمان (ر.س)</label><input id="c-deposit" type="number" value="0"></div>
+        <div class="field"><label data-i18n="f_deposit" for="c-deposit">الضمان (ر.س)</label><input id="c-deposit" type="text" inputmode="decimal" value="0"></div>
         <div class="field"><label data-i18n="f_start" for="c-start">تاريخ البداية</label><input id="c-start" type="date" min="2015-01-01" max="2045-12-31"></div>
         <div class="field"><label data-i18n="f_end" for="c-end">تاريخ النهاية</label><input id="c-end" type="date" min="2015-01-01" max="2075-12-31"></div>
-        <div class="field"><label data-i18n="f_rent" for="c-rent">الإيجار السنوي (ر.س)</label><input id="c-rent" type="number"></div>
+        <div class="field"><label data-i18n="f_rent" for="c-rent">الإيجار السنوي (ر.س)</label><input id="c-rent" type="text" inputmode="decimal"></div>
         <div class="field"><label data-i18n="f_frequency" for="c-frequency">عدد الدفعات سنوياً</label>
           <select id="c-frequency"><option value="1">سنوي (دفعة واحدة)</option><option value="2" selected>نصف سنوي</option><option value="4">ربع سنوي</option><option value="12">شهري</option></select>
         </div>
@@ -747,7 +747,7 @@
 </div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/site.js?v=20260907at"></script>
+<script src="js/site.js?v=20260907au"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>
