@@ -131,6 +131,9 @@ alter table properties add column if not exists has_driver_room boolean not null
 alter table properties add column if not exists has_central_ac boolean not null default false;
 alter table properties add column if not exists is_furnished boolean not null default false;
 alter table properties add column if not exists units_per_floor integer;
+-- يُضبط true تلقائياً بعد نجاح حفظ عرض جديد ناتج من "تحويل لعرض" (مو مجرد
+-- الضغط على الزر) — يمنع تكرار تحويل نفس العقار لعرض بالخطأ بدون ملاحظة.
+alter table properties add column if not exists converted_to_offer boolean not null default false;
 
 -- ============================================================================
 -- 3.5) المدن والأحياء — مرجع مركزي يغذي كل قوائم المدينة/الحي في الموقع
