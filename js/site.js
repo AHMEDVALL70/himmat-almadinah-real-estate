@@ -849,8 +849,59 @@ function openDetailModal(key){
       <a href="${waLink}" target="_blank" rel="noopener" class="btn btn-primary">${t.detail_whatsapp}</a>
       ${mapButton}
     </div>
+    <div id="similar-offers-section"></div>
   `;
   document.getElementById('detail-modal').classList.add('open');
+  renderSimilarOffers(o);
+}
+
+/* عقارات مشابهة (نفس المدينة، ويُفضَّل نفس النوع لو متوفر) — تُحمَّل
+   بالخلفية بعد فتح النافذة بلا أي تأخير على المحتوى الرئيسي. نجرّب أول
+   شي القائمة المخزَّنة أصلاً (LAST_OFFERS_LIST، فورية بدون اتصال جديد)،
+   ولو ما كانت كافية (مثلاً الزائر جاء من الرئيسية مباشرة بدون ما يزور
+   صفحة العروض بعد) نرجع لاستعلام مباشر من قاعدة البيانات كخطة احتياطية. */
+async function renderSimilarOffers(current){
+  const section = document.getElementById('similar-offers-section');
+  if (!section) return;
+
+  const pick = (pool) => pool
+    .filter(o => o.id !== current.id && o.city === current.city)
+    .sort((a, b) => (b.property_type === current.property_type) - (a.property_type === current.property_type))
+    .slice(0, 3);
+
+  let similar = pick(LAST_OFFERS_LIST || []);
+
+  if (similar.length < 2 && dbReady){
+    try {
+      const { data } = await withTimeout(
+        supa.from('offers').select('*').eq('is_published', true).eq('city', current.city).neq('id', current.id).limit(10)
+      );
+      if (data && data.length) similar = pick(data.concat(similar));
+    } catch (e) { console.error('renderSimilarOffers: fallback query failed', e); }
+  }
+
+  if (!similar.length){ section.innerHTML = ''; return; }
+
+  const t = I18N[currentLang];
+  section.innerHTML = `
+    <div class="detail-similar">
+      <h4>${currentLang === 'ar' ? 'عقارات مشابهة' : 'Similar properties'}</h4>
+      <div class="detail-similar-grid">
+        ${similar.map(o=>{
+          const key = registerOffer(o);
+          const price = o.price_final ?? o.price_original;
+          return `<div class="detail-similar-card" onclick="openDetailModal('${key}')">
+            ${o.image_url ? `<img src="${o.image_url}" alt="${escapeHtml(o.title)}" loading="lazy" onerror="this.remove()">` : ''}
+            <div class="detail-similar-info">
+              <b>${escapeHtml(o.title)}</b>
+              <span>${districtLabel(o.district)} · ${cityLabel(o.city)}</span>
+              ${price ? `<span class="detail-similar-price">${money(price)} ${currentLang==='ar'?'ر.س':'SAR'}</span>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
 }
 document.getElementById('detail-close').addEventListener('click', ()=>{
   document.getElementById('detail-modal').classList.remove('open');

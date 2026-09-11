@@ -505,6 +505,47 @@ async function resetTeamMemberPassword(id){
 }
 
 function money(n){ return Math.round(n || 0).toLocaleString('en-US'); }
+
+/* تصدير CSV عام — يضيف BOM بأول الملف (\uFEFF) عشان إكسل يعرض العربي صح
+   بدل رموز مشوّهة (مشكلة شائعة جداً بملفات CSV العربية بدون هذي العلامة). */
+function exportToCSV(filename, headers, rows){
+  const escapeCell = (v) => {
+    const s = (v === null || v === undefined) ? '' : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [headers.map(escapeCell).join(',')]
+    .concat(rows.map(row => row.map(escapeCell).join(',')));
+  const csv = '\uFEFF' + lines.join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('btn-export-props')?.addEventListener('click', ()=>{
+  const rows = Object.values(window.__PROPERTIES_CACHE || {});
+  if (!rows.length){ alert('لا توجد بيانات لتصديرها حالياً.'); return; }
+  exportToCSV(
+    `عقارات-${new Date().toISOString().slice(0,10)}.csv`,
+    ['المدينة','الحي','النوع','السعر','المساحة','غرف','الحالة','وسيلة تواصل','التاريخ'],
+    rows.map(p => [p.city, p.district, p.property_type, p.price, p.area_sqm, p.rooms, statusLabel(p.status), p.submitted_by_contact, new Date(p.created_at).toLocaleDateString('ar-SA')])
+  );
+});
+
+document.getElementById('btn-export-inq')?.addEventListener('click', ()=>{
+  const rows = window.__INQUIRIES_CACHE || [];
+  if (!rows.length){ alert('لا توجد بيانات لتصديرها حالياً.'); return; }
+  exportToCSV(
+    `استفسارات-${new Date().toISOString().slice(0,10)}.csv`,
+    ['الاسم','التواصل','النوع','الرسالة','الحالة','التاريخ'],
+    rows.map(i => [i.full_name, i.email || i.phone, i.inquiry_type, i.message, statusLabel(i.status), new Date(i.created_at).toLocaleDateString('ar-SA')])
+  );
+});
 // بيانات الأطراف تجي من نموذج عام بالموقع الرئيسي (مو محمي بتسجيل دخول)،
 // فلازم تعقيمها قبل عرضها هنا لمنع أي حقن HTML/script بحقول العقد.
 function escapeAdmin(s){ const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
@@ -1219,6 +1260,7 @@ async function loadInquiries(){
     if (filter !== 'all') query = query.eq('status', filter);
     const { data, error } = await query;
     if (error) throw error;
+    window.__INQUIRIES_CACHE = data;
     if (!data || !data.length){
       tbody.innerHTML = `<tr class="empty-row"><td colspan="7">لا توجد استفسارات مطابقة.</td></tr>`;
       return;
