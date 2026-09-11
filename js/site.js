@@ -1186,12 +1186,15 @@ function populateCitySelects(){
 
 function populateDistrictSelectFor(citySelectId){
   const citySel = document.getElementById(citySelectId);
-  const districtSel = document.querySelector(`select.district-select[data-city-of="${citySelectId}"]`);
-  if (!citySel || !districtSel) return;
+  const districtInput = document.querySelector(`.district-select[data-city-of="${citySelectId}"]`);
+  if (!citySel || !districtInput) return;
   const list = CITY_DISTRICTS[citySel.value] || [];
-  const prev = districtSel.value;
-  districtSel.innerHTML = list.map(d=>`<option value="${d}">${districtLabel(d)}</option>`).join('');
-  if (list.includes(prev)) districtSel.value = prev;
+  const prev = districtInput.value;
+  const datalist = document.getElementById(districtInput.getAttribute('list'));
+  if (datalist){
+    datalist.innerHTML = list.map(d=>`<option value="${d}" label="${districtLabel(d)}">`).join('');
+  }
+  if (!list.includes(prev)) districtInput.value = '';
 }
 
 document.querySelectorAll('select.city-select').forEach(sel=>{
@@ -1568,8 +1571,16 @@ function normalizeDigitsInput(e){
     el.setSelectionRange(pos, pos);
   }
 }
-['c-lessor-id','c-lessor-phone','c-lessee-id','c-lessee-phone'].forEach(id=>{
-  document.getElementById(id)?.addEventListener('input', normalizeDigitsInput);
+// نطبّقها على كل حقول الموقع تلقائياً (تفويض حدث على document)، بدل تعداد
+// حقول محددة يدوياً — يضمن أي حقل نص/رقم حالي أو مستقبلي (بأي صفحة) يشتغل
+// صح تلقائياً بدون ما ننسى نضيفه للقائمة. آمنة 100% على أي نص عربي عادي
+// (أسماء، أوصاف) لأن الاستبدال يستهدف فقط رموز الأرقام العربية-هندية
+// (٠-٩)، مو أي حرف عربي عادي.
+document.addEventListener('input', (e)=>{
+  const el = e.target;
+  if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') return;
+  if (['date','checkbox','radio','file','hidden','color'].includes(el.type)) return;
+  normalizeDigitsInput(e);
 });
 
 /* لو نوع الهوية "وطنية"، الجنسية سعودية دائماً (الهوية الوطنية تصدر
