@@ -1774,6 +1774,18 @@ ${t.contract_frequency_label}: ${frequencyDisplay}`;
 document.getElementById('btn-print-contract').addEventListener('click', ()=>{
   if (lastContractWhatsAppText){
     window.open(`https://wa.me/966530500906?text=${encodeURIComponent(lastContractWhatsAppText)}`, '_blank');
+    // إشعار بريدي إضافي بنفس اللحظة (بالخلفية) — ما يأخّر فتح واتساب ولا
+    // الطباعة، وما يوقف أي شي لو فشل (إشعار إضافي مو جزء أساسي من العملية)
+    (async ()=>{
+      try {
+        const turnstileToken = await getTurnstileToken();
+        await supa.functions.invoke('public-submit', {
+          body: { type: 'contract', payload: { summary: lastContractWhatsAppText }, turnstileToken },
+        });
+      } catch (e) {
+        console.error('تعذّر إرسال إشعار العقد بالبريد', e);
+      }
+    })();
   }
   window.print();
 });
