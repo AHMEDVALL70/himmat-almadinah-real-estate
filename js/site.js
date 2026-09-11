@@ -873,7 +873,7 @@ function openDetailModal(key){
     <div class="detail-actions">
       <a href="${waLink}" target="_blank" rel="noopener" class="btn btn-primary">${t.detail_whatsapp}</a>
       ${mapButton}
-      <button type="button" class="btn btn-ghost" onclick="shareOffer('${o.id}','${escapeHtml(o.title).replace(/'/g,"\\'")}')">🔗 ${currentLang==='ar' ? 'مشاركة' : 'Share'}</button>
+      <button type="button" class="btn btn-ghost" onclick="shareOffer('${o.id}','${escapeHtml(o.title).replace(/'/g,"\\'")}')">📤 ${currentLang==='ar' ? 'مشاركة عبر واتساب' : 'Share via WhatsApp'}</button>
     </div>
     <div id="similar-offers-section"></div>
   `;
@@ -882,25 +882,13 @@ function openDetailModal(key){
 }
 
 /* مشاركة رابط مباشر لعرض معيّن — يفتح تفاصيل نفس العرض تلقائياً عند فتحه
-   (راجع handleDeepLinkOffer بأسفل). واجهة المشاركة الأصلية بالجوال، أو نسخ
-   الرابط للحافظة بالكمبيوتر مع رسالة تأكيد مؤقتة. */
-async function shareOffer(offerId, title){
+   (راجع handleDeepLinkOffer بأسفل). يفتح واتساب مباشرة بنص جاهز — أوثق
+   من قائمة مشاركة النظام (navigator.share)، لأنها ما تشمل واتساب دايماً
+   بأجهزة الكمبيوتر (خصوصاً ماك)، بعكس الجوال. */
+function shareOffer(offerId, title){
   const url = `${location.origin}${location.pathname}#offer-${offerId}`;
-  if (navigator.share){
-    try { await navigator.share({ title, url }); return; } catch (e) { /* المستخدم ألغى المشاركة أو فشلت — نكمل بنسخ الرابط كبديل */ }
-  }
-  try {
-    await navigator.clipboard.writeText(url);
-    const msg = currentLang === 'ar' ? '✅ تم نسخ رابط العرض' : '✅ Offer link copied';
-    const toast = document.createElement('div');
-    toast.textContent = msg;
-    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy-900);color:#fff;padding:10px 20px;border-radius:999px;font-size:13.5px;font-weight:700;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.3)';
-    document.body.appendChild(toast);
-    setTimeout(()=>toast.remove(), 2200);
-  } catch (e) {
-    console.error('shareOffer: clipboard failed', e);
-    prompt(currentLang === 'ar' ? 'انسخ الرابط يدوياً:' : 'Copy this link manually:', url);
-  }
+  const text = (currentLang === 'ar' ? 'شوف هالعرض: ' : 'Check out this listing: ') + title + '\n' + url;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 }
 
 /* رابط مشاركة مباشر (#offer-<id>) يفتح تفاصيل نفس العرض تلقائياً — يُفحص
