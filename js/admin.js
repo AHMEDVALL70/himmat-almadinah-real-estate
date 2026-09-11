@@ -506,42 +506,51 @@ async function resetTeamMemberPassword(id){
 
 function money(n){ return Math.round(n || 0).toLocaleString('en-US'); }
 
-/* تصدير CSV عام — يضيف BOM بأول الملف (\uFEFF) عشان إكسل يعرض العربي صح
-   بدل رموز مشوّهة (مشكلة شائعة جداً بملفات CSV العربية بدون هذي العلامة). */
-function exportToCSV(filename, headers, rows){
-  const escapeCell = (v) => {
-    const s = (v === null || v === undefined) ? '' : String(v);
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  };
-  const lines = [headers.map(escapeCell).join(',')]
-    .concat(rows.map(row => row.map(escapeCell).join(',')));
-  const csv = '\uFEFF' + lines.join('\r\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+/* مكتبة SheetJS (لتصدير xlsx حقيقي) تتحمّل كسولاً — بس أول ضغطة فعلية على
+   زر تصدير، مو مع كل تحميل للوحة التحكم (437 كيلوبايت، ميزة نادرة الاستخدام). */
+let xlsxLoadPromise = null;
+function ensureXlsxLoaded(){
+  if (window.XLSX) return Promise.resolve();
+  if (xlsxLoadPromise) return xlsxLoadPromise;
+  xlsxLoadPromise = new Promise((resolve, reject)=>{
+    const script = document.createElement('script');
+    script.src = 'lib/xlsx.min.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('تعذّر تحميل مكتبة Excel'));
+    document.head.appendChild(script);
+  });
+  return xlsxLoadPromise;
 }
 
-document.getElementById('btn-export-props')?.addEventListener('click', ()=>{
+async function exportToExcel(filename, headers, rows){
+  try {
+    await ensureXlsxLoaded();
+  } catch (e) {
+    console.error(e);
+    alert('تعذّر تحميل مكتبة التصدير — تحقق من اتصالك بالإنترنت وحاول مرة ثانية.');
+    return;
+  }
+  const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  XLSX.writeFile(workbook, filename);
+}
+
+document.getElementById('btn-export-props')?.addEventListener('click', async ()=>{
   const rows = Object.values(window.__PROPERTIES_CACHE || {});
   if (!rows.length){ alert('لا توجد بيانات لتصديرها حالياً.'); return; }
-  exportToCSV(
-    `عقارات-${new Date().toISOString().slice(0,10)}.csv`,
+  await exportToExcel(
+    `عقارات-${new Date().toISOString().slice(0,10)}.xlsx`,
     ['المدينة','الحي','النوع','السعر','المساحة','غرف','الحالة','وسيلة تواصل','التاريخ'],
     rows.map(p => [p.city, p.district, p.property_type, p.price, p.area_sqm, p.rooms, statusLabel(p.status), p.submitted_by_contact, new Date(p.created_at).toLocaleDateString('ar-SA')])
   );
 });
 
-document.getElementById('btn-export-inq')?.addEventListener('click', ()=>{
+document.getElementById('btn-export-inq')?.addEventListener('click', async ()=>{
   const rows = window.__INQUIRIES_CACHE || [];
   if (!rows.length){ alert('لا توجد بيانات لتصديرها حالياً.'); return; }
-  exportToCSV(
-    `استفسارات-${new Date().toISOString().slice(0,10)}.csv`,
+  await exportToExcel(
+    `استفسارات-${new Date().toISOString().slice(0,10)}.xlsx`,
     ['الاسم','التواصل','النوع','الرسالة','الحالة','التاريخ'],
     rows.map(i => [i.full_name, i.email || i.phone, i.inquiry_type, i.message, statusLabel(i.status), new Date(i.created_at).toLocaleDateString('ar-SA')])
   );
