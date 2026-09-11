@@ -58,10 +58,9 @@ function populateOfferCitySelect(){
 }
 function populateOfferDistrictSelect(){
   const citySel = document.getElementById('offer-city');
-  const distSel = document.getElementById('offer-district');
+  const datalist = document.getElementById('offer-district-datalist');
   const list = CITY_DISTRICTS[citySel.value] || [];
-  distSel.innerHTML = '<option value="">— اختر المدينة أول —</option>' +
-    list.map(d => `<option value="${d}">${d}</option>`).join('');
+  datalist.innerHTML = list.map(d => `<option value="${d}">`).join('');
 }
 function populateOfferTypeSelect(){
   const sel = document.getElementById('offer-type');
@@ -71,7 +70,10 @@ function populateOfferTypeSelect(){
 populateOfferCitySelect();
 populateOfferTypeSelect();
 populateOfferDistrictSelect();
-document.getElementById('offer-city').addEventListener('change', populateOfferDistrictSelect);
+document.getElementById('offer-city').addEventListener('change', ()=>{
+  document.getElementById('offer-district').value = '';
+  populateOfferDistrictSelect();
+});
 
 /* ============================================================================
    المدن والأحياء — تحميل حي من قاعدة البيانات + إضافة جديد من لوحة التحكم
@@ -1028,12 +1030,13 @@ function clearOfferForm(){
 document.getElementById('btn-cancel-offer-edit').addEventListener('click', clearOfferForm);
 
 let convertingPropertyId = null; // العقار الجاري تحويله لعرض حالياً — يُستخدم لتحديث علامة "محوَّل" بعد نجاح الحفظ فقط
-function convertToOffer(propertyId, alreadyConverted){
+async function convertToOffer(propertyId, alreadyConverted){
   if (alreadyConverted && !confirm('هذا العقار محوَّل لعرض من قبل أصلاً. متأكد تبي تسوّي عرض ثاني له؟')) return;
   const p = window.__PROPERTIES_CACHE?.[propertyId];
   if (!p) return;
   clearOfferForm();
   convertingPropertyId = propertyId;
+  await refreshCityDistrictData(); // يضمن أي حي أُضيف حديثاً بنفس الجلسة يكون موجود بالقائمة قبل التعبئة
   document.getElementById('offer-title').value = `${p.property_type} — ${p.district}`;
   document.getElementById('offer-city').value = p.city || '';
   populateOfferDistrictSelect();
@@ -1055,6 +1058,11 @@ document.getElementById('btn-save-offer').addEventListener('click', async ()=>{
   if (!payload.title || !payload.city || !payload.district || !payload.property_type){
     msg.style.color = 'var(--danger)';
     msg.textContent = '⚠️ عبّئ العنوان والمدينة والحي ونوع العقار على الأقل.';
+    return;
+  }
+  if (!(CITY_DISTRICTS[payload.city] || []).includes(payload.district)){
+    msg.style.color = 'var(--danger)';
+    msg.textContent = '⚠️ "' + payload.district + '" مو حي معروف بـ' + payload.city + ' — اختر من قائمة الاقتراحات أثناء الكتابة.';
     return;
   }
   const editId = document.getElementById('offer-edit-id').value;
@@ -1118,9 +1126,10 @@ async function loadOffers(){
   }
 }
 
-function editOffer(id){
+async function editOffer(id){
   const o = window.__OFFERS_CACHE?.[id];
   if (!o) return;
+  await refreshCityDistrictData();
   document.getElementById('offer-edit-id').value = o.id;
   document.getElementById('offer-title').value = o.title || '';
   document.getElementById('offer-city').value = o.city || '';

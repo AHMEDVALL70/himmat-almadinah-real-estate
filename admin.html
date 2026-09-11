@@ -119,7 +119,7 @@
         <div class="grid-2col">
           <div class="field"><label for="offer-title">العنوان</label><input id="offer-title" type="text"></div>
           <div class="field"><label for="offer-city">المدينة</label><select id="offer-city"></select></div>
-          <div class="field"><label for="offer-district">الحي</label><select id="offer-district"></select></div>
+          <div class="field"><label for="offer-district">الحي</label><input id="offer-district" type="text" list="offer-district-datalist" autocomplete="off" placeholder="اكتب لبحث سريع..."><datalist id="offer-district-datalist"></datalist></div>
           <div class="field"><label for="offer-type">نوع العقار</label><select id="offer-type"></select></div>
           <div class="field"><label for="offer-area">المساحة (م²)</label><input id="offer-area" type="number"></div>
           <div class="field"><label for="offer-rooms">عدد الغرف</label><input id="offer-rooms" type="number"></div>
@@ -346,6 +346,6 @@
 
 <div id="turnstile-container" style="display:none"></div>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/admin.js?v=20260907o"></script>
+<script src="js/admin.js?v=20260907p"></script>
 </body>
 </html>
