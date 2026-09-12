@@ -2034,6 +2034,7 @@ async function renderAnalytics(){
     if (error || !data || !data.length) return;
 
     document.getElementById('stat-live-count').dataset.target = data.length;
+    animateSingleCounter(document.getElementById('stat-live-count'));
     tbody.innerHTML = data.map(p=>`<tr><td>${cityLabel(p.city)}</td><td>${districtLabel(p.district)}</td><td>${typeLabel(p.property_type)}</td><td>${money(p.price)}</td><td>${p.area_sqm}</td></tr>`).join('');
 
     const byCity = {};
@@ -2504,33 +2505,36 @@ function observeFadeUps(){
   });
 }
 
+function animateSingleCounter(el){
+  if (!el) return;
+  try {
+    const target = parseFloat(el.dataset.target) || 0;
+    const suffix = el.dataset.suffix || '';
+    if (prefersReducedMotion() || typeof requestAnimationFrame !== 'function' || typeof performance === 'undefined'){
+      el.textContent = target + suffix;
+      return;
+    }
+    const duration = 900;
+    const start = performance.now();
+    function tick(now){
+      try {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased) + suffix;
+        if (progress < 1) requestAnimationFrame(tick);
+      } catch (e) {
+        el.textContent = target + suffix; // guarantee the final value lands even if the animation itself fails mid-flight
+      }
+    }
+    requestAnimationFrame(tick);
+  } catch (e) {
+    console.error('animateSingleCounter: failed, falling back to instant value.', e);
+    el.textContent = (parseFloat(el.dataset.target) || 0) + (el.dataset.suffix || '');
+  }
+}
 function animateCounters(){
   document.querySelector('.stats-row')?.classList.add('ready');
-  document.querySelectorAll('#home .counter').forEach(el=>{
-    try {
-      const target = parseFloat(el.dataset.target) || 0;
-      const suffix = el.dataset.suffix || '';
-      if (prefersReducedMotion() || typeof requestAnimationFrame !== 'function' || typeof performance === 'undefined'){
-        el.textContent = target + suffix;
-        return;
-      }
-      const duration = 900;
-      const start = performance.now();
-      function tick(now){
-        try {
-          const progress = Math.min((now - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          el.textContent = Math.round(target * eased) + suffix;
-          if (progress < 1) requestAnimationFrame(tick);
-        } catch (e) {
-          el.textContent = target + suffix; // guarantee the final value lands even if the animation itself fails mid-flight
-        }
-      }
-      requestAnimationFrame(tick);
-    } catch (e) {
-      console.error('animateCounters: failed for one stat, continuing with the rest.', e);
-    }
-  });
+  document.querySelectorAll('#home .counter').forEach(animateSingleCounter);
 }
 
 /* ============================================================================
@@ -3129,6 +3133,7 @@ async function loadLiveStatsCount(){
     );
     if (!error && typeof count === 'number'){
       document.getElementById('stat-live-count').dataset.target = count;
+      animateSingleCounter(document.getElementById('stat-live-count'));
     }
   } catch (e) {
     console.error('loadLiveStatsCount: Supabase call failed.', e);
@@ -3146,6 +3151,7 @@ async function loadLiveStatsCount(){
 
   const totalDistricts = Object.values(CITY_DISTRICTS).reduce((sum, list) => sum + list.length, 0);
   document.getElementById('stat-district-count').dataset.target = totalDistricts;
+  animateSingleCounter(document.getElementById('stat-district-count'));
   updateGradeFieldVisibility();
   try { runValuation(); } catch(e){}
   await initHeroSlideshow();
