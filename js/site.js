@@ -742,6 +742,110 @@ function toggleFavorite(key){
   catch(e) { console.error('toggleFavorite: تعذّر الحفظ بالمتصفح.', e); }
 }
 
+/* ============================================================================
+   مقارنة العروض جنب لجنب — نفس مبدأ المفضلة بالضبط (localStorage محلي بس)،
+   حد أقصى 3 عروض بنفس الوقت. شريط عائم يظهر لما يكون فيه اختيار واحد أو أكثر.
+   ========================================================================== */
+const COMPARE_KEY = 'himmat_compare';
+const COMPARE_MAX = 3;
+function getCompareList(){
+  try { return JSON.parse(localStorage.getItem(COMPARE_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+function isInCompare(key){ return getCompareList().includes(key); }
+
+function toggleCompare(key){
+  let list = getCompareList();
+  const btn = document.getElementById('cmp-' + key);
+  if (list.includes(key)){
+    list = list.filter(k => k !== key);
+    if (btn) btn.classList.remove('active');
+  } else {
+    if (list.length >= COMPARE_MAX){
+      showToast(currentLang === 'ar' ? `⚠️ أقصى ${COMPARE_MAX} عروض بالمقارنة` : `⚠️ Max ${COMPARE_MAX} offers to compare`);
+      return;
+    }
+    list.push(key);
+    if (btn) btn.classList.add('active');
+    showToast(currentLang === 'ar' ? '⇄ أُضيف للمقارنة' : '⇄ Added to compare');
+  }
+  try { localStorage.setItem(COMPARE_KEY, JSON.stringify(list)); }
+  catch(e) { console.error('toggleCompare: تعذّر الحفظ بالمتصفح.', e); }
+  renderCompareBar();
+}
+
+function renderCompareBar(){
+  const list = getCompareList();
+  let bar = document.getElementById('compare-bar');
+  if (!list.length){
+    if (bar) bar.remove();
+    return;
+  }
+  if (!bar){
+    bar = document.createElement('div');
+    bar.id = 'compare-bar';
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML = `
+    <span>⇄ ${currentLang==='ar' ? `${list.length} للمقارنة` : `${list.length} to compare`}</span>
+    <button type="button" class="btn btn-primary" id="btn-open-compare" ${list.length < 2 ? 'disabled' : ''}>${currentLang==='ar' ? 'قارن الآن' : 'Compare now'}</button>
+    <button type="button" class="btn btn-ghost" id="btn-clear-compare">${currentLang==='ar' ? 'مسح' : 'Clear'}</button>
+  `;
+  document.getElementById('btn-open-compare').addEventListener('click', openCompareModal);
+  document.getElementById('btn-clear-compare').addEventListener('click', ()=>{
+    localStorage.setItem(COMPARE_KEY, '[]');
+    document.querySelectorAll('.compare-btn.active').forEach(b=>b.classList.remove('active'));
+    renderCompareBar();
+  });
+}
+
+async function openCompareModal(){
+  const keys = getCompareList();
+  const offers = [];
+  for (const key of keys){
+    let o = OFFER_REGISTRY[key];
+    if (!o && dbReady){
+      try {
+        const { data } = await withTimeout(supa.from('offers').select('*').eq('id', key).maybeSingle());
+        if (data) o = data;
+      } catch (e) { console.error('openCompareModal: fetch failed for', key, e); }
+    }
+    if (o) offers.push(o);
+  }
+  if (!offers.length) return;
+
+  const rows = [
+    { label: currentLang==='ar' ? 'السعر' : 'Price', get: o => `${money(o.price_final ?? o.price_original)} ${currentLang==='ar'?'ر.س':'SAR'}` },
+    { label: currentLang==='ar' ? 'المدينة/الحي' : 'City/District', get: o => `${cityLabel(o.city)} — ${districtLabel(o.district)}` },
+    { label: currentLang==='ar' ? 'المساحة' : 'Area', get: o => `${o.area_sqm} م²` },
+    { label: currentLang==='ar' ? 'الغرف' : 'Rooms', get: o => o.rooms ?? '—' },
+    { label: currentLang==='ar' ? 'سعر المتر' : 'Price/sqm', get: o => o.area_sqm ? `${money(Math.round((o.price_final ?? o.price_original) / o.area_sqm))} ${currentLang==='ar'?'ر.س':'SAR'}` : '—' },
+  ];
+
+  document.getElementById('compare-modal')?.remove();
+  const modal = document.createElement('div');
+  modal.id = 'compare-modal';
+  modal.className = 'compare-modal-overlay';
+  modal.innerHTML = `
+    <div class="compare-modal-box">
+      <button type="button" class="compare-modal-close" id="btn-close-compare">✕</button>
+      <h3>${currentLang==='ar' ? 'مقارنة العروض' : 'Compare Offers'}</h3>
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead><tr><th></th>${offers.map(o=>`<th>${escapeHtml(o.title)}</th>`).join('')}</tr></thead>
+          <tbody>
+            ${rows.map(r=>`<tr><td>${r.label}</td>${offers.map(o=>`<td>${r.get(o)}</td>`).join('')}</tr>`).join('')}
+            <tr><td></td>${offers.map(o=>`<td><button type="button" class="btn btn-ghost" onclick="document.getElementById('compare-modal').remove();openOfferById('${o.id}')">${currentLang==='ar'?'التفاصيل':'Details'}</button></td>`).join('')}</tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('btn-close-compare').addEventListener('click', ()=> modal.remove());
+  modal.addEventListener('click', (e)=>{ if (e.target === modal) modal.remove(); });
+}
+
 function offerCardHtml(o, matchScore){
   const t = I18N[currentLang];
   const key = registerOffer(o);
@@ -761,12 +865,17 @@ function offerCardHtml(o, matchScore){
   const matchBadge = (matchScore !== null && matchScore !== undefined)
     ? `<span class="match-badge" title="${t.match_badge_hint}">🎯 ${matchScore}% ${t.match_badge_label}</span>`
     : '';
+  const pricePerSqm = (cardDisplayPrice && o.area_sqm) ? Math.round(cardDisplayPrice / o.area_sqm) : null;
+  const pricePerSqmHtml = pricePerSqm ? `<span class="price-per-sqm">${money(pricePerSqm)} ${currency}/م²</span>` : '';
   return `<div class="card offer-card fade-up" onclick="openDetailModal('${key}')">
     <button type="button" class="favorite-btn${isFavorite(key) ? ' active' : ''}" id="fav-${key}"
             onclick="event.stopPropagation(); toggleFavorite('${key}')"
             aria-label="${t.favorite_toggle_label}" title="${t.favorite_toggle_label}">
       <svg viewBox="0 0 24 24" width="19" height="19"><path d="M12 21s-7.5-4.6-10.2-9.1C-0.1 8.4 1.6 4.5 5.4 4.5c2.1 0 3.6 1.1 4.3 2.4.7 1.3.7 1.3 0 0 .7-1.3 2.2-2.4 4.3-2.4 3.8 0 5.5 3.9 3.6 7.4C19.5 16.4 12 21 12 21z"/></svg>
     </button>
+    <button type="button" class="compare-btn${isInCompare(key) ? ' active' : ''}" id="cmp-${key}"
+            onclick="event.stopPropagation(); toggleCompare('${key}')"
+            aria-label="${currentLang==='ar' ? 'أضف للمقارنة' : 'Add to compare'}" title="${currentLang==='ar' ? 'أضف للمقارنة' : 'Add to compare'}">⇄</button>
     ${imageHtml}
     ${soldRibbon}
     ${pinnedBadge}
@@ -776,6 +885,7 @@ function offerCardHtml(o, matchScore){
       <h4>${typeLabel(o.property_type)} · ${districtLabel(o.district)}</h4>
       <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} ${t.rooms_suffix}</div>
       ${priceHtml}
+      ${pricePerSqmHtml}
       <button type="button" class="offer-details-btn" data-offer-key="${key}">${t.detail_view_btn}</button>
     </div>
   </div>`;
@@ -2942,5 +3052,6 @@ async function loadLiveStatsCount(){
   await initHeroSlideshow();
   typewriterHeroDesc();
   showPage(location.hash.slice(1) || 'home');
+  renderCompareBar();
   handleDeepLinkOffer();
 });
