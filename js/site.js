@@ -1312,9 +1312,13 @@ function finishQuiz(){
 
   document.getElementById('quiz-steps').innerHTML = `
     <p style="margin:0 0 14px">${results.length ? '✅ ' + (currentLang==='ar' ? `لقينا ${results.length} عرض يطابق اختيارك بالضبط — شوفه بالأسفل.` : `Found ${results.length} exact match(es) — see below.`) : ''}</p>
-    <button type="button" class="btn btn-ghost" id="btn-quiz-restart">🔄 ${currentLang==='ar' ? 'جرّب من جديد' : 'Try again'}</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn btn-ghost" id="btn-quiz-restart">🔄 ${currentLang==='ar' ? 'جرّب من جديد' : 'Try again'}</button>
+      <button type="button" class="btn btn-ghost" id="btn-quiz-home">🏠 ${currentLang==='ar' ? 'الرئيسية' : 'Home'}</button>
+    </div>
   `;
   document.getElementById('btn-quiz-restart').addEventListener('click', startQuiz);
+  document.getElementById('btn-quiz-home').addEventListener('click', ()=> showPage('home'));
   document.getElementById('offers-grid').scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
 }
 
