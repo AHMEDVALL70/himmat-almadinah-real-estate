@@ -1132,15 +1132,43 @@ async function renderSimilarOffers(current){
     </div>
   `;
 }
-document.getElementById('detail-close').addEventListener('click', ()=>{
+function closeDetailModal(){
   document.getElementById('detail-modal').classList.remove('open');
-});
+  maybeShowSatisfactionSurvey();
+}
+document.getElementById('detail-close').addEventListener('click', closeDetailModal);
 document.getElementById('detail-modal').addEventListener('click', e=>{
-  if (e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('open');
+  if (e.target.id === 'detail-modal') closeDetailModal();
 });
 document.addEventListener('keydown', e=>{
-  if (e.key === 'Escape') document.getElementById('detail-modal')?.classList.remove('open');
+  if (e.key === 'Escape' && document.getElementById('detail-modal')?.classList.contains('open')) closeDetailModal();
 });
+
+/* استطلاع رضا سريع بعد إغلاق نافذة تفاصيل عرض — مرة وحدة بس كل جلسة تصفّح
+   (sessionStorage، يتصفّر لو الزائر رجع بجلسة جديدة)، عشان ما يصير مزعج. */
+const SATISFACTION_ASKED_KEY = 'himmat_satisfaction_asked';
+function maybeShowSatisfactionSurvey(){
+  if (sessionStorage.getItem(SATISFACTION_ASKED_KEY)) return;
+  sessionStorage.setItem(SATISFACTION_ASKED_KEY, '1');
+  setTimeout(()=>{
+    const box = document.createElement('div');
+    box.id = 'satisfaction-toast';
+    box.innerHTML = `
+      <span>${currentLang==='ar' ? 'هل لقيت اللي تدوّر عليه؟' : 'Did you find what you were looking for?'}</span>
+      <button type="button" data-v="true">👍</button>
+      <button type="button" data-v="false">👎</button>
+    `;
+    document.body.appendChild(box);
+    box.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        try { await supa.from('satisfaction_feedback').insert({ satisfied: btn.dataset.v === 'true' }); }
+        catch (e) { console.error('satisfaction feedback failed', e); }
+        box.remove();
+      });
+    });
+    setTimeout(()=> box.remove(), 8000);
+  }, 400);
+}
 
 function readOfferFilters(){
   return {
