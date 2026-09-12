@@ -1292,11 +1292,13 @@ function advanceQuiz(){
 }
 
 function finishQuiz(){
-  // نتائج صارمة فعلياً بمعايير الاختبار (مو مرنة زي الفلاتر العادية) — لو
-  // اخترت "شقة" و"أقل من مليون"، ما تطلع لك شقق بـ3 ملايين. نستخدم آخر
-  // قائمة عروض محمّلة فعلياً (LAST_OFFERS_LIST) بدل استعلام جديد.
-  const results = (LAST_OFFERS_LIST || []).filter(o=>{
-    if (quizAnswers.city && o.city !== quizAnswers.city) return false;
+  // خطة بمرحلتين: (1) تطابق صارم فعلي بكل معايير الاختبار. (2) لو ما فيه
+  // ولا نتيجة صارمة، نطلع أقرب عرضين بالسعر (فوق أو تحت المبلغ المطلوب)
+  // بدل "ما فيه نتائج" — بعنوان صادق يوضّح إنها أقرب المتاح مو تطابق تام.
+  // المدينة تبقى صارمة دائماً بالمرحلتين (ما معنى تعرض مدينة ثانية).
+  const cityMatches = (LAST_OFFERS_LIST || []).filter(o => !quizAnswers.city || o.city === quizAnswers.city);
+
+  const strictMatches = cityMatches.filter(o=>{
     if (quizAnswers.type && o.property_type !== quizAnswers.type) return false;
     const price = o.price_final ?? o.price_original;
     if (quizAnswers.maxPrice && price && price > quizAnswers.maxPrice) return false;
@@ -1304,14 +1306,28 @@ function finishQuiz(){
     return true;
   }).sort((a,b) => (b.is_pinned - a.is_pinned) || (new Date(b.created_at) - new Date(a.created_at)));
 
+  let results = strictMatches;
+  let resultsMsg = '';
+  if (strictMatches.length){
+    resultsMsg = '✅ ' + (currentLang==='ar' ? `لقينا ${strictMatches.length} عرض يطابق اختيارك بالضبط — شوفه بالأسفل.` : `Found ${strictMatches.length} exact match(es) — see below.`);
+  } else if (cityMatches.length && quizAnswers.maxPrice){
+    // أقرب عرضين بالسعر (فوق أو تحت)، بغض النظر عن النوع/الغرف
+    results = [...cityMatches]
+      .sort((a,b) => Math.abs((a.price_final ?? a.price_original ?? 0) - quizAnswers.maxPrice) - Math.abs((b.price_final ?? b.price_original ?? 0) - quizAnswers.maxPrice))
+      .slice(0, 2);
+    resultsMsg = 'ℹ️ ' + (currentLang==='ar' ? 'ما فيه تطابق تام حالياً — هذي أقرب العروض المتاحة لطلبك (فوق أو تحت الميزانية).' : "No exact match right now — here are the closest available offers to your request (above or below budget).");
+  } else {
+    resultsMsg = currentLang==='ar' ? 'ما فيه عروض بهالمدينة حالياً — جرّب مدينة ثانية.' : 'No offers in this city right now — try another city.';
+  }
+
   const grid = document.getElementById('offers-grid');
   grid.innerHTML = results.length
     ? results.map(o => offerCardHtml(o)).join('')
-    : `<p style="grid-column:1/-1;text-align:center;color:var(--text-600)">${currentLang==='ar' ? 'ما فيه عروض تطابق اختيارك بالضبط حالياً — جرّب توسيع الميزانية أو النوع.' : 'No exact matches right now — try widening your budget or type.'}</p>`;
+    : `<p style="grid-column:1/-1;text-align:center;color:var(--text-600)">${currentLang==='ar' ? 'ما فيه عروض متاحة حالياً.' : 'No offers available right now.'}</p>`;
   observeFadeUps();
 
   document.getElementById('quiz-steps').innerHTML = `
-    <p style="margin:0 0 14px">${results.length ? '✅ ' + (currentLang==='ar' ? `لقينا ${results.length} عرض يطابق اختيارك بالضبط — شوفه بالأسفل.` : `Found ${results.length} exact match(es) — see below.`) : ''}</p>
+    <p style="margin:0 0 14px">${resultsMsg}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button type="button" class="btn btn-ghost" id="btn-quiz-restart">🔄 ${currentLang==='ar' ? 'جرّب من جديد' : 'Try again'}</button>
       <button type="button" class="btn btn-ghost" id="btn-quiz-home">🏠 ${currentLang==='ar' ? 'الرئيسية' : 'Home'}</button>
