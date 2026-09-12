@@ -251,6 +251,23 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 /* Offers */
 .offer-card{overflow:hidden;position:relative}
 .favorite-btn{position:absolute;top:10px;inset-inline-end:10px;z-index:3;width:34px;height:34px;border-radius:50%;background:rgba(2,6,23,.55);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:#fff;transition:transform .15s ease,color .15s ease}
+.compare-btn{position:absolute;top:10px;inset-inline-start:10px;z-index:3;width:34px;height:34px;border-radius:50%;background:rgba(2,6,23,.55);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900;cursor:pointer;transition:transform .15s ease,background .15s ease}
+.compare-btn:hover{transform:scale(1.08)}
+.compare-btn.active{background:var(--gold-500);color:#020617;border-color:var(--gold-500)}
+.price-per-sqm{display:block;font-size:11.5px;color:var(--text-600);margin-top:2px}
+
+#compare-bar{position:fixed;bottom:0;inset-inline:0;background:var(--navy-900);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:16px;z-index:150;box-shadow:0 -8px 24px rgba(0,0,0,.25);flex-wrap:wrap}
+#compare-bar span{font-weight:700;font-size:14px}
+#compare-bar button:disabled{opacity:.5;cursor:not-allowed}
+
+.compare-modal-overlay{position:fixed;inset:0;background:rgba(2,6,23,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.compare-modal-box{background:var(--surface);border-radius:16px;padding:26px;max-width:900px;width:100%;max-height:85vh;overflow-y:auto;position:relative}
+.compare-modal-close{position:absolute;top:16px;inset-inline-end:16px;width:32px;height:32px;border-radius:50%;background:var(--sand-100);border:none;font-size:16px;cursor:pointer}
+.compare-table-wrap{overflow-x:auto;margin-top:16px}
+.compare-table{width:100%;border-collapse:collapse}
+.compare-table th,.compare-table td{padding:12px 14px;text-align:center;border-bottom:1px solid var(--line);font-size:13.5px;white-space:nowrap}
+.compare-table th{font-weight:900;color:var(--gold-500)}
+.compare-table td:first-child,.compare-table th:first-child{text-align:start;font-weight:700;color:var(--text-600)}
 .favorite-btn svg{fill:none;stroke:currentColor;stroke-width:2}
 .favorite-btn:hover{transform:scale(1.08)}
 .favorite-btn.active{color:#e2685c}
