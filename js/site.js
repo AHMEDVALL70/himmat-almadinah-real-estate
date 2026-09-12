@@ -1297,17 +1297,22 @@ function finishQuiz(){
   document.getElementById('filter-max-price').value = quizAnswers.maxPrice || '';
   document.getElementById('filter-min-rooms').value = quizAnswers.minRooms || '';
   renderOffers();
-  document.getElementById('match-quiz-card').style.display = 'none';
+  document.getElementById('quiz-steps').innerHTML = `
+    <p style="margin:0 0 14px">✅ ${currentLang==='ar' ? 'لقينا لك أفضل التطابقات — شوفها بالأسفل.' : "We've found your best matches — see them below."}</p>
+    <button type="button" class="btn btn-ghost" id="btn-quiz-restart">🔄 ${currentLang==='ar' ? 'جرّب من جديد' : 'Try again'}</button>
+  `;
+  document.getElementById('btn-quiz-restart').addEventListener('click', startQuiz);
   document.getElementById('offers-grid').scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
 }
 
-document.getElementById('btn-start-quiz').addEventListener('click', ()=>{
+function startQuiz(){
   quizAnswers = {};
   quizStepIndex = 0;
   document.getElementById('quiz-intro').style.display = 'none';
   document.getElementById('quiz-steps').style.display = 'block';
   renderQuizStep();
-});
+}
+document.getElementById('btn-start-quiz').addEventListener('click', startQuiz);
 document.getElementById('btn-reset-filters').addEventListener('click', ()=>{
   document.getElementById('filter-city').value = '';
   document.getElementById('filter-type').value = '';
