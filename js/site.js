@@ -806,7 +806,7 @@ async function openCompareModal(){
     let o = OFFER_REGISTRY[key];
     if (!o && dbReady){
       try {
-        const { data } = await withTimeout(supa.from('offers').select('*').eq('id', key).maybeSingle());
+        const { data } = await withTimeout(supa.from('offers').select('*').eq('id', key).eq('is_published', true).maybeSingle());
         if (data) o = data;
       } catch (e) { console.error('openCompareModal: fetch failed for', key, e); }
     }
