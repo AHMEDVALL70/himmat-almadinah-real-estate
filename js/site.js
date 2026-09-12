@@ -985,6 +985,10 @@ function openDetailModal(key){
   const contactPhone = o.marketer_phone || '966530500906';
   const waLink = `https://wa.me/${contactPhone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(o.title + ' — ' + o.city)}`;
   const mapButton = o.map_url ? `<a href="${o.map_url}" target="_blank" rel="noopener" class="btn btn-ghost">📍 ${t.detail_map}</a>` : '';
+  const videoEmbedUrl = youtubeEmbedUrl(o.video_url);
+  const videoHtml = videoEmbedUrl
+    ? `<div class="detail-video"><iframe src="${videoEmbedUrl}" title="${currentLang==='ar' ? 'فيديو العقار' : 'Property video'}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+    : '';
   const galleryImages = (o.image_urls && o.image_urls.length) ? o.image_urls : (o.image_url ? [o.image_url] : []);
   const imageHtml = galleryImages.length > 1
     ? `<div class="detail-gallery" data-images='${JSON.stringify(galleryImages)}' data-index="0">
@@ -1005,6 +1009,7 @@ function openDetailModal(key){
     <p class="detail-price">${priceHtml}</p>
     <div class="detail-specs">${specs.map(s=>`<div class="detail-spec"><b>${s.v}</b><span>${s.l}</span></div>`).join('')}</div>
     <div class="detail-desc">${descHtml}</div>
+    ${videoHtml}
     ${metaHtml}
     <div class="detail-actions">
       <a href="${waLink}" target="_blank" rel="noopener" class="btn btn-primary">${t.detail_whatsapp}</a>
@@ -2607,6 +2612,21 @@ window.addEventListener('popstate', ()=>{
    ========================================================================== */
 function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
 function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+/* يحوّل أي شكل شائع لرابط يوتيوب (watch؟v=، youtu.be/، shorts/، embed/ الجاهز
+   أصلاً) لرابط تضمين صحيح — يرجّع null لو الرابط مو يوتيوب أو غير صالح،
+   عشان ما نحاول تضمين رابط عشوائي بإطار iframe. */
+function youtubeEmbedUrl(url){
+  if (!url || typeof url !== 'string') return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const re of patterns){
+    const m = url.match(re);
+    if (m) return `https://www.youtube.com/embed/${m[1]}`;
+  }
+  return null;
+}
 
 const ROBOT_ICON_SVG = `🤖`;
 

@@ -920,6 +920,7 @@ function readOfferForm(){
     discount_pct: parseInt(document.getElementById('offer-discount').value, 10) || 0,
     price_final: parseFloat(document.getElementById('offer-price-final').value) || null,
     map_url: document.getElementById('offer-map-url').value.trim() || null,
+    video_url: document.getElementById('offer-video-url').value.trim() || null,
     image_url: document.getElementById('offer-image-url').value.trim() || null,
     image_urls: parsedImageUrls.length ? parsedImageUrls : null,
     marketer_name: document.getElementById('offer-marketer-name').value.trim() || null,
@@ -1090,7 +1091,7 @@ function clearOfferForm(){
   convertingPropertyId = null;
   document.getElementById('offer-edit-id').value = '';
   ['offer-title','offer-city','offer-district','offer-type','offer-area','offer-rooms',
-   'offer-price-original','offer-price-final','offer-map-url','offer-image-url','offer-marketer-name',
+   'offer-price-original','offer-price-final','offer-map-url','offer-video-url','offer-image-url','offer-marketer-name',
    'offer-marketer-phone','offer-re-license','offer-ad-license','offer-description'].forEach(id=>{
     document.getElementById(id).value = '';
   });
@@ -1220,6 +1221,7 @@ async function editOffer(id){
   document.getElementById('offer-discount').value = o.discount_pct || 0;
   document.getElementById('offer-price-final').value = o.price_final || '';
   document.getElementById('offer-map-url').value = o.map_url || '';
+  document.getElementById('offer-video-url').value = o.video_url || '';
   currentOfferImages = (o.image_urls && o.image_urls.length) ? [...o.image_urls] : (o.image_url ? [o.image_url] : []);
   renderOfferImageThumbs();
   document.getElementById('offer-marketer-name').value = o.marketer_name || '';

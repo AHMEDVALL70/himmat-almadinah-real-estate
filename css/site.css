@@ -345,6 +345,8 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .detail-spec b{display:block;font-size:15px;color:var(--text-900)}
 .detail-spec span{font-size:11.5px;color:var(--text-600)}
 .detail-desc{white-space:pre-wrap;line-height:1.9;font-size:14.5px;color:var(--text-900);margin-bottom:22px;background:var(--sand-100);border-radius:10px;padding:16px}
+.detail-video{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;margin-bottom:22px}
+.detail-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .detail-meta{border-top:1px solid var(--line);padding-top:16px;margin-top:6px}
 .detail-meta-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;color:var(--text-600)}
 .detail-meta-row b{color:var(--text-900);font-weight:700}
