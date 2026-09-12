@@ -45,6 +45,7 @@ const I18N = {
     offers_eyebrow:"فرص لا تفوّت", offers_title:"عروض وخصومات",
     featured_eyebrow:"مختارات لك", featured_title:"عقارات مميزة", featured_see_all:"شاهد كل العروض ←",
     offers_desc:"عروض تتحدّث فور ما يضيفها فريقنا — بدون تحديث يدوي ولا صفحات قديمة.",
+    quiz_title:"دوّر عليه", quiz_desc:"4 أسئلة سريعة، ونطلع لك أفضل العروض المطابقة لك فعلياً — بدل ما تدوّر يدوياً.", quiz_start:"ابدأ الآن",
     services_eyebrow:"خدماتنا", services_title:"ماذا نقدّم", map_title:"الخريطة العقارية",
     val_eyebrow:"مؤشر فوري", val_title:"استشارات ودراسات عقارية استرشادية",
     val_desc:"خمس معلومات بسيطة، ومؤشر سعري شفاف خلال ثوانٍ.",
@@ -153,6 +154,7 @@ const I18N = {
     offers_eyebrow:"Don't miss out", offers_title:"Offers & Discounts",
     featured_eyebrow:"Picked for you", featured_title:"Featured Properties", featured_see_all:"See all offers →",
     offers_desc:"Offers update the moment our team adds them — no manual refresh, no stale pages.",
+    quiz_title:"Find Your Match", quiz_desc:"4 quick questions, and we'll show you the best-matching listings — instead of manual searching.", quiz_start:"Start Now",
     services_eyebrow:"Our Services", services_title:"What We Offer", map_title:"Property Map",
     val_eyebrow:"Instant indicator", val_title:"Guided Real Estate Consulting & Studies",
     val_desc:"Five simple details, and a transparent price indicator in seconds.",
@@ -1216,6 +1218,96 @@ function populateFilterSelects(){
 }
 
 document.getElementById('btn-apply-filters').addEventListener('click', ()=> renderOffers());
+
+/* ============================================================================
+   "دوّر عليه" — اختبار تفضيلات ذكي وممتع، بدل تعبئة نموذج فلترة جامد.
+   يعيد استخدام حقول الفلترة ومحرك المطابقة الموجودَين أصلاً (computeMatchScore)
+   — صفر منطق مطابقة جديد، بس تجربة أكثر متعة لتعبئة نفس الفلاتر.
+   ========================================================================== */
+const QUIZ_QUESTIONS = [
+  { key:'city', type:'city', label:{ar:'وش المدينة اللي تدوّر فيها؟',en:'Which city are you looking in?'} },
+  { key:'type', type:'type', label:{ar:'وش نوع العقار المفضّل؟',en:'What property type do you prefer?'} },
+  { key:'maxPrice', type:'options', label:{ar:'وش أقصى ميزانية تقريباً؟',en:'What\'s your approximate max budget?'},
+    options:[
+      {label:{ar:'أقل من مليون',en:'Under 1M'}, value:1000000},
+      {label:{ar:'1 – 2 مليون',en:'1M – 2M'}, value:2000000},
+      {label:{ar:'2 – 3 مليون',en:'2M – 3M'}, value:3000000},
+      {label:{ar:'أكثر من 3 مليون',en:'Over 3M'}, value:999999999},
+    ]},
+  { key:'minRooms', type:'options', label:{ar:'كم غرفة تحتاج على الأقل؟',en:'Minimum rooms needed?'},
+    options:[
+      {label:{ar:'غرفتين أو أكثر',en:'2+'}, value:2},
+      {label:{ar:'3 غرف أو أكثر',en:'3+'}, value:3},
+      {label:{ar:'4 غرف أو أكثر',en:'4+'}, value:4},
+      {label:{ar:'ما يهمّني',en:"Doesn't matter"}, value:null},
+    ]},
+];
+let quizAnswers = {};
+let quizStepIndex = 0;
+
+function renderQuizStep(){
+  const container = document.getElementById('quiz-steps');
+  const q = QUIZ_QUESTIONS[quizStepIndex];
+  const progress = `${quizStepIndex + 1} / ${QUIZ_QUESTIONS.length}`;
+  let inputHtml = '';
+
+  if (q.type === 'city'){
+    inputHtml = `<select id="quiz-answer-input">${Object.keys(CITY_DISTRICTS).map(c=>`<option value="${c}">${cityLabel(c)}</option>`).join('')}</select>
+      <button type="button" class="btn btn-primary" id="btn-quiz-next" style="margin-top:14px">${currentLang==='ar'?'التالي':'Next'}</button>`;
+  } else if (q.type === 'type'){
+    inputHtml = `<div class="quiz-options">${PROPERTY_TYPES.slice(0,6).map(t=>`<button type="button" class="quiz-option-btn" data-value="${t.v}">${t[currentLang]||t.ar}</button>`).join('')}<button type="button" class="quiz-option-btn" data-value="">${currentLang==='ar'?'أي نوع':'Any type'}</button></div>`;
+  } else {
+    inputHtml = `<div class="quiz-options">${q.options.map(o=>`<button type="button" class="quiz-option-btn" data-value="${o.value ?? ''}">${o.label[currentLang]||o.label.ar}</button>`).join('')}</div>`;
+  }
+
+  container.innerHTML = `
+    <p style="font-size:12px;color:var(--text-600);margin:0 0 6px">${progress}</p>
+    <h4 style="margin:0 0 14px">${q.label[currentLang]||q.label.ar}</h4>
+    ${inputHtml}
+    ${quizStepIndex > 0 ? `<button type="button" class="btn btn-ghost" id="btn-quiz-back" style="margin-top:14px">${currentLang==='ar'?'رجوع':'Back'}</button>` : ''}
+  `;
+
+  if (q.type === 'city'){
+    document.getElementById('btn-quiz-next').addEventListener('click', ()=>{
+      quizAnswers.city = document.getElementById('quiz-answer-input').value;
+      advanceQuiz();
+    });
+  } else {
+    container.querySelectorAll('.quiz-option-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const val = btn.dataset.value;
+        quizAnswers[q.key] = (val === '') ? null : (isNaN(val) ? val : Number(val));
+        advanceQuiz();
+      });
+    });
+  }
+  const backBtn = document.getElementById('btn-quiz-back');
+  if (backBtn) backBtn.addEventListener('click', ()=>{ quizStepIndex--; renderQuizStep(); });
+}
+
+function advanceQuiz(){
+  quizStepIndex++;
+  if (quizStepIndex >= QUIZ_QUESTIONS.length) finishQuiz();
+  else renderQuizStep();
+}
+
+function finishQuiz(){
+  document.getElementById('filter-city').value = quizAnswers.city || '';
+  document.getElementById('filter-type').value = quizAnswers.type || '';
+  document.getElementById('filter-max-price').value = quizAnswers.maxPrice || '';
+  document.getElementById('filter-min-rooms').value = quizAnswers.minRooms || '';
+  renderOffers();
+  document.getElementById('match-quiz-card').style.display = 'none';
+  document.getElementById('offers-grid').scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+}
+
+document.getElementById('btn-start-quiz').addEventListener('click', ()=>{
+  quizAnswers = {};
+  quizStepIndex = 0;
+  document.getElementById('quiz-intro').style.display = 'none';
+  document.getElementById('quiz-steps').style.display = 'block';
+  renderQuizStep();
+});
 document.getElementById('btn-reset-filters').addEventListener('click', ()=>{
   document.getElementById('filter-city').value = '';
   document.getElementById('filter-type').value = '';
