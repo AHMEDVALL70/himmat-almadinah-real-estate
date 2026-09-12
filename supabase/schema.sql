@@ -1116,6 +1116,20 @@ create policy page_views_public_insert on page_views for insert with check (true
 drop policy if exists page_views_admin_read on page_views;
 create policy page_views_admin_read on page_views for select using (auth.role() = 'authenticated');
 
+-- استطلاع رضا سريع (👍/👎) بعد إغلاق نافذة تفاصيل عرض — إحصائي بحت، بلا
+-- ربط بهوية الزائر، يعطي مؤشر رضا عام للإدارة بدون استطلاعات طويلة.
+create table if not exists satisfaction_feedback (
+    id          uuid primary key default gen_random_uuid(),
+    satisfied   boolean not null,
+    created_at  timestamptz not null default now()
+);
+create index if not exists idx_satisfaction_feedback_created_at on satisfaction_feedback(created_at desc);
+alter table satisfaction_feedback enable row level security;
+drop policy if exists satisfaction_feedback_public_insert on satisfaction_feedback;
+create policy satisfaction_feedback_public_insert on satisfaction_feedback for insert with check (true);
+drop policy if exists satisfaction_feedback_admin_read on satisfaction_feedback;
+create policy satisfaction_feedback_admin_read on satisfaction_feedback for select using (auth.role() = 'authenticated');
+
 -- مشاهدات كل عرض تحديداً (تُسجَّل عند فتح نافذة تفاصيل أي عرض) — أساس
 -- حقيقي مستقبلاً لتفعيل تبويب "الأكثر طلباً" بدل التخمين.
 create table if not exists offer_views (
