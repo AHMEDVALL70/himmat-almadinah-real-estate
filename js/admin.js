@@ -727,7 +727,7 @@ async function loadDashboard(){
   try {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    const [pending, approved, rejected, newInq, contractsCount, recent, viewsToday, viewsTotal] = await Promise.all([
+    const [pending, approved, rejected, newInq, contractsCount, recent, viewsToday, viewsTotal, satisfiedCount, satisfactionTotal] = await Promise.all([
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'rejected'),
@@ -736,6 +736,8 @@ async function loadDashboard(){
       supa.from('properties').select('*').order('created_at', { ascending: false }).limit(8),
       supa.from('page_views').select('id', { count: 'exact', head: true }).gte('viewed_at', todayStart.toISOString()),
       supa.from('page_views').select('id', { count: 'exact', head: true }),
+      supa.from('satisfaction_feedback').select('id', { count: 'exact', head: true }).eq('satisfied', true),
+      supa.from('satisfaction_feedback').select('id', { count: 'exact', head: true }),
     ]);
     document.getElementById('s-pending').textContent = pending.count ?? 0;
     document.getElementById('s-approved').textContent = approved.count ?? 0;
@@ -744,6 +746,9 @@ async function loadDashboard(){
     document.getElementById('s-contracts').textContent = contractsCount.count ?? 0;
     document.getElementById('s-views-today').textContent = viewsToday.count ?? 0;
     document.getElementById('s-views-total').textContent = viewsTotal.count ?? 0;
+    document.getElementById('s-satisfaction').textContent = satisfactionTotal.count
+      ? Math.round((satisfiedCount.count / satisfactionTotal.count) * 100) + '%'
+      : '—';
 
     const tbody = document.getElementById('dashboard-recent');
     const rows = recent.data || [];
