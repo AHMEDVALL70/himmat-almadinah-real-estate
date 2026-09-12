@@ -725,19 +725,25 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
    ========================================================================== */
 async function loadDashboard(){
   try {
-    const [pending, approved, rejected, newInq, contractsCount, recent] = await Promise.all([
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const [pending, approved, rejected, newInq, contractsCount, recent, viewsToday, viewsTotal] = await Promise.all([
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'rejected'),
       supa.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
       supa.from('contracts').select('id', { count: 'exact', head: true }),
       supa.from('properties').select('*').order('created_at', { ascending: false }).limit(8),
+      supa.from('page_views').select('id', { count: 'exact', head: true }).gte('viewed_at', todayStart.toISOString()),
+      supa.from('page_views').select('id', { count: 'exact', head: true }),
     ]);
     document.getElementById('s-pending').textContent = pending.count ?? 0;
     document.getElementById('s-approved').textContent = approved.count ?? 0;
     document.getElementById('s-rejected').textContent = rejected.count ?? 0;
     document.getElementById('s-new-inquiries').textContent = newInq.count ?? 0;
     document.getElementById('s-contracts').textContent = contractsCount.count ?? 0;
+    document.getElementById('s-views-today').textContent = viewsToday.count ?? 0;
+    document.getElementById('s-views-total').textContent = viewsTotal.count ?? 0;
 
     const tbody = document.getElementById('dashboard-recent');
     const rows = recent.data || [];
