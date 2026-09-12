@@ -1443,6 +1443,7 @@ function finishQuiz(){
 
   let results = strictMatches;
   let resultsMsg = '';
+  let showNotifyMe = false;
   if (strictMatches.length){
     resultsMsg = '✅ ' + (currentLang==='ar' ? `لقينا ${strictMatches.length} عرض يطابق اختيارك بالضبط — شوفه بالأسفل.` : `Found ${strictMatches.length} exact match(es) — see below.`);
   } else if (cityMatches.length && quizAnswers.maxPrice){
@@ -1451,8 +1452,10 @@ function finishQuiz(){
       .sort((a,b) => Math.abs((a.price_final ?? a.price_original ?? 0) - quizAnswers.maxPrice) - Math.abs((b.price_final ?? b.price_original ?? 0) - quizAnswers.maxPrice))
       .slice(0, 2);
     resultsMsg = 'ℹ️ ' + (currentLang==='ar' ? 'ما فيه تطابق تام حالياً — هذي أقرب العروض المتاحة لطلبك (فوق أو تحت الميزانية).' : "No exact match right now — here are the closest available offers to your request (above or below budget).");
+    showNotifyMe = true;
   } else {
     resultsMsg = currentLang==='ar' ? 'ما فيه عروض بهالمدينة حالياً — جرّب مدينة ثانية.' : 'No offers in this city right now — try another city.';
+    showNotifyMe = true;
   }
 
   const grid = document.getElementById('offers-grid');
@@ -1463,14 +1466,80 @@ function finishQuiz(){
 
   document.getElementById('quiz-steps').innerHTML = `
     <p style="margin:0 0 14px">${resultsMsg}</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:${showNotifyMe ? '14px' : '0'}">
       <button type="button" class="btn btn-ghost" id="btn-quiz-restart">🔄 ${currentLang==='ar' ? 'جرّب من جديد' : 'Try again'}</button>
       <button type="button" class="btn btn-ghost" id="btn-quiz-home">🏠 ${currentLang==='ar' ? 'الرئيسية' : 'Home'}</button>
+      ${showNotifyMe ? `<button type="button" class="btn btn-primary" id="btn-notify-me">🔔 ${currentLang==='ar' ? 'نبّهني لو طلع تطابق' : 'Notify me on a match'}</button>` : ''}
     </div>
+    <div id="notify-me-form"></div>
   `;
   document.getElementById('btn-quiz-restart').addEventListener('click', startQuiz);
   document.getElementById('btn-quiz-home').addEventListener('click', ()=> showPage('home'));
+  if (showNotifyMe){
+    document.getElementById('btn-notify-me').addEventListener('click', renderNotifyMeForm);
+  }
   document.getElementById('offers-grid').scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+}
+
+function renderNotifyMeForm(){
+  const box = document.getElementById('notify-me-form');
+  box.innerHTML = `
+    <div style="border-top:1px solid var(--line);padding-top:14px;max-width:360px">
+      <div class="field" style="margin-bottom:10px">
+        <label>${currentLang==='ar' ? 'جوالك (نتواصل معك عليه)' : 'Your phone (we\'ll reach you here)'}</label>
+        <input id="notify-me-phone" type="text" placeholder="05xxxxxxxx">
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>${currentLang==='ar' ? 'بريدك (اختياري)' : 'Your email (optional)'}</label>
+        <input id="notify-me-email" type="text" placeholder="name@example.com">
+      </div>
+      <button type="button" class="btn btn-primary" id="btn-notify-me-submit">${currentLang==='ar' ? 'احفظ طلبي' : 'Save my request'}</button>
+      <p id="notify-me-msg" style="font-size:13px;margin-top:8px;min-height:18px"></p>
+    </div>
+  `;
+  document.getElementById('btn-notify-me-submit').addEventListener('click', submitNotifyMe);
+}
+
+async function submitNotifyMe(){
+  const msg = document.getElementById('notify-me-msg');
+  const phone = document.getElementById('notify-me-phone').value.trim();
+  const email = document.getElementById('notify-me-email').value.trim();
+  if (!phone){
+    msg.style.color = 'var(--danger)';
+    msg.textContent = currentLang==='ar' ? '⚠️ اكتب رقم جوالك.' : '⚠️ Enter your phone number.';
+    return;
+  }
+  msg.style.color = 'var(--text-600)';
+  msg.textContent = currentLang==='ar' ? 'جارٍ الحفظ...' : 'Saving...';
+  try {
+    const turnstileToken = await getTurnstileToken();
+    const { data, error: fnError } = await supa.functions.invoke('public-submit', {
+      body: {
+        type: 'saved_search',
+        payload: {
+          city: quizAnswers.city || null,
+          property_type: quizAnswers.type || null,
+          max_price: quizAnswers.maxPrice || null,
+          min_rooms: quizAnswers.minRooms || null,
+          contact_phone: phone,
+          contact_email: email || null,
+        },
+        turnstileToken,
+      },
+    });
+    const error = fnError || (data && data.error ? { message: data.error } : null);
+    if (error){
+      msg.style.color = 'var(--danger)';
+      msg.textContent = '⚠️ ' + error.message;
+      return;
+    }
+    msg.style.color = 'var(--ok)';
+    msg.textContent = currentLang==='ar' ? '✅ تم — بنتواصل معك أول ما يطلع عرض يناسبك.' : "✅ Saved — we'll reach out once a matching offer is available.";
+  } catch (e) {
+    console.error('submitNotifyMe failed', e);
+    msg.style.color = 'var(--danger)';
+    msg.textContent = currentLang==='ar' ? '⚠️ تعذّر الحفظ.' : '⚠️ Could not save.';
+  }
 }
 
 function startQuiz(){

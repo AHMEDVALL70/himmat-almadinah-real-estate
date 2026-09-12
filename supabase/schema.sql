@@ -1130,6 +1130,26 @@ create policy satisfaction_feedback_public_insert on satisfaction_feedback for i
 drop policy if exists satisfaction_feedback_admin_read on satisfaction_feedback;
 create policy satisfaction_feedback_admin_read on satisfaction_feedback for select using (auth.role() = 'authenticated');
 
+-- "نبّهني لو طلع تطابق" — زائر ما لقى عرض يطابق معاييره بالضبط (اختبار
+-- "دوّر عليه") يحفظ طلبه، ويُخطَر تلقائياً لو نُشر عرض جديد يطابقه. الإدخال
+-- عبر public-submit فقط (مع Turnstile)، الإشعار الفعلي للزائر يحتاج توثيق
+-- نطاق بـResend (راجع PENDING_TASKS.md) — الكود جاهز، بس التفعيل معلَّق.
+create table if not exists saved_searches (
+    id             uuid primary key default gen_random_uuid(),
+    city           varchar(100),
+    property_type  varchar(50),
+    max_price      numeric(14,2),
+    min_rooms      int,
+    contact_phone  varchar(30) not null,
+    contact_email  varchar(255),
+    notified       boolean not null default false,
+    created_at     timestamptz not null default now()
+);
+create index if not exists idx_saved_searches_notified on saved_searches(notified);
+alter table saved_searches enable row level security;
+drop policy if exists saved_searches_staff_all on saved_searches;
+create policy saved_searches_staff_all on saved_searches for all using (public.is_staff()) with check (public.is_staff());
+
 -- مشاهدات كل عرض تحديداً (تُسجَّل عند فتح نافذة تفاصيل أي عرض) — أساس
 -- حقيقي مستقبلاً لتفعيل تبويب "الأكثر طلباً" بدل التخمين.
 create table if not exists offer_views (
