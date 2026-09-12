@@ -1292,13 +1292,26 @@ function advanceQuiz(){
 }
 
 function finishQuiz(){
-  document.getElementById('filter-city').value = quizAnswers.city || '';
-  document.getElementById('filter-type').value = quizAnswers.type || '';
-  document.getElementById('filter-max-price').value = quizAnswers.maxPrice || '';
-  document.getElementById('filter-min-rooms').value = quizAnswers.minRooms || '';
-  renderOffers();
+  // نتائج صارمة فعلياً بمعايير الاختبار (مو مرنة زي الفلاتر العادية) — لو
+  // اخترت "شقة" و"أقل من مليون"، ما تطلع لك شقق بـ3 ملايين. نستخدم آخر
+  // قائمة عروض محمّلة فعلياً (LAST_OFFERS_LIST) بدل استعلام جديد.
+  const results = (LAST_OFFERS_LIST || []).filter(o=>{
+    if (quizAnswers.city && o.city !== quizAnswers.city) return false;
+    if (quizAnswers.type && o.property_type !== quizAnswers.type) return false;
+    const price = o.price_final ?? o.price_original;
+    if (quizAnswers.maxPrice && price && price > quizAnswers.maxPrice) return false;
+    if (quizAnswers.minRooms && o.rooms && o.rooms < quizAnswers.minRooms) return false;
+    return true;
+  }).sort((a,b) => (b.is_pinned - a.is_pinned) || (new Date(b.created_at) - new Date(a.created_at)));
+
+  const grid = document.getElementById('offers-grid');
+  grid.innerHTML = results.length
+    ? results.map(o => offerCardHtml(o)).join('')
+    : `<p style="grid-column:1/-1;text-align:center;color:var(--text-600)">${currentLang==='ar' ? 'ما فيه عروض تطابق اختيارك بالضبط حالياً — جرّب توسيع الميزانية أو النوع.' : 'No exact matches right now — try widening your budget or type.'}</p>`;
+  observeFadeUps();
+
   document.getElementById('quiz-steps').innerHTML = `
-    <p style="margin:0 0 14px">✅ ${currentLang==='ar' ? 'لقينا لك أفضل التطابقات — شوفها بالأسفل.' : "We've found your best matches — see them below."}</p>
+    <p style="margin:0 0 14px">${results.length ? '✅ ' + (currentLang==='ar' ? `لقينا ${results.length} عرض يطابق اختيارك بالضبط — شوفه بالأسفل.` : `Found ${results.length} exact match(es) — see below.`) : ''}</p>
     <button type="button" class="btn btn-ghost" id="btn-quiz-restart">🔄 ${currentLang==='ar' ? 'جرّب من جديد' : 'Try again'}</button>
   `;
   document.getElementById('btn-quiz-restart').addEventListener('click', startQuiz);
