@@ -2584,9 +2584,14 @@ document.addEventListener('click', (e)=>{
   if (PAGES.includes(id)){
     e.preventDefault();
     showPage(id);
+    if (id === 'offers') renderOffers(); // يضمن القائمة الكاملة دائماً، مو نتائج اختبار "دوّر عليه" عالقة من زيارة سابقة
   }
 });
-window.addEventListener('popstate', ()=> showPage(location.hash.slice(1) || 'home'));
+window.addEventListener('popstate', ()=>{
+  const id = location.hash.slice(1) || 'home';
+  showPage(id);
+  if (id === 'offers') renderOffers();
+});
 
 /* ============================================================================
    10) Assistant — rule-based, transparently labeled, no external LLM call.
