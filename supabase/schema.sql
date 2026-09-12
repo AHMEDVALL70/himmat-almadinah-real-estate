@@ -116,6 +116,9 @@ alter table offers add column if not exists ad_license varchar(50);
 alter table offers add column if not exists is_sold boolean not null default false;
 -- تثبيت عرض بالمقدمة دائماً (بكل تبويبات الترتيب وقسم "عقارات مميزة" بالرئيسية)
 alter table offers add column if not exists is_pinned boolean not null default false;
+-- رابط يوتيوب اختياري (جولة/فيديو للعقار) — بديل مجاني عن استضافة فيديو
+-- على تخزيننا (سقف 1 جيجا بالخطة المجانية)، يوتيوب يستضيفه بدون أي تكلفة.
+alter table offers add column if not exists video_url text;
 
 alter table properties add column if not exists description text;
 alter table properties add column if not exists map_url text;
