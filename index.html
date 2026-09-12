@@ -66,7 +66,7 @@
 <script src="lib/supabase.min.js"></script>
 
 
-<link rel="stylesheet" href="css/site.css?v=20260907u">
+<link rel="stylesheet" href="css/site.css?v=20260907v">
 </head>
 <body>
 
@@ -248,6 +248,14 @@
       <p class="eyebrow" data-i18n="offers_eyebrow">فرص لا تفوّت</p>
       <h2 data-i18n="offers_title">عروض وخصومات</h2>
       <p data-i18n="offers_desc">تُقرأ هذه العروض مباشرة من قاعدة البيانات، وتتحدث تلقائياً لكل الزوار عند أي تحديث من فريقنا.</p>
+    </div>
+    <div class="card quiz-card fade-up" id="match-quiz-card" style="padding:22px;margin-bottom:24px">
+      <div id="quiz-intro">
+        <h3 style="margin:0 0 6px">🎯 <span data-i18n="quiz_title">دوّر عليه</span></h3>
+        <p style="color:var(--text-600);font-size:13.5px;margin:0 0 14px" data-i18n="quiz_desc">4 أسئلة سريعة، ونطلع لك أفضل العروض المطابقة لك فعلياً — بدل ما تدوّر يدوياً.</p>
+        <button class="btn btn-primary" id="btn-start-quiz" data-i18n="quiz_start">ابدأ الآن</button>
+      </div>
+      <div id="quiz-steps" style="display:none"></div>
     </div>
     <div class="card" style="padding:18px;margin-bottom:24px">
       <div class="grid grid-4">
@@ -813,7 +821,7 @@
 </div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/site.js?v=20260907bg"></script>
+<script src="js/site.js?v=20260907bh"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>
