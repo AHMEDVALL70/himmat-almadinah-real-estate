@@ -254,7 +254,6 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .compare-btn{position:absolute;top:10px;inset-inline-start:10px;z-index:3;width:34px;height:34px;border-radius:50%;background:rgba(2,6,23,.55);backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900;cursor:pointer;transition:transform .15s ease,background .15s ease}
 .compare-btn:hover{transform:scale(1.08)}
 .compare-btn.active{background:var(--gold-500);color:#020617;border-color:var(--gold-500)}
-.price-per-sqm{display:block;font-size:11.5px;color:var(--text-600);margin-top:2px}
 
 #compare-bar{position:fixed;bottom:0;inset-inline:0;background:var(--navy-900);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:16px;z-index:150;box-shadow:0 -8px 24px rgba(0,0,0,.25);flex-wrap:wrap}
 #compare-bar span{font-weight:700;font-size:14px}

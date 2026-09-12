@@ -865,8 +865,6 @@ function offerCardHtml(o, matchScore){
   const matchBadge = (matchScore !== null && matchScore !== undefined)
     ? `<span class="match-badge" title="${t.match_badge_hint}">🎯 ${matchScore}% ${t.match_badge_label}</span>`
     : '';
-  const pricePerSqm = (cardDisplayPrice && o.area_sqm) ? Math.round(cardDisplayPrice / o.area_sqm) : null;
-  const pricePerSqmHtml = pricePerSqm ? `<span class="price-per-sqm">${money(pricePerSqm)} ${currency}/م²</span>` : '';
   return `<div class="card offer-card fade-up" onclick="openDetailModal('${key}')">
     <button type="button" class="favorite-btn${isFavorite(key) ? ' active' : ''}" id="fav-${key}"
             onclick="event.stopPropagation(); toggleFavorite('${key}')"
@@ -885,7 +883,6 @@ function offerCardHtml(o, matchScore){
       <h4>${typeLabel(o.property_type)} · ${districtLabel(o.district)}</h4>
       <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} ${t.rooms_suffix}</div>
       ${priceHtml}
-      ${pricePerSqmHtml}
       <button type="button" class="offer-details-btn" data-offer-key="${key}">${t.detail_view_btn}</button>
     </div>
   </div>`;
