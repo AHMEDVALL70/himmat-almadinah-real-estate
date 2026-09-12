@@ -1146,10 +1146,10 @@ document.addEventListener('keydown', e=>{
 
 /* استطلاع رضا سريع بعد إغلاق نافذة تفاصيل عرض — مرة وحدة بس كل جلسة تصفّح
    (sessionStorage، يتصفّر لو الزائر رجع بجلسة جديدة)، عشان ما يصير مزعج. */
-const SATISFACTION_ASKED_KEY = 'himmat_satisfaction_asked';
+let satisfactionAskedThisLoad = false; // يتصفّر تلقائياً مع كل تحديث للصفحة (متغيّر بالذاكرة، مو sessionStorage)
 function maybeShowSatisfactionSurvey(){
-  if (sessionStorage.getItem(SATISFACTION_ASKED_KEY)) return;
-  sessionStorage.setItem(SATISFACTION_ASKED_KEY, '1');
+  if (satisfactionAskedThisLoad) return;
+  satisfactionAskedThisLoad = true;
   setTimeout(()=>{
     const box = document.createElement('div');
     box.id = 'satisfaction-toast';
