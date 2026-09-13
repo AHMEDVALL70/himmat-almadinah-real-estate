@@ -964,6 +964,52 @@ function galleryNav(btn, dir){
   container.querySelector('.gallery-counter').textContent = `${index + 1} / ${images.length}`;
   startGalleryAutoRotate(); // إعادة ضبط المؤقّت عند أي تنقّل يدوي، عشان الصورة الجديدة تاخذ وقتها الكامل قبل التبديل التلقائي
 }
+
+/* تكبير الصورة (Lightbox) عند الضغط عليها — يدعم التنقّل لو كانت جزء من
+   معرض متعدد الصور، بنفس بيانات المعرض الأصلي (data-images/data-index). */
+function openImageLightbox(imgEl){
+  const gallery = imgEl.closest('.detail-gallery');
+  const images = gallery ? JSON.parse(gallery.dataset.images) : [imgEl.src];
+  let index = gallery ? parseInt(gallery.dataset.index, 10) || 0 : 0;
+
+  stopGalleryAutoRotate(); // نوقف الدوران التلقائي بالخلفية أثناء فتح التكبير
+
+  const overlay = document.createElement('div');
+  overlay.className = 'lightbox-overlay';
+  overlay.innerHTML = `
+    <button type="button" class="lightbox-close" aria-label="close">✕</button>
+    <img src="${images[index]}" class="lightbox-img" alt="">
+    ${images.length > 1 ? `
+      <button type="button" class="gallery-arrow lightbox-prev" aria-label="prev">‹</button>
+      <button type="button" class="gallery-arrow lightbox-next" aria-label="next">›</button>
+      <span class="gallery-counter lightbox-counter">${index + 1} / ${images.length}</span>
+    ` : ''}
+  `;
+  document.body.appendChild(overlay);
+
+  const closeLightbox = () => {
+    overlay.remove();
+    document.removeEventListener('keydown', keyHandler);
+    if (gallery) startGalleryAutoRotate(); // نرجّع الدوران التلقائي بعد الإغلاق لو كان فيه معرض نشط
+  };
+  const update = () => {
+    overlay.querySelector('.lightbox-img').src = images[index];
+    const counter = overlay.querySelector('.lightbox-counter');
+    if (counter) counter.textContent = `${index + 1} / ${images.length}`;
+    if (gallery) gallery.dataset.index = index; // نبقي معرض الصفحة الأساسي متزامن مع التكبير
+  };
+  const keyHandler = (e) => {
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowRight'){ index = (index + 1) % images.length; update(); }
+    else if (e.key === 'ArrowLeft'){ index = (index - 1 + images.length) % images.length; update(); }
+  };
+
+  overlay.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+  overlay.addEventListener('click', (e)=>{ if (e.target === overlay) closeLightbox(); });
+  overlay.querySelector('.lightbox-prev')?.addEventListener('click', ()=>{ index = (index - 1 + images.length) % images.length; update(); });
+  overlay.querySelector('.lightbox-next')?.addEventListener('click', ()=>{ index = (index + 1) % images.length; update(); });
+  document.addEventListener('keydown', keyHandler);
+}
 /* يفتح صفحة تفاصيل العرض الكاملة (بدل النافذة المنبثقة القديمة) — نفس
    المدخل (مفتاح مسجَّل بـOFFER_REGISTRY)، تصميم شبكي جديد بعرض الصفحة. */
 let currentDetailOfferId = null;
@@ -1025,12 +1071,12 @@ function renderOfferDetailPage(o){
   const galleryImages = (o.image_urls && o.image_urls.length) ? o.image_urls : (o.image_url ? [o.image_url] : []);
   const imageHtml = galleryImages.length > 1
     ? `<div class="detail-gallery" data-images='${JSON.stringify(galleryImages)}' data-index="0">
-         <img src="${galleryImages[0]}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.parentElement.remove()">
+         <img src="${galleryImages[0]}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.parentElement.remove()" onclick="openImageLightbox(this)">
          <button type="button" class="gallery-arrow gallery-prev" onclick="galleryNav(this,-1)" aria-label="prev">‹</button>
          <button type="button" class="gallery-arrow gallery-next" onclick="galleryNav(this,1)" aria-label="next">›</button>
          <span class="gallery-counter">1 / ${galleryImages.length}</span>
        </div>`
-    : (galleryImages.length === 1 ? `<img src="${galleryImages[0]}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.remove()">` : '');
+    : (galleryImages.length === 1 ? `<img src="${galleryImages[0]}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.remove()" onclick="openImageLightbox(this)">` : '');
 
   document.getElementById('offer-detail-content').innerHTML = `
     <div class="offer-detail-header">
