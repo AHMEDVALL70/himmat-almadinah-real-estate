@@ -939,6 +939,21 @@ document.addEventListener('mouseout', (e)=>{
 /* ============================================================================
    Detail modal — full listing info: description, specs, marketer, licenses.
    ========================================================================== */
+let galleryAutoRotateTimer = null;
+function stopGalleryAutoRotate(){
+  if (galleryAutoRotateTimer){ clearInterval(galleryAutoRotateTimer); galleryAutoRotateTimer = null; }
+}
+function startGalleryAutoRotate(){
+  stopGalleryAutoRotate();
+  if (prefersReducedMotion()) return; // إمكانية وصول — نحترم تفضيل تقليل الحركة
+  galleryAutoRotateTimer = setInterval(()=>{
+    const container = document.querySelector('.detail-gallery');
+    if (!container){ stopGalleryAutoRotate(); return; } // الصفحة تغيّرت، ما فيه معرض نشط
+    const nextBtn = container.querySelector('.gallery-next');
+    if (nextBtn) galleryNav(nextBtn, 1);
+  }, 4000);
+}
+
 function galleryNav(btn, dir){
   const container = btn.closest('.detail-gallery');
   if (!container) return;
@@ -947,6 +962,7 @@ function galleryNav(btn, dir){
   container.dataset.index = index;
   container.querySelector('img').src = images[index];
   container.querySelector('.gallery-counter').textContent = `${index + 1} / ${images.length}`;
+  startGalleryAutoRotate(); // إعادة ضبط المؤقّت عند أي تنقّل يدوي، عشان الصورة الجديدة تاخذ وقتها الكامل قبل التبديل التلقائي
 }
 /* يفتح صفحة تفاصيل العرض الكاملة (بدل النافذة المنبثقة القديمة) — نفس
    المدخل (مفتاح مسجَّل بـOFFER_REGISTRY)، تصميم شبكي جديد بعرض الصفحة. */
@@ -1039,6 +1055,7 @@ function renderOfferDetailPage(o){
     ${recentlyViewedHtml(o.id)}
   `;
   renderSimilarOffers(o);
+  if (galleryImages.length > 1) startGalleryAutoRotate();
 }
 
 function openFinancingFor(price){
@@ -1175,6 +1192,7 @@ function closeDetailModal(){
   maybeShowSatisfactionSurvey();
 }
 document.getElementById('offer-detail-back')?.addEventListener('click', ()=>{
+  stopGalleryAutoRotate();
   showPage('offers');
   renderOffers();
   maybeShowSatisfactionSurvey();
