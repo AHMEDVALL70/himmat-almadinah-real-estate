@@ -118,7 +118,7 @@ const I18N = {
     assistant_toggle_text:"اسأل المساعد الذكي",
     social_title:"تابعنا عبر منصات التواصل",
     price_on_request:"السعر عند التواصل", rooms_suffix:"غرف",
-    detail_map:"عرض على الخريطة", detail_whatsapp:"تواصل عبر واتساب",
+    detail_map:"عرض على الخريطة", detail_whatsapp:"تواصل عبر واتساب", offer_detail_back:"رجوع للعروض",
     detail_marketer:"المسوّق", detail_license:"رقم الرخصة العقارية", detail_ad_license:"رقم الترخيص الإعلاني",
     detail_no_desc:"لا يوجد وصف تفصيلي لهذا العقار بعد.", detail_view_btn:"عرض التفاصيل الكاملة ←",
     favorite_toggle_label:"أضف للمفضلة", sold_ribbon_label:"تم البيع",
@@ -227,7 +227,7 @@ const I18N = {
     assistant_toggle_text:"Ask the AI assistant",
     social_title:"Follow us on social media",
     price_on_request:"Price on request", rooms_suffix:"rooms",
-    detail_map:"View on map", detail_whatsapp:"Contact via WhatsApp",
+    detail_map:"View on map", detail_whatsapp:"Contact via WhatsApp", offer_detail_back:"Back to offers",
     detail_marketer:"Marketed by", detail_license:"Real estate license no.", detail_ad_license:"Ad license no.",
     detail_no_desc:"No detailed description available for this property yet.", detail_view_btn:"View Full Details →",
     favorite_toggle_label:"Add to favorites", sold_ribbon_label:"SOLD",
@@ -756,17 +756,17 @@ function isInCompare(key){ return getCompareList().includes(key); }
 
 function toggleCompare(key){
   let list = getCompareList();
-  const btn = document.getElementById('cmp-' + key);
+  const btns = [document.getElementById('cmp-' + key), document.getElementById('cmp-page-' + key)].filter(Boolean);
   if (list.includes(key)){
     list = list.filter(k => k !== key);
-    if (btn) btn.classList.remove('active');
+    btns.forEach(btn => btn.classList.remove('active'));
   } else {
     if (list.length >= COMPARE_MAX){
       showToast(currentLang === 'ar' ? `⚠️ أقصى ${COMPARE_MAX} عروض بالمقارنة` : `⚠️ Max ${COMPARE_MAX} offers to compare`);
       return;
     }
     list.push(key);
-    if (btn) btn.classList.add('active');
+    btns.forEach(btn => btn.classList.add('active'));
     showToast(currentLang === 'ar' ? '⇄ أُضيف للمقارنة' : '⇄ Added to compare');
   }
   try { localStorage.setItem(COMPARE_KEY, JSON.stringify(list)); }
@@ -948,13 +948,22 @@ function galleryNav(btn, dir){
   container.querySelector('img').src = images[index];
   container.querySelector('.gallery-counter').textContent = `${index + 1} / ${images.length}`;
 }
-function openDetailModal(key){
+/* يفتح صفحة تفاصيل العرض الكاملة (بدل النافذة المنبثقة القديمة) — نفس
+   المدخل (مفتاح مسجَّل بـOFFER_REGISTRY)، تصميم شبكي جديد بعرض الصفحة. */
+function showOfferDetail(key){
   const o = OFFER_REGISTRY[key];
   if (!o) return;
-  logOfferView(o.id); // إحصائية خفيفة، لا تنتظر ولا تعطّل فتح النافذة
+  showPage('offer-detail');
+  renderOfferDetailPage(o);
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function renderOfferDetailPage(o){
+  logOfferView(o.id); // إحصائية خفيفة، لا تنتظر ولا تعطّل عرض الصفحة
   trackRecentlyViewed(o);
   const t = I18N[currentLang];
   const currency = currentLang === 'ar' ? 'ر.س' : 'SAR';
+  const key = registerOffer(o);
 
   const modalDisplayPrice = o.price_final ?? o.price_original;
   const modalHasRealDiscount = o.price_original && o.price_final && o.price_original !== o.price_final;
@@ -970,9 +979,7 @@ function openDetailModal(key){
   if (o.property_type) specs.push({ v: typeLabel(o.property_type), l: t.f_type });
   if (o.discount_pct) specs.push({ v: '-' + o.discount_pct + '%', l: currentLang==='ar' ? 'الخصم' : 'Discount' });
 
-  const descHtml = o.description
-    ? escapeHtml(o.description)
-    : t.detail_no_desc;
+  const descHtml = o.description ? escapeHtml(o.description) : t.detail_no_desc;
 
   const metaRows = [];
   if (o.marketer_name) metaRows.push([t.detail_marketer, escapeHtml(o.marketer_name)]);
@@ -986,9 +993,6 @@ function openDetailModal(key){
   const waLink = `https://wa.me/${contactPhone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(o.title + ' — ' + o.city)}`;
   const mapButton = o.map_url ? `<a href="${o.map_url}" target="_blank" rel="noopener" class="btn btn-ghost">📍 ${t.detail_map}</a>` : '';
   const videoEmbedUrl = youtubeEmbedUrl(o.video_url);
-  const videoHtml = videoEmbedUrl
-    ? `<div class="detail-video"><iframe src="${videoEmbedUrl}" title="${currentLang==='ar' ? 'فيديو العقار' : 'Property video'}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
-    : '';
   const galleryImages = (o.image_urls && o.image_urls.length) ? o.image_urls : (o.image_url ? [o.image_url] : []);
   const imageHtml = galleryImages.length > 1
     ? `<div class="detail-gallery" data-images='${JSON.stringify(galleryImages)}' data-index="0">
@@ -999,28 +1003,83 @@ function openDetailModal(key){
        </div>`
     : (galleryImages.length === 1 ? `<img src="${galleryImages[0]}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.remove()">` : '');
 
-  document.getElementById('detail-content').innerHTML = `
-    ${imageHtml}
-    <div class="detail-header">
-      <b>${escapeHtml(o.title)}</b>
-      ${o.discount_pct ? `<span class="discount">-${o.discount_pct}%</span>` : ''}
+  // سعر المتر مقارنة بمتوسط الحي — بيانات حقيقية بس (DISTRICT_PRICES)، صفر
+  // اختلاق. لو ما فيه سعر متوسط موثّق لهذا الحي، القسم كامل ما يظهر.
+  const districtAvg = realDistrictPrice(o.city, o.district);
+  const propertyPerSqm = (o.area_sqm && modalDisplayPrice) ? Math.round(modalDisplayPrice / o.area_sqm) : null;
+  let priceCompareHtml = '';
+  if (districtAvg && propertyPerSqm){
+    const maxVal = Math.max(propertyPerSqm, districtAvg);
+    priceCompareHtml = `
+    <div class="offer-detail-card">
+      <p class="offer-detail-card-title">${currentLang==='ar' ? 'سعر المتر مقارنة بمتوسط الحي' : 'Price/sqm vs district average'}</p>
+      <div class="price-bar-row">
+        <div class="price-bar-label"><span>${currentLang==='ar' ? 'هذا العقار' : 'This property'}</span></div>
+        <div class="price-bar-track"><div class="price-bar-fill" style="width:${Math.round(propertyPerSqm/maxVal*100)}%"></div></div>
+        <div class="price-bar-value">${money(propertyPerSqm)} <small>ر.س/م²</small></div>
+      </div>
+      <div class="price-bar-row">
+        <div class="price-bar-label"><span>${currentLang==='ar' ? 'متوسط الحي' : 'District average'}</span></div>
+        <div class="price-bar-track"><div class="price-bar-fill" style="width:${Math.round(districtAvg/maxVal*100)}%;opacity:.5"></div></div>
+        <div class="price-bar-value">${money(Math.round(districtAvg))} <small>ر.س/م²</small></div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('offer-detail-content').innerHTML = `
+    <div class="offer-detail-header">
+      <div>
+        <b>${escapeHtml(o.title)}</b>
+        <p class="detail-loc">${districtLabel(o.district)} · ${cityLabel(o.city)}</p>
+      </div>
+      <p class="detail-price">${priceHtml}</p>
     </div>
-    <p class="detail-loc">${districtLabel(o.district)} · ${cityLabel(o.city)}</p>
-    <p class="detail-price">${priceHtml}</p>
+    <div class="offer-detail-media-row">
+      ${imageHtml}
+      ${videoEmbedUrl ? `<div class="detail-video"><iframe src="${videoEmbedUrl}" title="${currentLang==='ar' ? 'فيديو العقار' : 'Property video'}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>` : ''}
+    </div>
     <div class="detail-specs">${specs.map(s=>`<div class="detail-spec"><b>${s.v}</b><span>${s.l}</span></div>`).join('')}</div>
     <div class="detail-desc">${descHtml}</div>
-    ${videoHtml}
     ${metaHtml}
     <div class="detail-actions">
       <a href="${waLink}" target="_blank" rel="noopener" class="btn btn-primary">${t.detail_whatsapp}</a>
       ${mapButton}
       <button type="button" class="btn btn-ghost" onclick="shareOffer('${o.id}','${escapeHtml(o.title).replace(/'/g,"\\'")}')">📤 ${currentLang==='ar' ? 'مشاركة عبر واتساب' : 'Share via WhatsApp'}</button>
+      <button type="button" class="btn btn-ghost compare-btn-inline${isInCompare(key) ? ' active' : ''}" id="cmp-page-${key}" onclick="toggleCompare('${key}')">⇄ ${currentLang==='ar' ? 'أضف للمقارنة' : 'Add to compare'}</button>
     </div>
+
+    <div class="offer-detail-grid">
+      <div class="offer-detail-card offer-detail-card-accent">
+        <p class="offer-detail-card-title">🧮 ${currentLang==='ar' ? 'احسب تكلفة التمويل الكاملة' : 'Calculate full financing cost'}</p>
+        <p class="offer-detail-card-desc">${currentLang==='ar' ? 'شوف الضريبة والعمولة والصافي التقريبي لهذا العقار مباشرة.' : 'See the tax, commission, and approximate net for this property directly.'}</p>
+        <button type="button" class="btn btn-primary" onclick="openFinancingFor(${modalDisplayPrice || 0})">${currentLang==='ar' ? 'افتح حاسبة التمويل ↗' : 'Open financing calculator ↗'}</button>
+      </div>
+      ${priceCompareHtml}
+    </div>
+
+    <div class="offer-detail-trust">
+      🛡️ ${currentLang==='ar' ? 'مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428 — سجل تجاري: 7042103650' : 'Licensed by the General Real Estate Authority — FAL license: 1200030428 — CR: 7042103650'}
+    </div>
+
     <div id="similar-offers-section"></div>
     ${recentlyViewedHtml(o.id)}
   `;
-  document.getElementById('detail-modal').classList.add('open');
   renderSimilarOffers(o);
+}
+
+function openFinancingFor(price){
+  showPage('valuation');
+  const priceInput = document.getElementById('fin-price');
+  if (priceInput && price) {
+    priceInput.value = price;
+    priceInput.dispatchEvent(new Event('input'));
+  }
+  priceInput?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+}
+
+/* دالة قديمة أُبقيت للتوافق مع أي استدعاء متبقٍ — تحوّل مباشرة للصفحة الجديدة. */
+function openDetailModal(key){
+  showOfferDetail(key);
 }
 
 /* مشاركة رابط مباشر لعرض معيّن — يفتح تفاصيل نفس العرض تلقائياً عند فتحه
@@ -1141,6 +1200,11 @@ function closeDetailModal(){
   document.getElementById('detail-modal').classList.remove('open');
   maybeShowSatisfactionSurvey();
 }
+document.getElementById('offer-detail-back')?.addEventListener('click', ()=>{
+  showPage('offers');
+  renderOffers();
+  maybeShowSatisfactionSurvey();
+});
 document.getElementById('detail-close').addEventListener('click', closeDetailModal);
 document.getElementById('detail-modal').addEventListener('click', e=>{
   if (e.target.id === 'detail-modal') closeDetailModal();
@@ -2391,7 +2455,7 @@ document.getElementById('btn-send-contact').addEventListener('click', async ()=>
       every other section and shows only the target, scrolls to top, and
       keeps the URL hash + active nav link in sync with browser back/forward.
    ========================================================================== */
-const PAGES = ['home','offers','services','valuation','add-property','analytics','contracts','faq','about','contact','privacy','terms'];
+const PAGES = ['home','offers','offer-detail','services','valuation','add-property','analytics','contracts','faq','about','contact','privacy','terms'];
 
 function prefersReducedMotion(){
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

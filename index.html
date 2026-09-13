@@ -66,7 +66,7 @@
 <script src="lib/supabase.min.js"></script>
 
 
-<link rel="stylesheet" href="css/site.css?v=20260907aa">
+<link rel="stylesheet" href="css/site.css?v=20260907ab">
 </head>
 <body>
 
@@ -277,6 +277,16 @@
       <button type="button" class="offer-sort-tab" data-sort="price_asc" onclick="applySortTab('price_asc')" data-i18n="sort_affordable">الأقل سعراً</button>
     </div>
     <div id="offers-grid" class="grid grid-3"></div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     Offer Detail — full page (replaces the old popup modal), grid layout
+     ========================================================================== -->
+<section id="offer-detail" style="display:none">
+  <div class="container" style="padding-top:24px;max-width:900px">
+    <button type="button" class="btn btn-ghost" id="offer-detail-back" style="margin-bottom:18px">→ <span data-i18n="offer_detail_back">رجوع للعروض</span></button>
+    <div id="offer-detail-content"></div>
   </div>
 </section>
 
@@ -821,7 +831,7 @@
 </div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/site.js?v=20260907bu"></script>
+<script src="js/site.js?v=20260907bv"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>
