@@ -1003,29 +1003,6 @@ function renderOfferDetailPage(o){
        </div>`
     : (galleryImages.length === 1 ? `<img src="${galleryImages[0]}" alt="${escapeHtml(o.title)}" class="detail-img" onerror="this.remove()">` : '');
 
-  // سعر المتر مقارنة بمتوسط الحي — بيانات حقيقية بس (DISTRICT_PRICES)، صفر
-  // اختلاق. لو ما فيه سعر متوسط موثّق لهذا الحي، القسم كامل ما يظهر.
-  const districtAvg = realDistrictPrice(o.city, o.district);
-  const propertyPerSqm = (o.area_sqm && modalDisplayPrice) ? Math.round(modalDisplayPrice / o.area_sqm) : null;
-  let priceCompareHtml = '';
-  if (districtAvg && propertyPerSqm){
-    const maxVal = Math.max(propertyPerSqm, districtAvg);
-    priceCompareHtml = `
-    <div class="offer-detail-card">
-      <p class="offer-detail-card-title">${currentLang==='ar' ? 'سعر المتر مقارنة بمتوسط الحي' : 'Price/sqm vs district average'}</p>
-      <div class="price-bar-row">
-        <div class="price-bar-label"><span>${currentLang==='ar' ? 'هذا العقار' : 'This property'}</span></div>
-        <div class="price-bar-track"><div class="price-bar-fill" style="width:${Math.round(propertyPerSqm/maxVal*100)}%"></div></div>
-        <div class="price-bar-value">${money(propertyPerSqm)} <small>ر.س/م²</small></div>
-      </div>
-      <div class="price-bar-row">
-        <div class="price-bar-label"><span>${currentLang==='ar' ? 'متوسط الحي' : 'District average'}</span></div>
-        <div class="price-bar-track"><div class="price-bar-fill" style="width:${Math.round(districtAvg/maxVal*100)}%;opacity:.5"></div></div>
-        <div class="price-bar-value">${money(Math.round(districtAvg))} <small>ر.س/م²</small></div>
-      </div>
-    </div>`;
-  }
-
   document.getElementById('offer-detail-content').innerHTML = `
     <div class="offer-detail-header">
       <div>
@@ -1034,10 +1011,7 @@ function renderOfferDetailPage(o){
       </div>
       <p class="detail-price">${priceHtml}</p>
     </div>
-    <div class="offer-detail-media-row">
-      ${imageHtml}
-      ${videoEmbedUrl ? `<div class="detail-video"><iframe src="${videoEmbedUrl}" title="${currentLang==='ar' ? 'فيديو العقار' : 'Property video'}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>` : ''}
-    </div>
+    ${imageHtml}
     <div class="detail-specs">${specs.map(s=>`<div class="detail-spec"><b>${s.v}</b><span>${s.l}</span></div>`).join('')}</div>
     <div class="detail-desc">${descHtml}</div>
     ${metaHtml}
@@ -1054,7 +1028,7 @@ function renderOfferDetailPage(o){
         <p class="offer-detail-card-desc">${currentLang==='ar' ? 'شوف الضريبة والعمولة والصافي التقريبي لهذا العقار مباشرة.' : 'See the tax, commission, and approximate net for this property directly.'}</p>
         <button type="button" class="btn btn-primary" onclick="openFinancingFor(${modalDisplayPrice || 0})">${currentLang==='ar' ? 'افتح حاسبة التمويل ↗' : 'Open financing calculator ↗'}</button>
       </div>
-      ${priceCompareHtml}
+      ${videoEmbedUrl ? `<div class="offer-detail-card" style="padding:0;overflow:hidden"><div class="detail-video" style="margin-bottom:0"><iframe src="${videoEmbedUrl}" title="${currentLang==='ar' ? 'فيديو العقار' : 'Property video'}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div></div>` : ''}
     </div>
 
     <div class="offer-detail-trust">
