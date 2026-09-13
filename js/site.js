@@ -966,12 +966,25 @@ function galleryNav(btn, dir){
 }
 /* يفتح صفحة تفاصيل العرض الكاملة (بدل النافذة المنبثقة القديمة) — نفس
    المدخل (مفتاح مسجَّل بـOFFER_REGISTRY)، تصميم شبكي جديد بعرض الصفحة. */
-function showOfferDetail(key){
-  const o = OFFER_REGISTRY[key];
-  if (!o) return;
+let currentDetailOfferId = null;
+async function showOfferDetail(key){
+  const cached = OFFER_REGISTRY[key];
+  if (!cached) return;
+  currentDetailOfferId = cached.id || key;
   showPage('offer-detail');
-  renderOfferDetailPage(o);
   window.scrollTo({ top: 0, behavior: 'auto' });
+  renderOfferDetailPage(cached); // عرض فوري بالبيانات المتوفرة (سريع الاستجابة)، ثم تحديثها بأحدث نسخة فعلية
+  if (dbReady && cached.id){
+    try {
+      const { data } = await withTimeout(supa.from('offers').select('*').eq('id', cached.id).eq('is_published', true).maybeSingle());
+      if (data && currentDetailOfferId === data.id){ // الزائر لسا بنفس صفحة هذا العرض (ما تنقّل لعرض ثاني أثناء الجلب)
+        OFFER_REGISTRY[key] = data;
+        renderOfferDetailPage(data);
+      }
+    } catch (e) {
+      console.error('showOfferDetail: fresh fetch failed, kept cached data.', e);
+    }
+  }
 }
 
 function renderOfferDetailPage(o){
