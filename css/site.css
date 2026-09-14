@@ -89,7 +89,7 @@ section{padding:44px 0 60px}
 .promises-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px 40px}
 .promise-item{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;white-space:nowrap}
 .promise-icon{display:inline-flex;color:var(--gold-500)}
-.promise-icon svg{width:18px;height:18px;stroke-width:2.75}
+.promise-icon svg{width:18px;height:18px}
 @media(max-width:680px){.promises-grid{gap:14px 22px;justify-content:flex-start}.promise-item{white-space:normal}}
 .about-card:hover .about-icon{transform:scale(1.12) rotate(-4deg)}
 
