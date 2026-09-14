@@ -1821,6 +1821,27 @@ async function loadDistrictPricesFromDb(){
   }
 }
 
+/* ===== تحديث 2026-09-14 =====
+   CITY_PRICE_PER_SQM كانت أرقاماً ثابتة مكتوبة يدوياً بالكود من أول يوم
+   (بذرة أولية، "المدينة المنورة":4200 مثلاً)، بدون أي آلية تربطها بأسعار
+   الأحياء الحقيقية اللي update-district-prices يجمعها أسبوعياً — فضلت
+   ثابتة رغم توفّر بيانات حقيقية لأكثر من 200 حي. هذي الدالة تحسب وسيط
+   (Median، نفس منهج رغدان نفسها لتفادي تأثير القيم الشاذة) من كل أسعار
+   أحياء المدينة المحمَّلة فعلياً بالذاكرة (DISTRICT_PRICES)، وتستبدل بيها
+   الرقم الثابت — تُستدعى بعد اكتمال تحميل كل من المدن والأحياء بالإقلاع. */
+function recomputeCityAveragePrices(){
+  Object.keys(DISTRICT_PRICES).forEach(cityName=>{
+    const prices = Object.values(DISTRICT_PRICES[cityName] || {})
+      .map(Number)
+      .filter(p => Number.isFinite(p) && p > 0)
+      .sort((a,b) => a - b);
+    if (prices.length < 3) return; // عيّنة صغيرة جداً ما تستاهل استبدال البذرة
+    const mid = Math.floor(prices.length / 2);
+    const median = prices.length % 2 ? prices[mid] : (prices[mid - 1] + prices[mid]) / 2;
+    CITY_PRICE_PER_SQM[cityName] = Math.round(median);
+  });
+}
+
 function populateCitySelects(){
   document.querySelectorAll('select.city-select').forEach(sel=>{
     const prev = sel.value;
@@ -3308,6 +3329,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     safely('loadCitiesFromDb', loadCitiesFromDb),
     safely('loadDistrictPricesFromDb', loadDistrictPricesFromDb),
   ]);
+  recomputeCityAveragePrices();
   populateCitySelects();
   populateTypeSelects();
   updateValuationFieldsForType();
