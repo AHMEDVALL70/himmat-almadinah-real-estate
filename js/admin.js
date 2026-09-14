@@ -789,7 +789,7 @@ async function loadJobStatus(){
       if (!run) return `<div>⚪ ${label} — لا يوجد تشغيل مسجَّل بعد</div>`;
       const icon = run.status === 'success' ? '✅' : (run.status === 'partial' ? '⚠️' : '❌');
       const when = new Date(run.finished_at).toLocaleString('ar-SA');
-      const extra = run.summary?.updated != null ? ` (${run.summary.updated}/${run.summary.total} نجح)` : '';
+      const extra = run.summary?.updated != null ? ` (${run.summary.updated} نجح، ${run.summary.failed ?? 0} فشل، من ${run.summary.total})` : '';
       return `<div>${icon} ${label} — آخر تشغيل: ${when}${extra}</div>`;
     }).join('');
   } catch (e) {
