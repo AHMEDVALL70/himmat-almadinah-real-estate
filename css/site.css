@@ -179,7 +179,9 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 /* Hero */
 .hero{
   background:
+    linear-gradient(180deg, rgba(2,6,23,.55) 0%, rgba(2,6,23,.72) 55%, rgba(2,6,23,.88) 100%),
     radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.14) 0%, transparent 55%),
+    url('https://images.pexels.com/photos/4321694/pexels-photo-4321694.jpeg?auto=compress&cs=tinysrgb&h=1200&w=1920') center/cover no-repeat,
     #020617;
   color:#fff;padding:60px 0 60px;position:relative;overflow:hidden
 }
@@ -215,13 +217,15 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
    بصري بين الوضعين، بس ألوان النص تتبدّل عشان تبقى مقروءة على خلفية فاتحة. */
 [data-theme="light"] .hero{
   background:
+    linear-gradient(180deg, rgba(2,6,23,.55) 0%, rgba(2,6,23,.72) 55%, rgba(2,6,23,.88) 100%),
     radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.16) 0%, transparent 55%),
-    #fbf6ec;
-  color:#241d0f;
+    url('https://images.pexels.com/photos/4321694/pexels-photo-4321694.jpeg?auto=compress&cs=tinysrgb&h=1200&w=1920') center/cover no-repeat,
+    #020617;
+  color:#fff;
 }
-[data-theme="light"] .hero p.desc{color:#5c5540}
-[data-theme="light"] .hero .stat span{color:#6b6350}
-[data-theme="light"] .license-badge{background:rgba(192,161,107,.12);border-color:rgba(192,161,107,.4);color:#5c5028}
+[data-theme="light"] .hero p.desc{color:#c7cedb}
+[data-theme="light"] .hero .stat span{color:#94a3b8}
+[data-theme="light"] .hero .license-badge{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#dde2ea}
 [data-theme="light"] .hero-image-card{box-shadow:0 24px 60px rgba(36,29,15,.18);border-color:rgba(192,161,107,.4)}
 
 /* حركة طفو خفيفة مستمرة لعمود النص — تحسّ الصفحة حيّة بدون ما تشتت القراءة */
