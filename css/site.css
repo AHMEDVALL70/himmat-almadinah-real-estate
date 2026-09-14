@@ -181,7 +181,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
   background:
     radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.14) 0%, transparent 55%),
     #020617;
-  color:#fff;padding:36px 0 60px;position:relative;overflow:hidden
+  color:#fff;padding:60px 0 60px;position:relative;overflow:hidden
 }
 .hero .container{position:relative;z-index:2}
 .hero-grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:36px}
