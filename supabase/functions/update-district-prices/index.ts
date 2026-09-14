@@ -126,6 +126,40 @@ async function fetchDistrictPrice(citySlug: string, districtName: string) {
   return { ok: false as const, reason: "unreachable", url };
 }
 
+// ===== تحديث 2026-09-14: جلب متوسط المدينة الرسمي من رغدان =====
+// اكتُشف اليوم إن عمود cities.price_per_sqm (يُستخدم كـ"سعر احتياطي" بحاسبة
+// المؤشر لأي حي بدون سعر خاص موثَّق) كان رقماً ثابتاً مزروعاً يدوياً من أول
+// يوم (4200 للمدينة المنورة مثلاً)، بدون أي آلية تُحدّثه — وصل الفارق عن رقم
+// رغدان الحقيقي لـ141% بمكة المكرمة. جرّبنا حساب وسيط من عيّنة أحيائنا عندنا
+// كبديل، لكن تبيّن غلط منهجياً (وسيط عيّنة جزئية ≠ وسيط مجتمع رغدان الكامل
+// بآلاف الأحياء). الحل الصح: رغدان نفسها تنشر صفحة تجميعية لكل مدينة كاملة
+// (بدون اسم حي) فيها جملة ثابتة وموثوقة: "وسيط سعر المتر المربع في {مدينة}
+// حوالي {رقم} ريال سعودي" — نجيب هذا الرقم مباشرة، فيطابق رغدان تماماً
+// (تحقّقنا من 3 مدن صغيرة مستقلة قبل الاعتماد على النمط: رفحاء، تربة، قلوة).
+async function fetchCityAveragePrice(citySlug: string) {
+  const url = `https://raghdan.sa/ar/market/${encodeURIComponent(citySlug)}/`;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; HimmatAlmadinahBot/1.0)" },
+      });
+      if (!res.ok) return { ok: false as const, reason: `HTTP ${res.status}` };
+      const html = await res.text();
+      const text = normalizeDigits(stripTags(html));
+      const num = "[\\d]{1,3}(?:[,٬][\\d]{3})*|[\\d]+";
+      const m = text.match(new RegExp(`وسيط\\s+سعر\\s+المتر\\s+المربع\\s+في[\\s\\S]{0,60}?حوالي\\s+(${num})\\s*ريال`));
+      if (!m) return { ok: false as const, reason: "لم يُعثر على نمط متوسط المدينة بالصفحة" };
+      const price = parseInt(m[1].replace(/[,٬]/g, ""), 10);
+      if (!Number.isFinite(price) || price <= 0) return { ok: false as const, reason: "رقم غير صالح" };
+      return { ok: true as const, price };
+    } catch (e) {
+      if (attempt === 2) return { ok: false as const, reason: String(e) };
+      await new Promise((r) => setTimeout(r, 400));
+    }
+  }
+  return { ok: false as const, reason: "unreachable" };
+}
+
 /** تشغيل الطلبات على دفعات متوازية محدودة — 255 حي متسلسل قد يتجاوز حد وقت
  *  تنفيذ الدالة، فنشغّل عدة طلبات بنفس اللحظة بدل واحد تلو الآخر.
  *  ===== تحديث 2026-09-14: قلّلنا من 10 لـ5 بالتزامن — أخطاء اتصال حقيقية
@@ -230,17 +264,54 @@ Deno.serve(async () => {
 
   const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
   console.log(
-    `[update-district-prices] انتهى خلال ${seconds}ث — نجح: ${summary.updated} — فشل: ${summary.failed} — تجاوز (يدوي): ${summary.skippedManual} من أصل ${allTargets.length}`
+    `[update-district-prices] انتهى تحديث الأحياء خلال ${seconds}ث — نجح: ${summary.updated} — فشل: ${summary.failed} — تجاوز (يدوي): ${summary.skippedManual} من أصل ${allTargets.length}`
   );
+
+  // ===== تحديث 2026-09-14: تحديث متوسط كل مدينة من رقم رغدان الرسمي =====
+  // خطوة منفصلة وخفيفة (عدد المدن صغير جداً مقارنة بعدد الأحياء)، تُنفَّذ
+  // دايماً حتى لو فشلت أحياء كثيرة أعلاه — الاثنين مستقلان تماماً.
+  const cityStats = { updated: 0, failed: 0, failures: [] as { city: string; reason: string }[] };
+  const { data: cities } = await supabase.from("cities").select("id, name, raghdan_slug");
+  for (const c of cities ?? []) {
+    const slug = (c as any).raghdan_slug || (c as any).name;
+    const result = await fetchCityAveragePrice(slug);
+    if (!result.ok) {
+      cityStats.failed++;
+      cityStats.failures.push({ city: (c as any).name, reason: result.reason });
+      console.warn(`[update-district-prices] فشل جلب متوسط المدينة: ${(c as any).name} — ${result.reason}`);
+      continue;
+    }
+    const { error: cityUpdateError } = await supabase
+      .from("cities")
+      .update({ price_per_sqm: result.price })
+      .eq("id", (c as any).id);
+    if (cityUpdateError) {
+      cityStats.failed++;
+      cityStats.failures.push({ city: (c as any).name, reason: `DB: ${cityUpdateError.message}` });
+    } else {
+      cityStats.updated++;
+    }
+  }
+  console.log(
+    `[update-district-prices] تحديث متوسطات المدن: نجح ${cityStats.updated} — فشل ${cityStats.failed}`
+  );
+
+  const totalSeconds = ((Date.now() - startedAt) / 1000).toFixed(1);
 
   await supabase.from("job_runs").insert({
     job_name: "update-district-prices",
     status: summary.failed === 0 ? "success" : (summary.updated > 0 ? "partial" : "failed"),
-    summary: { total: targets.length, updated: summary.updated, failed: summary.failed, skippedManual: summary.skippedManual, seconds },
+    summary: {
+      total: targets.length, updated: summary.updated, failed: summary.failed, skippedManual: summary.skippedManual,
+      citiesUpdated: cityStats.updated, citiesFailed: cityStats.failed, seconds: totalSeconds,
+    },
     started_at: new Date(startedAt).toISOString(),
   });
 
-  return new Response(JSON.stringify({ status: "ok", seconds, total: targets.length, ...summary }), {
+  return new Response(JSON.stringify({
+    status: "ok", seconds: totalSeconds, total: targets.length, ...summary,
+    citiesUpdated: cityStats.updated, citiesFailed: cityStats.failed, cityFailures: cityStats.failures,
+  }), {
     headers: { "Content-Type": "application/json" },
   });
 });
