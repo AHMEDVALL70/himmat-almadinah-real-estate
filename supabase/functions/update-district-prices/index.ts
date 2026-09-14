@@ -114,7 +114,25 @@ async function fetchDistrictPrice(citySlug: string, districtName: string) {
       if (!res.ok) return { ok: false as const, reason: `HTTP ${res.status}`, url };
       const html = await res.text();
       const parsed = parsePriceAndCount(html);
-      if (!parsed) return { ok: false as const, reason: "لم يُعثر على نمط السعر بالصفحة", url };
+      if (!parsed) {
+        // ===== تشخيص مؤقت 2026-09-14 — يُزال بعد ما نحسم السبب =====
+        // نفس الأسلوب اللي حسم مشكلة متوسط المدينة المنورة بدليل فعلي —
+        // نسجّل طول النص المستقبَل فعلياً، وهل الكلمات المفتاحية موجودة
+        // إطلاقاً، وعيّنة نصية حقيقية من حوالين "سعر المتر" الأولى.
+        const text = normalizeDigits(stripTags(html));
+        const hasSaarAlmitr = text.includes("سعر المتر");
+        const hasWaseet = text.includes("وسيط");
+        const anchorIndex = text.indexOf("سعر المتر");
+        const sample = anchorIndex >= 0
+          ? text.slice(anchorIndex, anchorIndex + 200)
+          : text.slice(0, 300);
+        console.warn(
+          `[update-district-prices][تشخيص] ${citySlug}/${districtName} — ` +
+          `طول النص=${text.length}، يحتوي "سعر المتر"=${hasSaarAlmitr}، يحتوي "وسيط"=${hasWaseet}، ` +
+          `عيّنة: ${sample}`
+        );
+        return { ok: false as const, reason: "لم يُعثر على نمط السعر بالصفحة", url };
+      }
       return { ok: true as const, ...parsed, url };
     } catch (e) {
       if (attempt === 2) return { ok: false as const, reason: String(e), url };
