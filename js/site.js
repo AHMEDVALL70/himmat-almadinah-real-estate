@@ -1115,7 +1115,7 @@ function renderOfferDetailPage(o){
     </div>
 
     <div class="offer-detail-trust">
-      🛡️ ${currentLang==='ar' ? 'مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428 — سجل تجاري: 7042103650' : 'Licensed by the General Real Estate Authority — FAL license: 1200030428 — CR: 7042103650'}
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> ${currentLang==='ar' ? 'مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428 — سجل تجاري: 7042103650' : 'Licensed by the General Real Estate Authority — FAL license: 1200030428 — CR: 7042103650'}
     </div>
 
     <div id="similar-offers-section"></div>
@@ -1596,7 +1596,7 @@ function finishQuiz(){
     <p style="margin:0 0 14px">${resultsMsg}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:${showNotifyMe ? '14px' : '0'}">
       <button type="button" class="btn btn-ghost" id="btn-quiz-restart">🔄 ${currentLang==='ar' ? 'جرّب من جديد' : 'Try again'}</button>
-      <button type="button" class="btn btn-ghost" id="btn-quiz-home">🏠 ${currentLang==='ar' ? 'الرئيسية' : 'Home'}</button>
+      <button type="button" class="btn btn-ghost" id="btn-quiz-home"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg> ${currentLang==='ar' ? 'الرئيسية' : 'Home'}</button>
       ${showNotifyMe ? `<button type="button" class="btn btn-primary" id="btn-notify-me">🔔 ${currentLang==='ar' ? 'نبّهني لو طلع تطابق' : 'Notify me on a match'}</button>` : ''}
     </div>
     <div id="notify-me-form"></div>
