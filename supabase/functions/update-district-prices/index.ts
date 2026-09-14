@@ -102,7 +102,19 @@ function parsePriceAndCount(rawHtml: string): ParsedPrice | null {
   return null;
 }
 
-async function fetchDistrictPrice(citySlug: string, districtName: string) {
+/** تكشف تحديداً هل الصفحة رجعت "ملخّص المدينة" بدل صفحة الحي المطلوب — بعض
+ *  الأحياء عندنا مو مسجَّلة عند رغدان كوحدة مستقلة، فيرجّع لك السيرفر صفحة
+ *  المدينة العامة (كود 200 ناجح، مو 404) بهدوء. تأكدنا من هذا فعلياً
+ *  بتاريخ 2026-09-14 بحي "العنابس" (المدينة المنورة) و"الملك عبدالله"
+ *  (الرياض) — النص المستقبَل كان "سعر المتر المربع في المدينة المنورة/
+ *  الرياض حوالي..." (نص المدينة كاملة)، مو نص خاص بالحي المطلوب. */
+function isRedirectedToCityPage(text: string, cityName: string): boolean {
+  const num = "[\\d]{1,3}(?:[,٬][\\d]{3})*|[\\d]+";
+  const cityPattern = new RegExp(`سعر\\s+المتر\\s+المربع\\s+في\\s+${cityName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+حوالي\\s+(${num})\\s*ريال`);
+  return cityPattern.test(text);
+}
+
+async function fetchDistrictPrice(citySlug: string, districtName: string, cityName: string) {
   const url = `https://raghdan.sa/ar/market/${encodeURIComponent(citySlug)}/${encodeURIComponent(districtName)}/`;
   // محاولتان بس (مو أكثر): الأولى، وإعادة واحدة لو صار خطأ اتصال حقيقي (مو
   // "نمط غير موجود" — تلك ما تتغيّر بإعادة المحاولة إطلاقاً، فلا داعي لتكرارها).
@@ -115,11 +127,14 @@ async function fetchDistrictPrice(citySlug: string, districtName: string) {
       const html = await res.text();
       const parsed = parsePriceAndCount(html);
       if (!parsed) {
+        const text = normalizeDigits(stripTags(html));
+        if (isRedirectedToCityPage(text, cityName)) {
+          return { ok: false as const, reason: "الحي غير مسجَّل عند رغدان كوحدة مستقلة (الصفحة ترجع لملخّص المدينة)", url };
+        }
         // ===== تشخيص مؤقت 2026-09-14 — يُزال بعد ما نحسم السبب =====
         // نفس الأسلوب اللي حسم مشكلة متوسط المدينة المنورة بدليل فعلي —
         // نسجّل طول النص المستقبَل فعلياً، وهل الكلمات المفتاحية موجودة
         // إطلاقاً، وعيّنة نصية حقيقية من حوالين "سعر المتر" الأولى.
-        const text = normalizeDigits(stripTags(html));
         const hasSaarAlmitr = text.includes("سعر المتر");
         const hasWaseet = text.includes("وسيط");
         const anchorIndex = text.indexOf("سعر المتر");
@@ -302,7 +317,7 @@ async function handleRequest(startedAt: number) {
   console.log(`[update-district-prices] بدء التحديث لـ ${targets.length} حي...`);
 
   await runBatched(targets, 5, async (d: DistrictTarget) => {
-    const result = await fetchDistrictPrice(d.citySlug, d.name);
+    const result = await fetchDistrictPrice(d.citySlug, d.name, d.cityName);
 
     if (!result.ok) {
       summary.failed++;
