@@ -185,7 +185,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 }
 .hero::before{
   content:'';position:absolute;inset:-12px;z-index:0;
-  background:url('../Hero.png') center/cover no-repeat;
+  background:url('https://images.pexels.com/photos/4321694/pexels-photo-4321694.jpeg?auto=compress&cs=tinysrgb&h=1200&w=1920') center/cover no-repeat;
   filter:blur(4px);transform:scale(1.03)
 }
 .hero::after{
