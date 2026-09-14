@@ -136,28 +136,41 @@ async function fetchDistrictPrice(citySlug: string, districtName: string) {
 // (بدون اسم حي) فيها جملة ثابتة وموثوقة: "وسيط سعر المتر المربع في {مدينة}
 // حوالي {رقم} ريال سعودي" — نجيب هذا الرقم مباشرة، فيطابق رغدان تماماً
 // (تحقّقنا من 3 مدن صغيرة مستقلة قبل الاعتماد على النمط: رفحاء، تربة، قلوة).
+//
+// إعادة محاولة حتى لو "النمط غير موجود" (خلاف fetchDistrictPrice): صفحة
+// المدينة المنورة فشلت أول تشغيلة فعلية بنفس هالسبب، لكن فحصنا الصفحة يدوياً
+// فوراً بعدها ولقينا النمط موجوداً بالضبط ("...حوالي ١٬٦٦٢ ريال سعودي") —
+// يعني الفشل كان عرضياً (الصفحة كبيرة جداً: 1508 حي/101 صفحة، وقت تحميلها
+// أطول من باقي المدن)، مو خلل بالنمط نفسه — فإعادة محاولة هنا منطقية.
 async function fetchCityAveragePrice(citySlug: string) {
   const url = `https://raghdan.sa/ar/market/${encodeURIComponent(citySlug)}/`;
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  const num = "[\\d]{1,3}(?:[,٬][\\d]{3})*|[\\d]+";
+  let lastReason = "unreachable";
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const res = await fetch(url, {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; HimmatAlmadinahBot/1.0)" },
       });
-      if (!res.ok) return { ok: false as const, reason: `HTTP ${res.status}` };
-      const html = await res.text();
-      const text = normalizeDigits(stripTags(html));
-      const num = "[\\d]{1,3}(?:[,٬][\\d]{3})*|[\\d]+";
-      const m = text.match(new RegExp(`وسيط\\s+سعر\\s+المتر\\s+المربع\\s+في[\\s\\S]{0,60}?حوالي\\s+(${num})\\s*ريال`));
-      if (!m) return { ok: false as const, reason: "لم يُعثر على نمط متوسط المدينة بالصفحة" };
-      const price = parseInt(m[1].replace(/[,٬]/g, ""), 10);
-      if (!Number.isFinite(price) || price <= 0) return { ok: false as const, reason: "رقم غير صالح" };
-      return { ok: true as const, price };
+      if (!res.ok) {
+        lastReason = `HTTP ${res.status}`;
+      } else {
+        const html = await res.text();
+        const text = normalizeDigits(stripTags(html));
+        const m = text.match(new RegExp(`وسيط\\s+سعر\\s+المتر\\s+المربع\\s+في[\\s\\S]{0,60}?حوالي\\s+(${num})\\s*ريال`));
+        if (m) {
+          const price = parseInt(m[1].replace(/[,٬]/g, ""), 10);
+          if (Number.isFinite(price) && price > 0) return { ok: true as const, price };
+          lastReason = "رقم غير صالح";
+        } else {
+          lastReason = "لم يُعثر على نمط متوسط المدينة بالصفحة";
+        }
+      }
     } catch (e) {
-      if (attempt === 2) return { ok: false as const, reason: String(e) };
-      await new Promise((r) => setTimeout(r, 400));
+      lastReason = String(e);
     }
+    if (attempt < 3) await new Promise((r) => setTimeout(r, 600));
   }
-  return { ok: false as const, reason: "unreachable" };
+  return { ok: false as const, reason: lastReason };
 }
 
 /** تشغيل الطلبات على دفعات متوازية محدودة — 255 حي متسلسل قد يتجاوز حد وقت
