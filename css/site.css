@@ -180,10 +180,17 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .hero{
   background:
     linear-gradient(180deg, rgba(2,6,23,.32) 0%, rgba(2,6,23,.52) 55%, rgba(2,6,23,.72) 100%),
-    radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.14) 0%, transparent 55%),
-    url('https://images.pexels.com/photos/4321694/pexels-photo-4321694.jpeg?auto=compress&cs=tinysrgb&h=1200&w=1920') center/cover no-repeat,
     #020617;
   color:#fff;padding:60px 0 60px;position:relative;overflow:hidden
+}
+.hero::before{
+  content:'';position:absolute;inset:-12px;z-index:0;
+  background:url('https://images.pexels.com/photos/4321694/pexels-photo-4321694.jpeg?auto=compress&cs=tinysrgb&h=1200&w=1920') center/cover no-repeat;
+  filter:blur(4px);transform:scale(1.03)
+}
+.hero::after{
+  content:'';position:absolute;inset:0;z-index:1;
+  background:radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.14) 0%, transparent 55%)
 }
 .hero .container{position:relative;z-index:2}
 .hero-grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:36px}
@@ -214,16 +221,8 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .stat b{display:block;font-size:30px;font-family:var(--font-display);color:#c0a16b}
 .stat span{font-size:13px;color:#c7cedb}
 
-/* الوضع النهاري: أبيض دافئ فخم بدل الأسود الثابت — نفس الذهبي محفوظ كخيط
-   بصري بين الوضعين، بس ألوان النص تتبدّل عشان تبقى مقروءة على خلفية فاتحة. */
-[data-theme="light"] .hero{
-  background:
-    linear-gradient(180deg, rgba(2,6,23,.32) 0%, rgba(2,6,23,.52) 55%, rgba(2,6,23,.72) 100%),
-    radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.16) 0%, transparent 55%),
-    url('https://images.pexels.com/photos/4321694/pexels-photo-4321694.jpeg?auto=compress&cs=tinysrgb&h=1200&w=1920') center/cover no-repeat,
-    #020617;
-  color:#fff;
-}
+/* الوضع النهاري: الهيرو نفسه موحَّد غامق بالوضعين (نفس أسلوب رغدان) —
+   الفرق يبقى فقط بألوان النصوص الفرعية اللي تحتاج تباين أوضح. */
 [data-theme="light"] .hero p.desc{color:#c7cedb}
 [data-theme="light"] .hero .stat span{color:#94a3b8}
 [data-theme="light"] .hero .license-badge{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#dde2ea}
