@@ -66,7 +66,7 @@
 <script src="lib/supabase.min.js"></script>
 
 
-<link rel="stylesheet" href="css/site.css?v=20260907ag">
+<link rel="stylesheet" href="css/site.css?v=20260914b">
 </head>
 <body>
 
@@ -144,7 +144,7 @@
         <a href="#offers" class="btn btn-primary" data-i18n="hero_cta_browse">تصفح العقارات</a>
         <a href="#add-property" class="btn btn-outline" data-i18n="hero_cta_list">أضف عقارك</a>
       </div>
-      <div class="license-badge">🛡️ <span data-i18n="license_badge">مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428 — سجل تجاري: 7042103650</span></div>
+      <div class="license-badge"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> <span data-i18n="license_badge">مرخّصة من الهيئة العامة للعقار — رخصة فال: 1200030428 — سجل تجاري: 7042103650</span></div>
       <div class="stats-row">
         <div class="stat"><b class="counter" data-target="4" data-suffix="+">0</b><span data-i18n="stat1">مدن مدعومة</span></div>
         <div class="stat"><b class="counter" id="stat-district-count" data-target="0" data-suffix="+">0</b><span data-i18n="stat4">حي مدعوم</span></div>
@@ -153,6 +153,9 @@
       </div>
     </div>
     <div class="hero-image-col">
+      <div class="hero-image-card">
+        <div class="hero-bg-slides" id="hero-bg-slides" aria-hidden="true"></div>
+      </div>
       <div class="hero-search card">
         <div class="hero-search-row">
           <select id="hero-search-city" aria-label="المدينة"></select>
@@ -161,9 +164,6 @@
           <button type="button" class="btn btn-primary" id="hero-search-btn" data-i18n="hero_search_btn">ابحث</button>
         </div>
         <p class="hero-search-count" id="hero-search-count"></p>
-      </div>
-      <div class="hero-image-card">
-        <div class="hero-bg-slides" id="hero-bg-slides" aria-hidden="true"></div>
       </div>
     </div>
   </div>
@@ -213,10 +213,10 @@
 <section class="promises-bar fade-up">
   <div class="container">
     <div class="promises-grid">
-      <div class="promise-item"><span class="promise-icon">🛡️</span><span data-i18n="promise1">مرخّصون رسمياً — فال + سجل تجاري</span></div>
-      <div class="promise-item"><span class="promise-icon">📊</span><span data-i18n="promise2">بياناتنا من مصادر رسمية (وزارة العدل)</span></div>
-      <div class="promise-item"><span class="promise-icon">🚫</span><span data-i18n="promise3">بدون عمولات خفية</span></div>
-      <div class="promise-item"><span class="promise-icon">🔒</span><span data-i18n="promise4">عقودك محفوظة بأمان</span></div>
+      <div class="promise-item"><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><span data-i18n="promise1">مرخّصون رسمياً — فال + سجل تجاري</span></div>
+      <div class="promise-item"><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></span><span data-i18n="promise2">بياناتنا من مصادر رسمية (وزارة العدل)</span></div>
+      <div class="promise-item"><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.5 5.5l13 13"/></svg></span><span data-i18n="promise3">بدون عمولات خفية</span></div>
+      <div class="promise-item"><span class="promise-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><span data-i18n="promise4">عقودك محفوظة بأمان</span></div>
     </div>
   </div>
 </section>
@@ -616,7 +616,7 @@
     </div>
 
     <div class="card" style="padding:22px;margin-top:24px;border-color:var(--gold-500);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <div style="font-size:32px">🛡️</div>
+      <div class="about-icon" style="margin:0"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
       <div>
         <h4 style="margin:0 0 4px" data-i18n="license_title">الترخيص والاعتماد</h4>
         <p style="color:var(--text-600);font-size:14px;margin:0" data-i18n="license_text">همة المدينة العقارية مرخّصة رسمياً من الهيئة العامة للعقار بالمملكة العربية السعودية — رقم رخصة فال العقارية: 1200030428، وسجل تجاري رقم: 7042103650.</p>
@@ -831,7 +831,7 @@
 </div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/site.js?v=20260914a"></script>
+<script src="js/site.js?v=20260914b"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>
