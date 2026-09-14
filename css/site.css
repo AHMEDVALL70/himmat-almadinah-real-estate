@@ -183,7 +183,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
     #020617;
   color:#fff;padding:36px 0 60px;position:relative;overflow:hidden
 }
-.hero .container{position:relative;z-index:2;max-width:980px}
+.hero .container{position:relative;z-index:2}
 .hero-grid{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:36px}
 .hero-grid > *:first-child{flex:1 1 460px;min-width:280px;text-align:center}
 .hero h1{font-size:clamp(26px,3.6vw,38px);line-height:1.25;margin:0 0 10px;animation:heroEnter 1.1s ease-out .1s both}
