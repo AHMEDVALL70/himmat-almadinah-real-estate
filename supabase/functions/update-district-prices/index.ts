@@ -98,22 +98,33 @@ function parsePriceAndCount(rawHtml: string): ParsedPrice | null {
 
 async function fetchDistrictPrice(citySlug: string, districtName: string) {
   const url = `https://raghdan.sa/ar/market/${encodeURIComponent(citySlug)}/${encodeURIComponent(districtName)}/`;
-  try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; HimmatAlmadinahBot/1.0)" },
-    });
-    if (!res.ok) return { ok: false as const, reason: `HTTP ${res.status}`, url };
-    const html = await res.text();
-    const parsed = parsePriceAndCount(html);
-    if (!parsed) return { ok: false as const, reason: "لم يُعثر على نمط السعر بالصفحة", url };
-    return { ok: true as const, ...parsed, url };
-  } catch (e) {
-    return { ok: false as const, reason: String(e), url };
+  // محاولتان بس (مو أكثر): الأولى، وإعادة واحدة لو صار خطأ اتصال حقيقي (مو
+  // "نمط غير موجود" — تلك ما تتغيّر بإعادة المحاولة إطلاقاً، فلا داعي لتكرارها).
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; HimmatAlmadinahBot/1.0)" },
+      });
+      if (!res.ok) return { ok: false as const, reason: `HTTP ${res.status}`, url };
+      const html = await res.text();
+      const parsed = parsePriceAndCount(html);
+      if (!parsed) return { ok: false as const, reason: "لم يُعثر على نمط السعر بالصفحة", url };
+      return { ok: true as const, ...parsed, url };
+    } catch (e) {
+      if (attempt === 2) return { ok: false as const, reason: String(e), url };
+      await new Promise((r) => setTimeout(r, 400)); // مهلة قصيرة قبل إعادة المحاولة، تعطي فرصة لاتصال مقطوع يتعافى
+    }
   }
+  // لا يصل هذا السطر عملياً أبداً (الحلقة أعلاه ترجع بكل مسار) — موجود بس
+  // عشان TypeScript يتأكد إن الدالة ترجع قيمة بكل الحالات.
+  return { ok: false as const, reason: "unreachable", url };
 }
 
 /** تشغيل الطلبات على دفعات متوازية محدودة — 255 حي متسلسل قد يتجاوز حد وقت
- *  تنفيذ الدالة، فنشغّل عدة طلبات بنفس اللحظة بدل واحد تلو الآخر. */
+ *  تنفيذ الدالة، فنشغّل عدة طلبات بنفس اللحظة بدل واحد تلو الآخر.
+ *  ===== تحديث 2026-09-14: قلّلنا من 10 لـ5 بالتزامن — أخطاء اتصال حقيقية
+ *  (HTTP2 "connection error") صارت تظهر بتشغيلة فعلية بـ~10 أحياء، والسبب
+ *  الأرجح ضغط 10 طلبات متزامنة على رغدان بنفس اللحظة. */
 async function runBatched<T, R>(items: T[], batchSize: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const results: R[] = [];
   for (let i = 0; i < items.length; i += batchSize) {
@@ -180,7 +191,7 @@ Deno.serve(async () => {
 
   console.log(`[update-district-prices] بدء التحديث لـ ${targets.length} حي...`);
 
-  await runBatched(targets, 10, async (d: DistrictTarget) => {
+  await runBatched(targets, 5, async (d: DistrictTarget) => {
     const result = await fetchDistrictPrice(d.citySlug, d.name);
 
     if (!result.ok) {
