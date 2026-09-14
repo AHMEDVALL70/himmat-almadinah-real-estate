@@ -2678,17 +2678,23 @@ function animateCounters(){
    بدون أي معرّف شخصي للزائر، تُستخدم لاحقاً لتفعيل "الأكثر طلباً" ومتابعة
    أداء الموقع بدل التخمين. لا تنتظر ولا تعطّل الواجهة أبداً (fire-and-forget).
    ========================================================================== */
+const TRACK_VIEW_URL = 'https://himmat-ai-backend.ahmedvall.workers.dev/track-view';
+
 function logPageView(page){
   if (!dbReady) return;
-  supa.from('page_views').insert({ page }).then(({ error }) => {
-    if (error) console.error('logPageView: تعذّر التسجيل.', error.message);
-  });
+  fetch(TRACK_VIEW_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ kind: 'page', value: page }),
+  }).catch(err => console.error('logPageView: تعذّر التسجيل.', err.message));
 }
 function logOfferView(offerId){
   if (!dbReady || !offerId) return; // نتجاهل عروض العرض التوضيحي (demo-N)
-  supa.from('offer_views').insert({ offer_id: offerId }).then(({ error }) => {
-    if (error) console.error('logOfferView: تعذّر التسجيل.', error.message);
-  });
+  fetch(TRACK_VIEW_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ kind: 'offer', value: offerId }),
+  }).catch(err => console.error('logOfferView: تعذّر التسجيل.', err.message));
 }
 
 function showPage(id){
