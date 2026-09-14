@@ -163,6 +163,22 @@ async function fetchCityAveragePrice(citySlug: string) {
           lastReason = "رقم غير صالح";
         } else {
           lastReason = "لم يُعثر على نمط متوسط المدينة بالصفحة";
+          // ===== تشخيص مؤقت 2026-09-14 — يُزال بعد ما نحسم السبب =====
+          // النمط اتأكد يدوياً موجود بالصفحة الحقيقية، بس فشل 3 محاولات
+          // متتالية هنا — نسجّل دليل فعلي بدل تخمين خامس: طول النص المستقبَل،
+          // وهل الكلمات المفتاحية موجودة إطلاقاً، وعيّنة حقيقية من حوالين
+          // "وسيط" الأولى (لو موجودة) عشان نشوف بالضبط وش يختلف.
+          const hasWaseet = text.includes("وسيط");
+          const hasHawali = text.includes("حوالي");
+          const waseetIndex = text.indexOf("وسيط");
+          const sample = waseetIndex >= 0
+            ? text.slice(waseetIndex, waseetIndex + 200)
+            : text.slice(0, 300);
+          console.warn(
+            `[update-district-prices][تشخيص] ${citySlug} — محاولة ${attempt}: ` +
+            `طول النص=${text.length}، يحتوي "وسيط"=${hasWaseet}، يحتوي "حوالي"=${hasHawali}، ` +
+            `عيّنة: ${sample}`
+          );
         }
       }
     } catch (e) {
