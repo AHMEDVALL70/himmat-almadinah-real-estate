@@ -3233,29 +3233,6 @@ if (backToTopBtn){
 /* ============================================================================
    11) Boot
    ========================================================================== */
-window.addEventListener('load', async ()=>{
-  dbReady = initSupabase();
-  renderConfigBanner();
-
-  const safely = async (label, fn) => {
-    try { await fn(); }
-    catch (e) { console.error(`Boot step "${label}" failed — continuing with the rest of the page.`, e); }
-  };
-
-  await Promise.all([
-    safely('loadCitiesFromDb', loadCitiesFromDb),
-    safely('loadDistrictPricesFromDb', loadDistrictPricesFromDb),
-  ]);
-  populateCitySelects();
-  populateTypeSelects();
-  updateValuationFieldsForType();
-  updateAddPropertyFieldsForType();
-  populateFilterSelects();
-  populateHeroSearch();
-  renderServices();
-  renderFaq();
-  renderLegalPages();
-  runFinance();
 
 /* عدّاد "عقار مسجَّل فعلياً" بالصفحة الرئيسية — مستقل تماماً عن قسم
    التحليلات (اللي صار كسولاً/lazy). استعلام عدّ بس (count فقط، بدون بيانات)
@@ -3275,21 +3252,66 @@ async function loadLiveStatsCount(){
   }
 }
 
-  // هذه الثلاثة مستقلة عن بعضها (كل وحدة تجيب بياناتها من جدول مختلف) —
-  // تشغيلها بالتوازي بدل التتابع يقلّل زمن التحميل الكلي بشكل ملموس.
-  await Promise.all([
-    safely('renderOffers', () => renderOffers()),
-    safely('renderFeatured', renderFeatured),
+// ===== تحديث 2026-09-14 =====
+// 1) window 'load' → document 'DOMContentLoaded': 'load' ينتظر كل موارد
+//    الصفحة (خطوط، أيقونات، سكربتات خارجية) قبل ما يبدأ أي شي، حتى لو ما
+//    له علاقة بالكود هنا إطلاقاً. site.js بدون defer/async وموضوع قرب
+//    نهاية <body> (بعد كل العناصر اللي نلمسها هنا بالـHTML)، فـ
+//    DOMContentLoaded كافٍ تماماً ويطلق التنفيذ أبكر بكثير.
+// 2) صور الهيرو (initHeroSlideshow) وعدّاد "عقار مسجَّل فعلياً"
+//    (loadLiveStatsCount) تنطلقان فوراً بالتوازي مع كل شي ثاني، بدل ما
+//    تنتظران نهاية موجتي تحميل كاملتين. هذا أكبر أثر ملموس للزائر: أول شي
+//    يشوفه (خلفية الهيرو + الأرقام) يصير من أول الأشياء اللي تجهز، مو آخرها.
+//    ملاحظة صادقة: initHeroSlideshow ما يقدر يعيد استخدام LAST_OFFERS_LIST
+//    بعد الحين (لسا فاضية بهالتوقيت المبكر)، فيسوي استعلام offers مستقل
+//    خاص فيه بدل ما يشارك استعلام renderOffers — طلب إضافي خفيف لقاعدة
+//    البيانات (نفس الجدول)، مقبول مقابل السرعة المكتسبة. لو صار الحمل على
+//    القراءات يوماً مصدر قلق فعلي، الحل الأدق تنسيق الاثنين على نفس النتيجة
+//    عبر promise مشترك — تحسين مؤجَّل، مو ضروري الحين.
+document.addEventListener('DOMContentLoaded', async ()=>{
+  dbReady = initSupabase();
+  renderConfigBanner();
+
+  const safely = async (label, fn) => {
+    try { await fn(); }
+    catch (e) { console.error(`Boot step "${label}" failed — continuing with the rest of the page.`, e); }
+  };
+
+  const heroAndLiveCounterPromise = Promise.all([
+    safely('initHeroSlideshow', initHeroSlideshow),
     safely('loadLiveStatsCount', loadLiveStatsCount),
   ]);
-  updateHeroSearchCount();
+
+  await Promise.all([
+    safely('loadCitiesFromDb', loadCitiesFromDb),
+    safely('loadDistrictPricesFromDb', loadDistrictPricesFromDb),
+  ]);
+  populateCitySelects();
+  populateTypeSelects();
+  updateValuationFieldsForType();
+  updateAddPropertyFieldsForType();
+  populateFilterSelects();
+  populateHeroSearch();
+  renderServices();
+  renderFaq();
+  renderLegalPages();
+  runFinance();
 
   const totalDistricts = Object.values(CITY_DISTRICTS).reduce((sum, list) => sum + list.length, 0);
   document.getElementById('stat-district-count').dataset.target = totalDistricts;
   animateSingleCounter(document.getElementById('stat-district-count'));
+
+  // هذه الاثنتين مستقلتين عن بعضهما (كل وحدة تجيب بياناتها من جدول مختلف) —
+  // تشغيلهم بالتوازي بدل التتابع يقلّل زمن التحميل الكلي بشكل ملموس.
+  await Promise.all([
+    safely('renderOffers', () => renderOffers()),
+    safely('renderFeatured', renderFeatured),
+  ]);
+  updateHeroSearchCount();
+
   updateGradeFieldVisibility();
   try { runValuation(); } catch(e){}
-  await initHeroSlideshow();
+  await heroAndLiveCounterPromise; // غالباً خلصت أصلاً بهالنقطة — ما تضيف انتظار حقيقي
   typewriterHeroDesc();
   showPage(location.hash.slice(1) || 'home');
   renderCompareBar();
