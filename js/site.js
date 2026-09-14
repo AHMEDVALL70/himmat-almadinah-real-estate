@@ -338,22 +338,30 @@ document.addEventListener('click', (e)=>{
       translating ~250 proper nouns isn't attempted, since the values must
       stay consistent with what's actually stored in the database.
    ========================================================================== */
+const SERVICE_ICONS = {
+  buy: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  market: '<path d="M4 20V10M12 20V4M20 20v-7"/>',
+  contract: '<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  manage: '<rect x="4" y="3" width="16" height="18"/><path d="M9 21v-5h6v5M8 7h1M8 11h1M15 7h1M15 11h1"/>',
+  consult: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  marketing: '<path d="M4 10v4h4l6 5V5L8 10H4z"/><path d="M16 9a3 3 0 0 1 0 6"/>',
+};
 const SERVICES_I18N = {
   ar: [
-    {ic:"🏠", h:"بيع وشراء العقارات", p:"نساعدك على البيع والشراء بثقة، من دراسة الاحتياج حتى إتمام الصفقة."},
-    {ic:"📊", h:"دراسة وتحليل السوق", p:"نحلل معطيات السوق ونقارن الفرص لتتخذ قرارك على معرفة."},
-    {ic:"📄", h:"كتابة عقود الإيجار", p:"عقد يضمن حق الطرفين المؤجر والمستأجر ويقلل مساحة الخلاف."},
-    {ic:"🏢", h:"إدارة الأملاك", p:"نهتم بتفاصيل عقارك لتبقى مطمئناً على استثمارك."},
-    {ic:"💬", h:"الاستشارات العقارية", p:"قبل أن تقرر، نضع أمامك صورة أوضح للخيارات والفرص."},
-    {ic:"📢", h:"التسويق العقاري", p:"نبرز قيمة عقارك ونوصله إلى الباحث الجاد بأسلوب احترافي."},
+    {icon:"buy", h:"بيع وشراء العقارات", p:"نساعدك على البيع والشراء بثقة، من دراسة الاحتياج حتى إتمام الصفقة."},
+    {icon:"market", h:"دراسة وتحليل السوق", p:"نحلل معطيات السوق ونقارن الفرص لتتخذ قرارك على معرفة."},
+    {icon:"contract", h:"كتابة عقود الإيجار", p:"عقد يضمن حق الطرفين المؤجر والمستأجر ويقلل مساحة الخلاف."},
+    {icon:"manage", h:"إدارة الأملاك", p:"نهتم بتفاصيل عقارك لتبقى مطمئناً على استثمارك."},
+    {icon:"consult", h:"الاستشارات العقارية", p:"قبل أن تقرر، نضع أمامك صورة أوضح للخيارات والفرص."},
+    {icon:"marketing", h:"التسويق العقاري", p:"نبرز قيمة عقارك ونوصله إلى الباحث الجاد بأسلوب احترافي."},
   ],
   en: [
-    {ic:"🏠", h:"Buying & Selling", p:"We help you buy and sell with confidence, from needs assessment to closing."},
-    {ic:"📊", h:"Market Analysis", p:"We analyse market data and compare opportunities so you decide with knowledge."},
-    {ic:"📄", h:"Lease Drafting", p:"A contract that protects both lessor and lessee and reduces disputes."},
-    {ic:"🏢", h:"Property Management", p:"We handle the details so you stay confident about your investment."},
-    {ic:"💬", h:"Real Estate Consulting", p:"Before you decide, we lay out a clearer picture of your options."},
-    {ic:"📢", h:"Real Estate Marketing", p:"We highlight your property's value and reach serious buyers professionally."},
+    {icon:"buy", h:"Buying & Selling", p:"We help you buy and sell with confidence, from needs assessment to closing."},
+    {icon:"market", h:"Market Analysis", p:"We analyse market data and compare opportunities so you decide with knowledge."},
+    {icon:"contract", h:"Lease Drafting", p:"A contract that protects both lessor and lessee and reduces disputes."},
+    {icon:"manage", h:"Property Management", p:"We handle the details so you stay confident about your investment."},
+    {icon:"consult", h:"Real Estate Consulting", p:"Before you decide, we lay out a clearer picture of your options."},
+    {icon:"marketing", h:"Real Estate Marketing", p:"We highlight your property's value and reach serious buyers professionally."},
   ],
 };
 
@@ -677,7 +685,7 @@ function renderServices(){
   const list = SERVICES_I18N[currentLang] || SERVICES_I18N.ar;
   document.getElementById('services-grid').innerHTML = list.map(s=>`
     <div class="card service-card fade-up">
-      <div class="ic">${s.ic}</div>
+      <div class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SERVICE_ICONS[s.icon] || ''}</svg></div>
       <h4>${s.h}</h4>
       <p>${s.p}</p>
     </div>`).join('');
@@ -2548,27 +2556,35 @@ async function loadHeroSlides(){
   const fromCache = (LAST_OFFERS_LIST || [])
     .filter(o => o.image_url)
     .slice(0, 6)
-    .map(o => ({ url: o.image_url, caption: [o.title, o.district].filter(Boolean).join(' — ') }));
+    .map(o => ({ url: o.image_url, title: o.title, sub: [o.district, formatHeroPrice(o)].filter(Boolean).join(' — ') }));
   if (fromCache.length) return fromCache;
 
   if (dbReady){
     try {
       const { data, error } = await withTimeout(
         supa.from('offers')
-          .select('image_url, title, city, district')
+          .select('image_url, title, city, district, price_final, price_original')
           .eq('is_published', true)
           .not('image_url', 'is', null)
           .order('created_at', { ascending: false })
           .limit(6)
       );
       if (!error && data && data.length){
-        return data.map(o => ({ url: o.image_url, caption: [o.title, o.district].filter(Boolean).join(' — ') }));
+        return data.map(o => ({ url: o.image_url, title: o.title, sub: [o.district, formatHeroPrice(o)].filter(Boolean).join(' — ') }));
       }
     } catch (e) {
       console.error('loadHeroSlides: Supabase call failed, using fallback images.', e);
     }
   }
-  return HERO_BG_IMAGES_FALLBACK.map(url => ({ url, caption: null }));
+  return HERO_BG_IMAGES_FALLBACK.map(url => ({ url, title: null, sub: null }));
+}
+
+/* تنسيق سعر مختصر للشارة العائمة بالهيرو — نفس منطق money() المستخدم ببطاقات
+   العروض، بس بدون كسور وبإضافة وحدة العملة مباشرة. */
+function formatHeroPrice(o){
+  const price = o.price_final ?? o.price_original;
+  if (!price) return null;
+  return `${money(price)} ${currentLang === 'ar' ? 'ر.س' : 'SAR'}`;
 }
 
 /* تأثير آلة كاتبة لجملة الوصف الرئيسية بالهيرو — تُكتب حرف حرف مرة واحدة
@@ -2599,7 +2615,7 @@ async function initHeroSlideshow(){
   const slidesData = await loadHeroSlides();
   wrap.innerHTML = slidesData.map((s, i) =>
     `<div class="hero-bg-slide${i===0 ? ' active' : ''}" style="background-image:url('${s.url}')">${
-      s.caption ? `<span class="hero-bg-caption">${escapeHtml(s.caption)}</span>` : ''
+      s.title ? `<span class="hero-bg-caption"><b>${escapeHtml(s.title)}</b>${s.sub ? `<i>${escapeHtml(s.sub)}</i>` : ''}</span>` : ''
     }</div>`
   ).join('');
 
