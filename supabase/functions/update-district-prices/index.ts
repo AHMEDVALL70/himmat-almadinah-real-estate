@@ -176,6 +176,29 @@ async function runBatched<T, R>(items: T[], batchSize: number, fn: (item: T) => 
 
 Deno.serve(async () => {
   const startedAt = Date.now();
+  try {
+    return await handleRequest(startedAt);
+  } catch (fatalErr) {
+    // شبكة أمان أخيرة — أي خطأ غير متوقع بأي مكان بالدالة (حتى لو بمكتبة
+    // supabase-js نفسها) يرجع رداً واضحاً بدل انهيار خام برسالة مبهمة
+    // ("Cannot read properties of undefined...") بدون أي سياق يساعد بالتشخيص.
+    console.error("[update-district-prices] خطأ غير متوقع أوقف الدالة كاملة:", fatalErr);
+    try {
+      await supabase.from("job_runs").insert({
+        job_name: "update-district-prices",
+        status: "failed",
+        summary: { message: String(fatalErr) },
+        started_at: new Date(startedAt).toISOString(),
+      });
+    } catch { /* حتى لو فشل تسجيل الخطأ نفسه، لا نضيف انهياراً ثانياً فوقه */ }
+    return new Response(JSON.stringify({ status: "error", message: String(fatalErr) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+});
+
+async function handleRequest(startedAt: number) {
   const summary = {
     updated: 0,
     failed: 0,
@@ -269,28 +292,43 @@ Deno.serve(async () => {
 
   // ===== تحديث 2026-09-14: تحديث متوسط كل مدينة من رقم رغدان الرسمي =====
   // خطوة منفصلة وخفيفة (عدد المدن صغير جداً مقارنة بعدد الأحياء)، تُنفَّذ
-  // دايماً حتى لو فشلت أحياء كثيرة أعلاه — الاثنين مستقلان تماماً.
+  // دايماً حتى لو فشلت أحياء كثيرة أعلاه — الاثنين مستقلان تماماً. محاطة
+  // بمعالجة أخطاء شاملة عشان أي خطأ غير متوقع هنا ما يوقف الدالة كاملة
+  // ويمنع حتى نتائج تحديث الأحياء (اللي خلصت بنجاح فوق) من الوصول للرد.
   const cityStats = { updated: 0, failed: 0, failures: [] as { city: string; reason: string }[] };
-  const { data: cities } = await supabase.from("cities").select("id, name, raghdan_slug");
-  for (const c of cities ?? []) {
-    const slug = (c as any).raghdan_slug || (c as any).name;
-    const result = await fetchCityAveragePrice(slug);
-    if (!result.ok) {
-      cityStats.failed++;
-      cityStats.failures.push({ city: (c as any).name, reason: result.reason });
-      console.warn(`[update-district-prices] فشل جلب متوسط المدينة: ${(c as any).name} — ${result.reason}`);
-      continue;
+  try {
+    const { data: cities, error: citiesError } = await supabase.from("cities").select("id, name, raghdan_slug");
+    if (citiesError) throw citiesError;
+    for (const c of cities ?? []) {
+      const cityName = (c as any).name as string;
+      const cityId = (c as any).id;
+      const slug = (c as any).raghdan_slug || cityName;
+      try {
+        const result = await fetchCityAveragePrice(slug);
+        if (!result.ok) {
+          cityStats.failed++;
+          cityStats.failures.push({ city: cityName, reason: result.reason });
+          console.warn(`[update-district-prices] فشل جلب متوسط المدينة: ${cityName} — ${result.reason}`);
+          continue;
+        }
+        const { error: cityUpdateError } = await supabase
+          .from("cities")
+          .update({ price_per_sqm: result.price })
+          .eq("id", cityId);
+        if (cityUpdateError) {
+          cityStats.failed++;
+          cityStats.failures.push({ city: cityName, reason: `DB: ${cityUpdateError.message}` });
+        } else {
+          cityStats.updated++;
+        }
+      } catch (innerErr) {
+        cityStats.failed++;
+        cityStats.failures.push({ city: cityName, reason: String(innerErr) });
+        console.error(`[update-district-prices] خطأ غير متوقع بتحديث مدينة ${cityName}:`, innerErr);
+      }
     }
-    const { error: cityUpdateError } = await supabase
-      .from("cities")
-      .update({ price_per_sqm: result.price })
-      .eq("id", (c as any).id);
-    if (cityUpdateError) {
-      cityStats.failed++;
-      cityStats.failures.push({ city: (c as any).name, reason: `DB: ${cityUpdateError.message}` });
-    } else {
-      cityStats.updated++;
-    }
+  } catch (citiesLoopErr) {
+    console.error("[update-district-prices] خطوة تحديث متوسطات المدن فشلت كاملة:", citiesLoopErr);
   }
   console.log(
     `[update-district-prices] تحديث متوسطات المدن: نجح ${cityStats.updated} — فشل ${cityStats.failed}`
@@ -314,4 +352,4 @@ Deno.serve(async () => {
   }), {
     headers: { "Content-Type": "application/json" },
   });
-});
+}
