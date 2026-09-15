@@ -986,29 +986,65 @@ document.getElementById('btn-generate-description')?.addEventListener('click', a
    (عادة 60-90% أصغر) بدون فرق ملموس بالجودة على الشاشة. لو فشل الضغط لأي
    سبب (متصفح قديم، صيغة غير متوقعة)، نرفع الصورة الأصلية بدل ما نوقف كامل
    العملية. */
-function compressImage(file, maxWidth = 1600, quality = 0.8){
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      let { width, height } = img;
-      if (width > maxWidth){
-        height = Math.round(height * (maxWidth / width));
-        width = maxWidth;
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-      canvas.toBlob(blob => {
-        if (!blob) { reject(new Error('تعذّر ضغط الصورة')); return; }
-        resolve(blob);
-      }, 'image/jpeg', quality);
-    };
-    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('تعذّر تحميل الصورة للمعالجة')); };
-    img.src = objectUrl;
-  });
+/* ============================================================================
+   تحديث 2026-09-15: تحويل WebP + استهداف حجم نهائي 100-300 كيلوبايت
+   ----------------------------------------------------------------------------
+   قبل: JPEG بجودة ثابتة 0.8 بدون أي ضمان لحجم النتيجة — صورة معقّدة (تفاصيل
+   كثيرة) ممكن تطلع 400-800 كيلوبايت رغم الضغط. بعد: WebP (أصغر 25-35% من
+   JPEG بنفس الجودة المرئية تقريباً)، مع تكرار تلقائي يقلّل الجودة تدريجياً
+   لين توصل الحجم المستهدف (100-300 كيلوبايت) أو يوصل حد أدنى للجودة يمنع
+   تشويه واضح بالصورة. لو المتصفح ما يدعم WebP (نادر جداً بالمتصفحات
+   الحديثة)، يرجع تلقائياً لـJPEG بنفس منطق الاستهداف.
+   ========================================================================== */
+const TARGET_MAX_KB = 300;
+const TARGET_MIN_KB = 100; // للمرجعية فقط — لا نكبّر صورة أصغر أصلاً، الهدف تفادي التضخيم لا التصغير القسري
+const MIN_QUALITY = 0.45; // حد أدنى يمنع تشويهاً مرئياً واضحاً حتى لو الحجم لسا فوق 300kb
+
+function canvasToBlobAsync(canvas, mime, quality){
+  return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), mime, quality));
+}
+
+async function compressImage(file, maxWidth = 1600, quality = 0.8){
+  const img = new Image();
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error('تعذّر تحميل الصورة للمعالجة'));
+      img.src = objectUrl;
+    });
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+
+  let { width, height } = img;
+  if (width > maxWidth){
+    height = Math.round(height * (maxWidth / width));
+    width = maxWidth;
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+  // نتحقق هل المتصفح فعلياً يدعم ترميز WebP (بعض المتصفحات القديمة جداً
+  // ترجع PNG صامتة بدل WebP لو ما يدعمونه) — لو لا، نرجع لـJPEG مباشرة.
+  const testBlob = await canvasToBlobAsync(canvas, 'image/webp', 0.8);
+  const mime = (testBlob && testBlob.type === 'image/webp') ? 'image/webp' : 'image/jpeg';
+
+  let q = quality;
+  let blob = mime === 'image/webp' ? testBlob : await canvasToBlobAsync(canvas, mime, q);
+  let attempts = 0;
+  const targetBytes = TARGET_MAX_KB * 1024;
+
+  while (blob && blob.size > targetBytes && q > MIN_QUALITY && attempts < 6){
+    q = Math.max(MIN_QUALITY, q - 0.12);
+    blob = await canvasToBlobAsync(canvas, mime, q);
+    attempts++;
+  }
+
+  if (!blob) throw new Error('تعذّر ضغط الصورة');
+  return { blob, mime };
 }
 
 /* ============================================================================
@@ -1036,14 +1072,19 @@ function removeOfferImage(index){
 
 async function uploadOneOfferImage(file){
   let uploadBlob = file;
+  let ext = (file.type === 'image/png') ? 'png' : 'jpg';
+  let contentType = file.type || 'image/jpeg';
   try {
-    uploadBlob = await compressImage(file, 1600, 0.8);
+    const result = await compressImage(file, 1600, 0.8);
+    uploadBlob = result.blob;
+    contentType = result.mime;
+    ext = result.mime === 'image/webp' ? 'webp' : 'jpg';
   } catch (compressErr) {
     console.error('compressImage: فشل الضغط، سيتم رفع الصورة الأصلية بدلاً منه.', compressErr);
     uploadBlob = file;
   }
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
-  const { error: uploadError } = await supa.storage.from('property-images').upload(fileName, uploadBlob, { contentType: 'image/jpeg' });
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error: uploadError } = await supa.storage.from('property-images').upload(fileName, uploadBlob, { contentType });
   if (uploadError) throw uploadError;
   const { data: urlData } = supa.storage.from('property-images').getPublicUrl(fileName);
   return urlData.publicUrl;
