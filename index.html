@@ -458,6 +458,11 @@
       <div class="grid grid-2">
         <div class="field"><label data-i18n="f_map_url" for="add-map-url">رابط الموقع على الخريطة (اختياري)</label><input id="add-map-url" type="url" placeholder="https://maps.app.goo.gl/..."></div>
       </div>
+      <div class="field">
+        <label data-i18n="f_images" for="add-images">صور العقار (اختياري، حتى ٦ صور)</label>
+        <input id="add-images" type="file" accept="image/*" multiple>
+        <div id="add-images-thumbs" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      </div>
       <div class="notice notice-info" style="margin-bottom:14px" data-i18n="license_optional_note">الحقلين التاليين للمسوّقين والمكاتب العقارية المرخّصة فقط — اتركهما فارغين إن كنت مالكاً فردياً.</div>
       <div class="grid grid-2">
         <div class="field"><label data-i18n="f_re_license" for="add-re-license">رقم الرخصة العقارية (اختياري)</label><input id="add-re-license" type="text"></div>
@@ -839,7 +844,7 @@
 </div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/site.js?v=20260915a"></script>
+<script src="js/site.js?v=20260915b"></script>
 <div id="contract-print-view" class="hide">
   <div class="print-header">
     <picture>

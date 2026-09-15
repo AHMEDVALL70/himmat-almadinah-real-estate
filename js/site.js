@@ -61,6 +61,7 @@ const I18N = {
     f_amenities:"إضافات تؤثر على السعر", am_maid_room:"غرفة خادمة", am_central_ac:"تكييف مركزي",
     f_description:"وصف تفصيلي (اختياري)", f_description_ph:"اكتب تفاصيل الغرف، المرافق، القرب من المعالم...",
     f_map_url:"رابط الموقع على الخريطة (اختياري)",
+    f_images:"صور العقار (اختياري، حتى ٦ صور)",
     license_optional_note:"الحقلين التاليين للمسوّقين والمكاتب العقارية المرخّصة فقط — اتركهما فارغين إن كنت مالكاً فردياً.",
     f_re_license:"رقم الرخصة العقارية (اختياري)", f_ad_license:"رقم الترخيص الإعلاني (اختياري)",
     am_furnished:"مفروش", am_driver_room:"غرفة سائق", am_elevator:"مصعد",
@@ -172,6 +173,7 @@ const I18N = {
     f_amenities:"Amenities that affect the price", am_maid_room:"Maid's room", am_central_ac:"Central A/C",
     f_description:"Detailed description (optional)", f_description_ph:"Describe the rooms, amenities, nearby landmarks...",
     f_map_url:"Map location link (optional)",
+    f_images:"Property photos (optional, up to 6)",
     license_optional_note:"The next two fields are for licensed marketers and real estate offices only — leave blank if you're a private owner.",
     f_re_license:"Real estate license no. (optional)", f_ad_license:"Ad license no. (optional)",
     am_furnished:"Furnished", am_driver_room:"Driver's room", am_elevator:"Elevator",
@@ -2099,7 +2101,97 @@ function updateAddPropertyFieldsForType(){
 }
 document.getElementById('add-type').addEventListener('change', updateAddPropertyFieldsForType);
 
+/* ============================================================================
+   صور "أضف عقارك" — ضغط تلقائي (WebP، استهداف 100-300 كيلوبايت) ورفع آمن
+   عبر public-upload-image قبل إرسال النموذج الرئيسي. 2026-09-15.
+   ========================================================================== */
+const ADD_PROPERTY_MAX_IMAGES = 6;
+let addPropertySelectedFiles = [];
+
+function canvasToBlobAsyncSite(canvas, mime, quality){
+  return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), mime, quality));
+}
+
+async function compressImageForUpload(file, maxWidth = 1600, quality = 0.8){
+  const img = new Image();
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error('تعذّر تحميل الصورة للمعالجة'));
+      img.src = objectUrl;
+    });
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+  let { width, height } = img;
+  if (width > maxWidth){ height = Math.round(height * (maxWidth / width)); width = maxWidth; }
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+  const testBlob = await canvasToBlobAsyncSite(canvas, 'image/webp', 0.8);
+  const mime = (testBlob && testBlob.type === 'image/webp') ? 'image/webp' : 'image/jpeg';
+  let q = quality;
+  let blob = mime === 'image/webp' ? testBlob : await canvasToBlobAsyncSite(canvas, mime, q);
+  let attempts = 0;
+  const targetBytes = 300 * 1024;
+  while (blob && blob.size > targetBytes && q > 0.45 && attempts < 6){
+    q = Math.max(0.45, q - 0.12);
+    blob = await canvasToBlobAsyncSite(canvas, mime, q);
+    attempts++;
+  }
+  if (!blob) throw new Error('تعذّر ضغط الصورة');
+  return blob;
+}
+
+function blobToBase64(blob){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result); // يشمل بادئة data:...;base64, — الخادم يشيلها
+    reader.onerror = () => reject(new Error('تعذّر قراءة الصورة'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+function renderAddPropertyThumbs(){
+  const wrap = document.getElementById('add-images-thumbs');
+  if (!wrap) return;
+  wrap.innerHTML = addPropertySelectedFiles.map((file, i) => `
+    <div style="position:relative">
+      <img src="${URL.createObjectURL(file)}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">
+      <button type="button" onclick="removeAddPropertyImage(${i})" title="حذف" style="position:absolute;top:-6px;left:-6px;width:18px;height:18px;border-radius:50%;background:var(--danger);color:#fff;border:none;font-size:11px;line-height:1;cursor:pointer">✕</button>
+    </div>`).join('');
+}
+function removeAddPropertyImage(index){
+  addPropertySelectedFiles.splice(index, 1);
+  renderAddPropertyThumbs();
+}
+document.getElementById('add-images')?.addEventListener('change', (e) => {
+  const picked = Array.from(e.target.files || []);
+  const room = ADD_PROPERTY_MAX_IMAGES - addPropertySelectedFiles.length;
+  addPropertySelectedFiles = addPropertySelectedFiles.concat(picked.slice(0, Math.max(0, room)));
+  e.target.value = '';
+  renderAddPropertyThumbs();
+});
+
+/** يضغط ويرفع كل الصور المختارة عبر public-upload-image، يرجع مصفوفة روابط
+ *  (فاضية لو ما فيه صور مختارة أصلاً — النموذج يبقى شغّال بدون صور زي قبل). */
+async function uploadAddPropertyImages(){
+  if (addPropertySelectedFiles.length === 0) return [];
+  const compressedBlobs = await Promise.all(addPropertySelectedFiles.map(f => compressImageForUpload(f)));
+  const base64Images = await Promise.all(compressedBlobs.map(b => blobToBase64(b)));
+  const turnstileToken = await getTurnstileToken();
+  const { data, error: fnError } = await supa.functions.invoke('public-upload-image', {
+    body: { images: base64Images, turnstileToken },
+  });
+  const error = fnError || (data && data.error ? { message: data.error } : null);
+  if (error) throw new Error(error.message || 'تعذّر رفع الصور');
+  return data.urls || [];
+}
+
 document.getElementById('btn-add-property').addEventListener('click', async ()=>{
+
   const msg = document.getElementById('add-property-msg');
   const { active: amenities } = getAmenityAdj('add-amenities');
   const group = propertyGroupFor(document.getElementById('add-type').value);
@@ -2135,6 +2227,16 @@ document.getElementById('btn-add-property').addEventListener('click', async ()=>
     return;
   }
   try {
+    if (addPropertySelectedFiles.length > 0){
+      msg.textContent = '⏳ جاري رفع الصور...';
+      msg.style.color = 'var(--text-600)';
+      const imageUrls = await uploadAddPropertyImages();
+      if (imageUrls.length > 0){
+        payload.image_url = imageUrls[0];
+        payload.image_urls = imageUrls;
+      }
+    }
+    msg.textContent = '⏳ جاري الإرسال...';
     const turnstileToken = await getTurnstileToken();
     const { data, error: fnError } = await supa.functions.invoke('public-submit', {
       body: { type: 'property', payload, turnstileToken },
@@ -2146,6 +2248,8 @@ document.getElementById('btn-add-property').addEventListener('click', async ()=>
     } else {
       msg.textContent = '✅ تم الإرسال — سيظهر عقارك في التحليلات بعد المراجعة.';
       msg.style.color = 'var(--ok)';
+      addPropertySelectedFiles = [];
+      renderAddPropertyThumbs();
     }
   } catch (e) {
     msg.textContent = '⚠️ تعذّر الاتصال بقاعدة البيانات — تحقق من اتصالك وحاول مجدداً.';
