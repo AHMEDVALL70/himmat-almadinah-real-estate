@@ -2661,8 +2661,13 @@ async function loadHeroSlides(){
   // نعيد استخدام آخر قائمة عروض جُلبت فعلياً لصفحة "العروض" (LAST_OFFERS_LIST)
   // بدل عمل استعلام Supabase منفصل لنفس الجدول — يوفّر جولة اتصال كاملة
   // وقت الإقلاع. لو ما وصلت البيانات لأي سبب، نرجع لاستعلام مباشر احتياطي.
+  // ===== تحديث 2026-09-15: نعرض العروض المعلَّمة "مميّز" يدوياً بس (بدل
+  // أحدث 6 عروض تلقائياً) — يعطي الفريق تحكماً كاملاً بما يظهر بالواجهة
+  // الرئيسية، بدل الاعتماد على عشوائية "آخر عرض أُضيف" (قد يكون بصورة غير
+  // لائقة/غير ممثِّلة). لو صفر عروض مميّزة بعد، السلوك الاحتياطي (الصور
+  // العامة بأسفل الدالة) يبقى شغّالاً زي ما هو — صفر كسر لأي حالة.
   const fromCache = (LAST_OFFERS_LIST || [])
-    .filter(o => o.image_url)
+    .filter(o => o.image_url && o.featured)
     .slice(0, 6)
     .map(o => ({ url: o.image_url, title: o.title, sub: [o.district, formatHeroPrice(o)].filter(Boolean).join(' — ') }));
   if (fromCache.length) return fromCache;
@@ -2673,6 +2678,7 @@ async function loadHeroSlides(){
         supa.from('offers')
           .select('image_url, title, city, district, price_final, price_original')
           .eq('is_published', true)
+          .eq('featured', true)
           .not('image_url', 'is', null)
           .order('created_at', { ascending: false })
           .limit(6)

@@ -930,6 +930,7 @@ function readOfferForm(){
     description: document.getElementById('offer-description').value.trim() || null,
     is_published: document.getElementById('offer-published').checked,
     is_pinned: document.getElementById('offer-pinned').checked,
+    featured: document.getElementById('offer-featured').checked,
   };
 }
 
@@ -1144,6 +1145,7 @@ function clearOfferForm(){
   document.getElementById('offer-discount').value = '0';
   document.getElementById('offer-published').checked = true;
   document.getElementById('offer-pinned').checked = false;
+  document.getElementById('offer-featured').checked = false;
   document.getElementById('offer-form-title').textContent = 'إضافة عرض جديد';
   document.getElementById('btn-cancel-offer-edit').style.display = 'none';
 }
@@ -1279,6 +1281,7 @@ async function editOffer(id){
   document.getElementById('offer-description').value = o.description || '';
   document.getElementById('offer-published').checked = !!o.is_published;
   document.getElementById('offer-pinned').checked = !!o.is_pinned;
+  document.getElementById('offer-featured').checked = !!o.featured;
   document.getElementById('offer-form-title').textContent = 'تعديل العرض';
   document.getElementById('btn-cancel-offer-edit').style.display = '';
   window.scrollTo({ top: 0, behavior: 'smooth' });
