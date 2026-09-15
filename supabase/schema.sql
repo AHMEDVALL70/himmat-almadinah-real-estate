@@ -1114,8 +1114,14 @@ create table if not exists page_views (
 );
 create index if not exists idx_page_views_viewed_at on page_views(viewed_at desc);
 alter table page_views enable row level security;
+-- ملاحظة تصحيح 2026-09-15: سياسة page_views_public_insert (with check true)
+-- كانت موجودة هنا سابقاً، لكن حُذفت فعلياً من القاعدة الحية (2026-09-13، عبر
+-- migration_close_page_offer_views_insert.sql) بعد نقل التسجيل بالكامل
+-- لمسار /track-view على Worker himmat-ai-backend (بمفتاح service_role،
+-- يتجاوز RLS). هذا الملف كان متأخراً عن الواقع الحي — صُحِّح الآن. أي إدخال
+-- مباشر من anon على هذا الجدول مرفوض بتصميم مقصود (لا سياسة insert = رفض
+-- كل شيء)، يمنع أي زائر يملك مفتاح anon من حقن مشاهدات وهمية مباشرة.
 drop policy if exists page_views_public_insert on page_views;
-create policy page_views_public_insert on page_views for insert with check (true);
 drop policy if exists page_views_admin_read on page_views;
 create policy page_views_admin_read on page_views for select using (auth.role() = 'authenticated');
 
@@ -1163,8 +1169,9 @@ create table if not exists offer_views (
 create index if not exists idx_offer_views_offer_id on offer_views(offer_id);
 create index if not exists idx_offer_views_viewed_at on offer_views(viewed_at desc);
 alter table offer_views enable row level security;
+-- نفس التصحيح الموثَّق أعلاه بجدول page_views — الإدخال المباشر من anon
+-- محذوف فعلياً من القاعدة الحية، الكتابة بس عبر service_role من الـWorker.
 drop policy if exists offer_views_public_insert on offer_views;
-create policy offer_views_public_insert on offer_views for insert with check (true);
 drop policy if exists offer_views_admin_read on offer_views;
 create policy offer_views_admin_read on offer_views for select using (auth.role() = 'authenticated');
 
