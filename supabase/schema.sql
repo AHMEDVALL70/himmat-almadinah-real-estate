@@ -132,6 +132,12 @@ alter table offers add column if not exists image_urls text[];
 -- تحديث 2026-09-15: نفس فكرة image_urls بالعروض، لكن للعقارات المُضافة
 -- عامة (نموذج "أضف عقارك" بدون تسجيل دخول) — يدعم رفع عدة صور دفعة وحدة.
 alter table properties add column if not exists image_urls text[];
+-- تحديث 2026-09-15: علامة "مميّز" يدوية للعروض — بطاقة الصورة المتحركة
+-- بالهيرو تدور بس بين العروض المعلَّمة featured=true (يختارها الفريق
+-- بلوحة التحكم)، بدل أحدث 6 عروض تلقائياً. لو صفر عروض مميّزة، ترجع
+-- الصور الاحتياطية العامة تلقائياً (سلوك موجود أصلاً، صفر تغيير عليه).
+alter table offers add column if not exists featured boolean not null default false;
+create index if not exists idx_offers_featured on offers(featured) where featured = true;
 alter table properties add column if not exists floors_count integer;
 alter table properties add column if not exists has_elevator boolean not null default false;
 alter table properties add column if not exists has_maid_room boolean not null default false;
