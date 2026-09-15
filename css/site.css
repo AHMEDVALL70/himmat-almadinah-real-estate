@@ -259,6 +259,14 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .hero-bg-caption b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero-bg-caption i{font-style:normal;color:#c0a16b;font-weight:700;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:680px){.hero-image-col{max-width:100%;margin-top:0}.hero-image-card{aspect-ratio:4/3}}
+/* قص مخصَّص للجوال بس لخلفية الهيرو — الحاوية بالجوال طويلة جداً عمودياً
+   (كل العناصر تترص فوق بعض بعمود وحد)، فتكبير الصورة لتغطيتها بـcover
+   يبرز الجزء العلوي (السماء) أكثر من المطلوب. هذا يغيّر نقطة التركيز
+   العمودية بس على الجوال — نسخة الكمبيوتر (المعتمدة، القسم أعلاه) ما لها
+   أي علاقة بهذا الاستعلام ولا تتأثر إطلاقاً. */
+@media(max-width:680px){
+  .hero::before{background-position:center 88%}
+}
 @media(max-width:480px){.stats-row{grid-template-columns:repeat(2,1fr);gap:16px 20px}}
 @media (prefers-reduced-motion: reduce){
   .hero-bg-slide{transition:none;animation:none}
