@@ -178,9 +178,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 
 /* Hero */
 .hero{
-  background:
-    linear-gradient(180deg, rgba(2,6,23,.32) 0%, rgba(2,6,23,.52) 55%, rgba(2,6,23,.72) 100%),
-    #020617;
+  background:#020617;
   color:#fff;padding:60px 0 60px;position:relative;overflow:hidden
 }
 .hero::before{
@@ -190,7 +188,10 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 }
 .hero::after{
   content:'';position:absolute;inset:0;z-index:1;
-  background:radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.14) 0%, transparent 55%)
+  background:
+    radial-gradient(ellipse at 75% 25%, rgba(192,161,107,.16) 0%, transparent 55%),
+    linear-gradient(to left, rgba(2,6,23,.68) 0%, rgba(2,6,23,.4) 45%, rgba(2,6,23,.12) 75%),
+    linear-gradient(0deg, rgba(2,6,23,.55) 0%, transparent 30%)
 }
 .hero .container{position:relative;z-index:2}
 .hero-grid{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:36px}
