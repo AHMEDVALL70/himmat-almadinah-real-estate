@@ -265,7 +265,10 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
    العمودية بس على الجوال — نسخة الكمبيوتر (المعتمدة، القسم أعلاه) ما لها
    أي علاقة بهذا الاستعلام ولا تتأثر إطلاقاً. */
 @media(max-width:680px){
-  .hero::before{background-position:center 88%}
+  .hero::before{
+    inset:auto;top:-12px;left:-12px;right:-12px;height:460px;
+    background-position:center 65%;
+  }
 }
 @media(max-width:480px){.stats-row{grid-template-columns:repeat(2,1fr);gap:16px 20px}}
 @media (prefers-reduced-motion: reduce){
