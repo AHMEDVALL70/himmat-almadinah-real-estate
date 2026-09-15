@@ -1173,3 +1173,21 @@ create policy offer_views_admin_read on offer_views for select using (auth.role(
 -- عمود أُضيف بهذا التشغيل، بدل انتظار التحديث التلقائي. آمن يتكرر تشغيله.
 -- ============================================================================
 NOTIFY pgrst, 'reload schema';
+
+-- ============================================================================
+-- آلية جمع بريد إلكتروني (Newsletter) — 2026-09-15
+-- ============================================================================
+create table if not exists newsletter_subscribers (
+    id            uuid primary key default gen_random_uuid(),
+    email         varchar(255) not null unique,
+    source        varchar(50) default 'footer',
+    subscribed_at timestamptz not null default now(),
+    unsubscribed  boolean not null default false
+);
+create index if not exists idx_newsletter_email on newsletter_subscribers(email);
+alter table newsletter_subscribers enable row level security;
+drop policy if exists newsletter_public_insert on newsletter_subscribers;
+create policy newsletter_public_insert on newsletter_subscribers for insert with check (true);
+drop policy if exists newsletter_staff_read on newsletter_subscribers;
+create policy newsletter_staff_read on newsletter_subscribers for select using (public.is_staff());
+NOTIFY pgrst, 'reload schema';
