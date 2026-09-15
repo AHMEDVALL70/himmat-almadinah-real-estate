@@ -107,6 +107,8 @@ const I18N = {
     f_reach:"جوالك أو بريدك الإلكتروني", hours_label:"ساعات العمل: ", hours_value:"الأحد – الخميس: 9ص – 6م · الجمعة والسبت: مغلق",
     whatsapp_word:"واتساب",
     footer_legal:"قانوني", footer_privacy:"سياسة الخصوصية", footer_terms:"شروط الاستخدام",
+    footer_newsletter_tag:"اشترك لتصلك أحدث العروض والعقارات", footer_newsletter_placeholder:"بريدك الإلكتروني", footer_newsletter_btn:"اشترك",
+    footer_newsletter_success:"تم الاشتراك بنجاح!", footer_newsletter_dup:"هذا البريد مشترك أصلاً.", footer_newsletter_error:"تعذّر الاشتراك، حاول لاحقاً.",
     footer_quicklinks_title:"روابط سريعة", footer_services_title:"الخدمات",
     footer_svc_1:"البيع والشراء", footer_svc_2:"مؤشر الأسعار العقارية", footer_svc_3:"كتابة العقود", footer_svc_4:"إدارة الأملاك",
     privacy_title:"سياسة الخصوصية", terms_title:"شروط الاستخدام",
@@ -216,6 +218,8 @@ const I18N = {
     f_reach:"Your phone or email", hours_label:"Working hours: ", hours_value:"Sun – Thu: 9am – 6pm · Fri & Sat: Closed",
     whatsapp_word:"WhatsApp",
     footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Use",
+    footer_newsletter_tag:"Subscribe for the latest offers and properties", footer_newsletter_placeholder:"Your email", footer_newsletter_btn:"Subscribe",
+    footer_newsletter_success:"Subscribed successfully!", footer_newsletter_dup:"This email is already subscribed.", footer_newsletter_error:"Couldn't subscribe, try again later.",
     footer_quicklinks_title:"Quick Links", footer_services_title:"Services",
     footer_svc_1:"Buying & Selling", footer_svc_2:"Property Price Index", footer_svc_3:"Contract Drafting", footer_svc_4:"Property Management",
     privacy_title:"Privacy Policy", terms_title:"Terms of Use",
@@ -3290,6 +3294,39 @@ async function loadLiveStatsCount(){
 //    البيانات (نفس الجدول)، مقبول مقابل السرعة المكتسبة. لو صار الحمل على
 //    القراءات يوماً مصدر قلق فعلي، الحل الأدق تنسيق الاثنين على نفس النتيجة
 //    عبر promise مشترك — تحسين مؤجَّل، مو ضروري الحين.
+/* ============================================================================
+   نموذج الاشتراك بالنشرة البريدية (Footer) — 2026-09-15
+   ========================================================================== */
+document.getElementById('newsletter-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const emailInput = document.getElementById('newsletter-email');
+  const msgEl = document.getElementById('newsletter-msg');
+  const btn = e.target.querySelector('button[type="submit"]');
+  const email = emailInput.value.trim();
+  if (!email || !dbReady) return;
+
+  btn.disabled = true;
+  msgEl.textContent = '';
+  msgEl.style.color = '';
+
+  const { error } = await supa.from('newsletter_subscribers').insert({ email, source: 'footer' });
+
+  btn.disabled = false;
+  const t = I18N[currentLang] || I18N.ar;
+  if (!error) {
+    msgEl.textContent = t.footer_newsletter_success;
+    msgEl.style.color = 'var(--ok, #4fae76)';
+    emailInput.value = '';
+  } else if (error.code === '23505') { // unique_violation — البريد مشترك أصلاً
+    msgEl.textContent = t.footer_newsletter_dup;
+    msgEl.style.color = 'var(--warn, #c0a16b)';
+  } else {
+    console.error('newsletter subscribe failed:', error.message);
+    msgEl.textContent = t.footer_newsletter_error;
+    msgEl.style.color = 'var(--danger, #e2685c)';
+  }
+});
+
 document.addEventListener('DOMContentLoaded', async ()=>{
   dbReady = initSupabase();
   renderConfigBanner();
