@@ -1166,10 +1166,17 @@ async function convertToOffer(propertyId, alreadyConverted){
   if (p.property_type !== 'عمارة') document.getElementById('offer-rooms').value = p.rooms || '';
   document.getElementById('offer-price-original').value = p.price || '';
   document.getElementById('offer-price-final').value = p.price || '';
+  // ===== إصلاح 2026-09-15: نقل صور العقار المُقدَّم (لو موجودة) بدل فقدانها
+  // — كانت الصورة اللي رفعها الزائر تختفي تماماً عند التحويل، ويضطر الموظف
+  // يرفعها يدوياً من جديد (لو كانت محفوظة عنده أصلاً، وغالباً ما تكون).
+  currentOfferImages = Array.isArray(p.image_urls) && p.image_urls.length > 0
+    ? [...p.image_urls]
+    : (p.image_url ? [p.image_url] : []);
+  renderOfferImageThumbs();
   document.querySelector('[data-tab="offers"]').click();
   document.getElementById('offer-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
   document.getElementById('offer-title').focus();
-  showToast('✅ تم تعبئة بيانات العقار — أكمل باقي التفاصيل (الصورة، المسوّق، الخصم إن وجد)');
+  showToast('✅ تم تعبئة بيانات العقار (والصور المرفقة إن وجدت) — أكمل باقي التفاصيل (المسوّق، الخصم إن وجد)');
 }
 
 document.getElementById('btn-save-offer').addEventListener('click', async ()=>{
