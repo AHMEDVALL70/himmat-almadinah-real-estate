@@ -3082,20 +3082,16 @@ async function searchProperties(q){
       const { data, error } = await withTimeout(query);
       if (!error && data) results = data.map(p=>({ city:p.city, district:p.district, property_type:p.property_type, price:p.price, area_sqm:p.area_sqm, rooms:p.rooms }));
     } catch (e) {
-      console.error('searchProperties: Supabase call failed, falling back to demo search.', e);
+      console.error('searchProperties: Supabase call failed.', e);
     }
   }
-  if (!results.length){
-    const demo = DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar;
-    results = demo.filter(o=>{
-      if (q.city && o.city !== cityLabel(q.city) && o.city !== q.city) return false;
-      const price = o.price_final || o.price_original;
-      if (q.maxPrice && price && price > q.maxPrice) return false;
-      if (q.minPrice && price && price < q.minPrice) return false;
-      if (q.rooms && o.rooms !== q.rooms) return false;
-      return true;
-    }).map(o=>({ city:o.city, district:o.district, property_type:o.property_type, price:o.price_final || o.price_original, area_sqm:o.area_sqm, rooms:o.rooms }));
-  }
+  // 2026-09-18: أُزيل الاحتياطي للبيانات التوضيحية الثابتة (DEMO_OFFERS_I18N)
+  // من هذا المسار بالذات — كان يعرض عقارات وهمية للمساعد الذكي بثقة كاملة
+  // (بدون أي تحذير "توضيحي" زي صفحة العروض العادية)، مرتبطة برقم جوال
+  // الشركة الحقيقي. خطر ثقة حقيقي: زبون يتصل يسأل عن عقار غير موجود أصلاً.
+  // الأصح صراحة — صفر نتائج حقيقية = رسالة "ما لقيت نتيجة" (t.noResults
+  // بالمستدعي)، مو اختلاق نتيجة. DEMO_OFFERS_I18N نفسها لسا مستخدمة بأماكن
+  // أخرى (صفحة العروض وقسم "مميزة" بالرئيسية) وفيها تحذير واضح للزائر هناك.
   return results;
 }
 
