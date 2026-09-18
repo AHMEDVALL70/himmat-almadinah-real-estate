@@ -316,7 +316,7 @@ nav.links a.active::after{content:"";position:absolute;right:0;left:0;bottom:-16
 .offer-body{padding:18px}
 .offer-body h4{margin:0 0 4px}
 .match-badge{display:inline-block;background:rgba(192,161,107,.15);color:var(--gold-500);font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;margin-bottom:8px}
-.license-badge{display:inline-block;background:rgba(79,174,118,.15);color:var(--ok,#4fae76);font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;margin-bottom:8px;margin-inline-start:6px}
+.offer-license-badge{display:inline-block;background:rgba(79,174,118,.15);color:var(--ok,#4fae76);font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;margin-bottom:8px;margin-inline-start:6px}
 .offer-body .loc{color:var(--text-600);font-size:13px;margin-bottom:10px}
 .offer-body .price{font-weight:900;font-size:18px;color:var(--gold-500)}
 .offer-body .price s{color:var(--text-600);font-weight:400;font-size:14px;margin-inline-start:8px}

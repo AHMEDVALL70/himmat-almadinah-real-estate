@@ -883,7 +883,7 @@ function offerCardHtml(o, matchScore){
   // 2026-09-18: شارة ثقة مرئية لأي عرض عنده رقم رخصة عقارية موثَّق — تميّز
   // حقيقي عن مجموعات العقار غير المرخَّصة المنتشرة بواتساب/تيليجرام محلياً.
   const licenseBadge = o.real_estate_license
-    ? `<span class="license-badge" title="${currentLang==='ar' ? 'رخصة عقارية موثّقة رقم ' : 'Verified real estate license no. '}${escapeHtml(o.real_estate_license)}">✅ ${currentLang==='ar' ? 'رخصة موثّقة' : 'Licensed'}</span>`
+    ? `<span class="offer-license-badge" title="${currentLang==='ar' ? 'رخصة عقارية موثّقة رقم ' : 'Verified real estate license no. '}${escapeHtml(o.real_estate_license)}">✅ ${currentLang==='ar' ? 'رخصة موثّقة' : 'Licensed'}</span>`
     : '';
   return `<div class="card offer-card fade-up" onclick="openDetailModal('${key}')">
     <button type="button" class="favorite-btn${isFavorite(key) ? ' active' : ''}" id="fav-${key}"
