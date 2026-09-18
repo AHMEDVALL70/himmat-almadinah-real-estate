@@ -57,6 +57,7 @@
     <button class="tab-btn" data-tab="inquiries">الاستفسارات</button>
     <button class="tab-btn" data-tab="contracts">العقود</button>
     <button class="tab-btn" data-tab="cities">المدن والأحياء</button>
+    <button class="tab-btn" data-tab="trash">🗑️ المحذوفات</button>
     <button class="tab-btn" data-tab="team" data-owner-only>فريق العمل</button>
   </div>
 
@@ -282,6 +283,27 @@
         <table>
           <thead><tr><th>المدينة</th><th>عدد الأحياء المسجَّلة</th></tr></thead>
           <tbody id="cities-summary-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Trash (soft-deleted offers & properties) — 2026-09-18 -->
+    <section class="tab-panel" id="panel-trash">
+      <p style="font-size:13px;color:var(--text-600);margin:0 0 16px">
+        العناصر هنا محذوفة من العرض العام، بس محفوظة بالكامل وقابلة للاسترجاع — الحذف الفعلي (نهائي، بدون استرجاع) يتم فقط يدوياً من قاعدة البيانات مباشرة، مو من هذي اللوحة.
+      </p>
+      <h3 style="margin:0 0 10px">عروض محذوفة</h3>
+      <div class="card" style="padding:0;overflow-x:auto;margin-bottom:24px">
+        <table>
+          <thead><tr><th>العنوان</th><th>الموقع</th><th>السعر</th><th>تاريخ الحذف</th><th>إجراء</th></tr></thead>
+          <tbody id="trash-offers-tbody"></tbody>
+        </table>
+      </div>
+      <h3 style="margin:0 0 10px">عقارات محذوفة</h3>
+      <div class="card" style="padding:0;overflow-x:auto">
+        <table>
+          <thead><tr><th>الموقع</th><th>النوع</th><th>السعر</th><th>تاريخ الحذف</th><th>إجراء</th></tr></thead>
+          <tbody id="trash-properties-tbody"></tbody>
         </table>
       </div>
     </section>

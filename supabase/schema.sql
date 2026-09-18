@@ -150,6 +150,18 @@ alter table properties add column if not exists units_per_floor integer;
 alter table properties add column if not exists converted_to_offer boolean not null default false;
 
 -- ============================================================================
+-- 3.4) الحذف الناعم (Soft Delete) — 2026-09-18
+-- بدل DELETE فعلي (كان يفقد البيانات نهائياً بلا استرجاع، ولا نسخ احتياطي
+-- تلقائي بالخطة المجانية أصلاً)، نعلّم الصف بـdeleted_at ونخفيه من كل
+-- القراءات العادية (عامة وإدارية) — راجع السياسات المحدَّثة بقسم RLS أدناه
+-- وتبويب "المحذوفات" الجديد بلوحة التحكم للاسترجاع.
+-- ============================================================================
+alter table offers add column if not exists deleted_at timestamptz;
+alter table properties add column if not exists deleted_at timestamptz;
+create index if not exists idx_offers_deleted_at on offers(deleted_at);
+create index if not exists idx_properties_deleted_at on properties(deleted_at);
+
+-- ============================================================================
 -- 3.5) المدن والأحياء — مرجع مركزي يغذي كل قوائم المدينة/الحي في الموقع
 --      (التقييم، إضافة عقار، العقود). قابل للتوسعة: الإدارة تقدر تضيف مدينة
 --      أو حياً جديداً من لوحة التحكم (انظر §9.6)، فيُحفظ ويستفيد منه كل الزوار
@@ -899,15 +911,15 @@ alter table contracts             enable row level security;
 alter table contract_installments enable row level security;
 alter table notification_log      enable row level security;
 
--- العروض: قراءة عامة للمنشور فقط، لا كتابة من الزوار إطلاقاً
+-- العروض: قراءة عامة للمنشور وغير المحذوف ناعماً فقط، لا كتابة من الزوار إطلاقاً
 drop policy if exists offers_public_read on offers;
 create policy offers_public_read on offers
-    for select using (is_published = true);
+    for select using (is_published = true and deleted_at is null);
 
--- العقارات: قراءة عامة للمعتمد فقط + إدخال عام (يُجبر على pending بالـ trigger)
+-- العقارات: قراءة عامة للمعتمد وغير المحذوف ناعماً فقط + إدخال عام (يُجبر على pending بالـ trigger)
 drop policy if exists properties_public_read on properties;
 create policy properties_public_read on properties
-    for select using (status = 'approved');
+    for select using (status = 'approved' and deleted_at is null);
 -- الإدخال العام (بدون تسجيل دخول) يمر حصراً عبر Edge Function
 -- "public-submit" (تتحقق من Turnstile أولاً، وتستخدم service_role للإدخال
 -- الفعلي — يتجاوز RLS تماماً). هذي السياسة تسمح فقط لـstaff (owner/editor)
@@ -993,9 +1005,9 @@ create policy properties_admin_read on properties
 drop policy if exists properties_admin_update on properties;
 create policy properties_admin_update on properties
     for update using (public.is_staff());
+-- properties_admin_delete أُلغيت نهائياً (2026-09-18) — الحذف الآن UPDATE
+-- على deleted_at فقط (حذف ناعم)، ما يحتاج صلاحية DELETE بعد الآن.
 drop policy if exists properties_admin_delete on properties;
-create policy properties_admin_delete on properties
-    for delete using (public.is_staff());
 
 drop policy if exists inquiries_admin_read on inquiries;
 create policy inquiries_admin_read on inquiries
@@ -1004,10 +1016,17 @@ drop policy if exists inquiries_admin_update on inquiries;
 create policy inquiries_admin_update on inquiries
     for update using (public.is_staff());
 
+-- offers: صلاحية الكتابة الإدارية مقسومة لثلاث عمليات فقط (select/insert/
+-- update) — بدون delete إطلاقاً (كانت "for all" قبل 2026-09-18). الحذف
+-- الآن UPDATE على deleted_at فقط (حذف ناعم)، فما يحتاج صلاحية DELETE أصلاً
+-- — دفاع مزدوج حتى لو حد استدعى .delete() مباشرة متجاوزاً admin.html.
 drop policy if exists offers_admin_write on offers;
-create policy offers_admin_write on offers
-    for all using (public.is_staff())
-    with check (public.is_staff());
+create policy offers_admin_select on offers
+    for select using (public.is_staff());
+create policy offers_admin_insert on offers
+    for insert with check (public.is_staff());
+create policy offers_admin_update on offers
+    for update using (public.is_staff()) with check (public.is_staff());
 
 -- العقود/الأطراف/الدفعات: قراءة إدارية فقط (نفس نمط بقية اللوحة) — كانت
 -- مفقودة تماماً؛ بدونها admin.html يقدر يكتب عقود (عبر create_contract_with_schedule

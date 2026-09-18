@@ -438,6 +438,69 @@ document.getElementById('btn-add-team-member')?.addEventListener('click', async 
   }
 });
 
+/* ============================================================================
+   Trash — soft-deleted offers & properties (2026-09-18)
+   ========================================================================== */
+async function loadTrash(){
+  const offersTbody = document.getElementById('trash-offers-tbody');
+  const propsTbody = document.getElementById('trash-properties-tbody');
+  offersTbody.innerHTML = `<tr class="empty-row"><td colspan="5">جاري التحميل...</td></tr>`;
+  propsTbody.innerHTML = `<tr class="empty-row"><td colspan="5">جاري التحميل...</td></tr>`;
+  try {
+    const { data, error } = await supa.from('offers').select('*').not('deleted_at', 'is', null).order('deleted_at', { ascending: false }).limit(50);
+    if (error) throw error;
+    offersTbody.innerHTML = (data && data.length) ? data.map(o => `
+      <tr>
+        <td>${o.title}</td><td>${o.city} — ${o.district}</td>
+        <td>${o.price_final ? money(o.price_final) + ' ر.س' : '—'}</td>
+        <td>${new Date(o.deleted_at).toLocaleDateString('ar-SA')}</td>
+        <td class="actions-cell"><button class="btn btn-ok" data-staff-only onclick="restoreOffer('${o.id}')">↩️ استرجاع</button></td>
+      </tr>`).join('') : `<tr class="empty-row"><td colspan="5">لا يوجد عروض محذوفة.</td></tr>`;
+  } catch (e) {
+    console.error('loadTrash offers failed', e);
+    offersTbody.innerHTML = `<tr class="empty-row"><td colspan="5">⚠️ تعذّر تحميل العروض المحذوفة.</td></tr>`;
+  }
+  try {
+    const { data, error } = await supa.from('properties').select('*').not('deleted_at', 'is', null).order('deleted_at', { ascending: false }).limit(50);
+    if (error) throw error;
+    propsTbody.innerHTML = (data && data.length) ? data.map(p => `
+      <tr>
+        <td>${p.city} — ${p.district}</td><td>${p.property_type}</td>
+        <td>${money(p.price)} ر.س</td>
+        <td>${new Date(p.deleted_at).toLocaleDateString('ar-SA')}</td>
+        <td class="actions-cell"><button class="btn btn-ok" data-staff-only onclick="restoreProperty('${p.id}')">↩️ استرجاع</button></td>
+      </tr>`).join('') : `<tr class="empty-row"><td colspan="5">لا يوجد عقارات محذوفة.</td></tr>`;
+  } catch (e) {
+    console.error('loadTrash properties failed', e);
+    propsTbody.innerHTML = `<tr class="empty-row"><td colspan="5">⚠️ تعذّر تحميل العقارات المحذوفة.</td></tr>`;
+  }
+}
+
+async function restoreOffer(id){
+  try {
+    const { error } = await supa.from('offers').update({ deleted_at: null }).eq('id', id);
+    if (error) throw error;
+    showToast('✅ تم الاسترجاع');
+    loadTrash();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر الاسترجاع: ' + e.message);
+  }
+}
+
+async function restoreProperty(id){
+  try {
+    const { error } = await supa.from('properties').update({ deleted_at: null }).eq('id', id);
+    if (error) throw error;
+    showToast('✅ تم الاسترجاع');
+    loadTrash();
+    loadDashboard();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر الاسترجاع: ' + e.message);
+  }
+}
+
 async function loadTeamMembers(){
   const tbody = document.getElementById('team-members-tbody');
   if (!tbody) return;
@@ -717,6 +780,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     if (btn.dataset.tab === 'inquiries') loadInquiries();
     if (btn.dataset.tab === 'contracts') loadContracts();
     if (btn.dataset.tab === 'team') loadTeamMembers();
+    if (btn.dataset.tab === 'trash') loadTrash();
   });
 });
 
@@ -728,12 +792,12 @@ async function loadDashboard(){
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const [pending, approved, rejected, newInq, contractsCount, recent, viewsToday, viewsTotal, satisfiedCount, satisfactionTotal] = await Promise.all([
-      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
-      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'rejected'),
+      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'pending').is('deleted_at', null),
+      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'approved').is('deleted_at', null),
+      supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'rejected').is('deleted_at', null),
       supa.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
       supa.from('contracts').select('id', { count: 'exact', head: true }),
-      supa.from('properties').select('*').order('created_at', { ascending: false }).limit(8),
+      supa.from('properties').select('*').is('deleted_at', null).order('created_at', { ascending: false }).limit(8),
       supa.from('page_views').select('id', { count: 'exact', head: true }).gte('viewed_at', todayStart.toISOString()),
       supa.from('page_views').select('id', { count: 'exact', head: true }),
       supa.from('satisfaction_feedback').select('id', { count: 'exact', head: true }).eq('satisfied', true),
@@ -836,7 +900,7 @@ async function loadProperties(){
   const tbody = document.getElementById('properties-tbody');
   tbody.innerHTML = `<tr class="empty-row"><td colspan="10">جاري التحميل...</td></tr>`;
   try {
-    let query = supa.from('properties').select('*').order('created_at', { ascending: false }).limit(100);
+    let query = supa.from('properties').select('*').is('deleted_at', null).order('created_at', { ascending: false }).limit(100);
     if (filter !== 'all') query = query.eq('status', filter);
     const { data, error } = await query;
     if (error) throw error;
@@ -891,11 +955,12 @@ async function setPropertyStatus(id, status){
 }
 
 async function deleteProperty(id){
-  if (!confirm('حذف هذا العقار نهائياً؟ لا يمكن التراجع.')) return;
+  // 2026-09-18: حذف ناعم بدل DELETE فعلي — راجع تبويب "المحذوفات" للاسترجاع.
+  if (!confirm('نقل هذا العقار لسلة المحذوفات؟ تقدر تسترجعه لاحقاً من تبويب "المحذوفات".')) return;
   try {
-    const { error } = await supa.from('properties').delete().eq('id', id);
+    const { error } = await supa.from('properties').update({ deleted_at: new Date().toISOString() }).eq('id', id);
     if (error) throw error;
-    showToast('🗑️ تم الحذف');
+    showToast('🗑️ انتقل للمحذوفات — يمكن استرجاعه');
     loadProperties();
     loadDashboard();
   } catch (e) {
@@ -1224,7 +1289,7 @@ async function loadOffers(){
   const tbody = document.getElementById('offers-tbody');
   tbody.innerHTML = `<tr class="empty-row"><td colspan="8">جاري التحميل...</td></tr>`;
   try {
-    const { data, error } = await supa.from('offers').select('*').order('created_at', { ascending: false }).limit(100);
+    const { data, error } = await supa.from('offers').select('*').is('deleted_at', null).order('created_at', { ascending: false }).limit(100);
     if (error) throw error;
     if (!data || !data.length){
       tbody.innerHTML = `<tr class="empty-row"><td colspan="8">لا توجد عروض بعد.</td></tr>`;
@@ -1312,11 +1377,12 @@ async function toggleOfferSold(id, newState){
 }
 
 async function deleteOffer(id){
-  if (!confirm('حذف هذا العرض نهائياً؟')) return;
+  // 2026-09-18: حذف ناعم بدل DELETE فعلي — راجع تبويب "المحذوفات" للاسترجاع.
+  if (!confirm('نقل هذا العرض لسلة المحذوفات؟ تقدر تسترجعه لاحقاً من تبويب "المحذوفات".')) return;
   try {
-    const { error } = await supa.from('offers').delete().eq('id', id);
+    const { error } = await supa.from('offers').update({ deleted_at: new Date().toISOString() }).eq('id', id);
     if (error) throw error;
-    showToast('🗑️ تم الحذف');
+    showToast('🗑️ انتقل للمحذوفات — يمكن استرجاعه');
     loadOffers();
   } catch (e) {
     console.error(e);
