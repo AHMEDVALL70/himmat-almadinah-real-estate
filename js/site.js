@@ -1465,10 +1465,17 @@ async function renderFeatured(){
       console.error('renderFeatured: Supabase call failed, falling back to demo data.', e);
     }
   }
+  let isDemo = false;
   if (!items.length){
     items = (DEMO_OFFERS_I18N[currentLang] || DEMO_OFFERS_I18N.ar).slice(0, 3);
+    isDemo = true;
   }
-  grid.innerHTML = items.map(o => offerCardHtml(o)).join('');
+  // 2026-09-18: نفس تحذير "توضيحي" الموجود بـrenderOffers — كان غايباً هنا
+  // (تناقض ثقة: عقارات وهمية تُعرض بصفحة "مميزة" بالرئيسية بدون أي إشارة).
+  const demoLabel = { ar:"عروض توضيحية — اربط قاعدة البيانات لعرض العروض الفعلية.",
+                       en:"Demo offers — connect the database to show real offers." }[currentLang];
+  grid.innerHTML = items.map(o => offerCardHtml(o)).join('') +
+    (isDemo ? `<div class="notice notice-warn" style="grid-column:1/-1">${demoLabel}</div>` : '');
   observeFadeUps();
 }
 
