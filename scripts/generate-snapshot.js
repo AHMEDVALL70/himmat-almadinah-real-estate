@@ -38,6 +38,13 @@ function escapeHtml(s) {
   }[c]));
 }
 
+// النصوص (خصوصاً وصف العروض) أحياناً فيها رموز تنسيق Markdown (**عريض**)
+// كانت مقصودة لمكان عرض آخر — هنا محتوى نصي خام بس، فنشيلها قبل الحقن
+// عشان ما تظهر نجمتين حرفياً بالنص للزواحف الآلية.
+function stripMarkdown(s) {
+  return String(s ?? "").replace(/\*\*/g, "").replace(/[*_`#]/g, "");
+}
+
 function money(n) {
   const num = Number(n);
   return Number.isFinite(num) ? num.toLocaleString("ar-SA") : "-";
@@ -59,7 +66,7 @@ async function buildSnapshotHtml() {
     .join("\n");
 
   const offersRows = offers
-    .map((o) => `<li><b>${escapeHtml(o.title)}</b>: ${escapeHtml(o.description || "")} — ${escapeHtml(o.city)}، حي ${escapeHtml(o.district)}، السعر ${money(o.price_final || o.price_original)} ريال سعودي.</li>`)
+    .map((o) => `<li><b>${escapeHtml(o.title)}</b>: ${escapeHtml(stripMarkdown(o.description || ""))} — ${escapeHtml(o.city)}، حي ${escapeHtml(o.district)}، السعر ${money(o.price_final || o.price_original)} ريال سعودي.</li>`)
     .join("\n");
 
   return `
