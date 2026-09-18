@@ -65,9 +65,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=Almarai:wght@400;700&display=swap" rel="stylesheet">
 
-<script src="lib/supabase.min.js"></script>
+<script src="lib/supabase.min.js" defer></script>
 
 
+<link rel="canonical" href="https://himmat.sa/">
 <link rel="stylesheet" href="css/site.css?v=20260915g">
 </head>
 <body>
@@ -420,6 +421,10 @@
       <b data-i18n="val_honesty_label">ملاحظة مهمة حول الدقة: </b>
       <span data-i18n="val_honesty_text">هذا المؤشر ناتج عن معادلة حسابية شفافة (سعر المتر × المساحة مع معاملات تعديل) — مع نموذج ذكاء اصطناعي يخمّن، سعر المتر نفسه إما من صفقات حقيقية موثّقة (وزارة العدل عبر رغدان) لو متوفرة لهذا الحي تحديداً، أو متوسط عام للمدينة — النتيجة أدناه توضح أي الحالتين تنطبق. اعتبره نقطة انطلاق للنقاش، لا تقييماً معتمداً رسمياً.</span>
     </div>
+    <!-- 2026-09-18: بانر عام لحداثة قاعدة بيانات الأسعار كاملة — يُملأ من
+         renderPriceDbFreshness() بـsite.js بعد تحميل district_prices، قبل
+         حتى ما يبدأ الزائر يحسب مؤشر عقار معيّن -->
+    <div class="notice" id="v-db-freshness" style="margin-bottom:14px;display:none"></div>
 
     <div class="grid grid-2">
       <div class="card" style="padding:22px">

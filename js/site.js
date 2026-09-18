@@ -290,6 +290,7 @@ function applyLang(lang){
   renderQuickChips();
   try { runValuation(); } catch(e){}
   if (analyticsLoaded) renderAnalytics();
+  renderPriceDbFreshness();
 }
 document.getElementById('lang-switch').addEventListener('click', e=>{
   const btn = e.target.closest('button[data-lang]');
@@ -1795,6 +1796,31 @@ async function loadCitiesFromDb(){
    supabase/functions/update-district-prices). تُدمَج فوق DISTRICT_PRICES
    الثابتة (البذرة الاحتياطية)، فأي حي بقاعدة البيانات يطغى على رقمه القديم،
    وأي حي غير موجود بعد بقاعدة البيانات يبقى على رقم البذرة أو التقدير العام. */
+/* 2026-09-18: بانر عام أعلى صفحة "المؤشر" — أحدث updated_at بين كل الأحياء
+   المحمَّلة فعلياً بـDISTRICT_PRICE_META (بيانات حقيقية أو يدوية، الاثنين
+   عندهم updated_at حقيقي محدَّث — راجع تحديث-district-prices وadmin.js).
+   لا نعرض أي تاريخ لحالة "متوسط المدينة العام" لأنها رقم ثابت بجدول cities
+   بدون أي عمود updated_at أصلاً — عرض تاريخ هناك يكون كذباً على الزائر. */
+function renderPriceDbFreshness(){
+  const el = document.getElementById('v-db-freshness');
+  if (!el) return;
+  let latest = null;
+  Object.values(DISTRICT_PRICE_META).forEach(districts=>{
+    Object.values(districts).forEach(meta=>{
+      if (!meta.updatedAt) return;
+      const d = new Date(meta.updatedAt);
+      if (!latest || d > latest) latest = d;
+    });
+  });
+  if (!latest){ el.style.display = 'none'; return; }
+  const text = {
+    ar: `📅 قاعدة بيانات الأسعار — آخر تحديث: ${latest.toLocaleDateString('ar-SA')}`,
+    en: `📅 Price database — last updated: ${latest.toLocaleDateString('en-GB')}`,
+  };
+  el.textContent = text[currentLang] || text.ar;
+  el.style.display = '';
+}
+
 async function loadDistrictPricesFromDb(){
   if (!dbReady) return;
   try {
@@ -2090,18 +2116,26 @@ function runValuation(){
       : 'cumulative documented data (not a single specific year — see source for details)',
   };
 
+  // 2026-09-18: تاريخ آخر تحديث للسعر اليدوي نفسه — priceMeta.updatedAt
+  // حقيقي ومحدَّث فعلياً وقت الحفظ من لوحة التحكم (راجع btn-save-manual-price
+  // بـadmin.js)، خلاف متوسط المدينة العام اللي ما له عمود تاريخ أصلاً.
+  const manualUpdatedDesc = {
+    ar: priceMeta?.updatedAt ? ` — آخر تحديث لهذا السعر اليدوي: ${new Date(priceMeta.updatedAt).toLocaleDateString('ar-SA')}` : '',
+    en: priceMeta?.updatedAt ? ` — this manual price was last updated: ${new Date(priceMeta.updatedAt).toLocaleDateString('en-GB')}` : '',
+  };
+
   const isManual = priceMeta?.source === 'manual';
   const sourceNote = {
     ar: isManual
-      ? `سعر المتر (${money(pricePerSqm)} ر.س) متوسط نطاق سعري مُدخَل يدوياً لحي ${districtVal}: ${money(priceMeta.manualLow)}–${money(priceMeta.manualHigh)} ر.س/م²${priceMeta.manualNote ? ' — المصدر: ' + priceMeta.manualNote : ''}.`
+      ? `سعر المتر (${money(pricePerSqm)} ر.س) متوسط نطاق سعري مُدخَل يدوياً لحي ${districtVal}: ${money(priceMeta.manualLow)}–${money(priceMeta.manualHigh)} ر.س/م²${priceMeta.manualNote ? ' — المصدر: ' + priceMeta.manualNote : ''}${manualUpdatedDesc.ar}.`
       : usingRealPrice
       ? `سعر المتر (${money(pricePerSqm)} ر.س) وسيط صفقات فعلية موثّقة لحي ${districtVal} — ${periodDesc.ar} (مصدر: وزارة العدل عبر رغدان العقارية) — قد يختلف عن سعر السوق الحالي بالضبط في الأحياء سريعة الارتفاع.`
-      : `سعر المتر (${money(pricePerSqm)} ر.س) هو متوسط استرشادي لمدينة ${cityVal} بالكامل (ما فيه بيانات صفقات فعلية موثّقة لحي ${districtVal} بعد)، معدَّل بتصنيف الحي اليدوي.`,
+      : `سعر المتر (${money(pricePerSqm)} ر.س) هو متوسط استرشادي لمدينة ${cityVal} بالكامل (ما فيه بيانات صفقات فعلية موثّقة لحي ${districtVal} بعد)، معدَّل بتصنيف الحي اليدوي — رقم استرشادي عام غير مرتبط بجدولة تحديث دورية محدَّدة.`,
     en: isManual
-      ? `The per-sqm price (${money(pricePerSqm)} SAR) is the midpoint of a manually entered range for ${districtVal}: ${money(priceMeta.manualLow)}–${money(priceMeta.manualHigh)} SAR/sqm${priceMeta.manualNote ? ' — source: ' + priceMeta.manualNote : ''}.`
+      ? `The per-sqm price (${money(pricePerSqm)} SAR) is the midpoint of a manually entered range for ${districtVal}: ${money(priceMeta.manualLow)}–${money(priceMeta.manualHigh)} SAR/sqm${priceMeta.manualNote ? ' — source: ' + priceMeta.manualNote : ''}${manualUpdatedDesc.en}.`
       : usingRealPrice
       ? `The per-sqm price (${money(pricePerSqm)} SAR) is a median of documented transactions for ${districtVal} — ${periodDesc.en} (source: Ministry of Justice via Raghdan) — may differ from the exact current market price in fast-appreciating districts.`
-      : `The per-sqm price (${money(pricePerSqm)} SAR) is a citywide indicator for ${cityVal} (no verified transaction data for ${districtVal} yet), adjusted by the manual district grade.`,
+      : `The per-sqm price (${money(pricePerSqm)} SAR) is a citywide indicator for ${cityVal} (no verified transaction data for ${districtVal} yet), adjusted by the manual district grade — a general guideline figure not tied to a specific periodic update schedule.`,
   };
   const priceSourceEl = document.getElementById('v-price-source');
   priceSourceEl.className = 'notice ' + ((usingRealPrice || isManual) ? 'notice-ok-source' : 'notice-warn');
@@ -3526,6 +3560,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     safely('loadCitiesFromDb', loadCitiesFromDb),
     safely('loadDistrictPricesFromDb', loadDistrictPricesFromDb),
   ]);
+  renderPriceDbFreshness();
   populateCitySelects();
   populateTypeSelects();
   initCustomFilterDropdowns();
