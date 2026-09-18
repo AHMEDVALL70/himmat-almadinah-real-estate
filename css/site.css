@@ -115,6 +115,9 @@ section{padding:44px 0 60px}
 .notice-ok-source{background:rgba(79,174,118,.14);color:#6fd99a;border:1px solid rgba(79,174,118,.35)}
 .notice-info{background:rgba(37,50,78,.6);color:var(--text-600);border:1px solid var(--line)}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-width:0}
+.custom-filter-dropdown{position:absolute;top:100%;right:0;left:0;z-index:60;max-height:220px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-top:4px;box-shadow:var(--shadow)}
+.custom-filter-dropdown-item{padding:10px 14px;font-size:14px;cursor:pointer;color:var(--text-900)}
+.custom-filter-dropdown-item:hover,.custom-filter-dropdown-item:active{background:rgba(192,161,107,.14)}
 .field label{font-size:13px;font-weight:700;color:var(--text-600)}
 .field input,.field select,.field textarea{
   padding:11px 13px;border-radius:9px;border:1.5px solid var(--line);

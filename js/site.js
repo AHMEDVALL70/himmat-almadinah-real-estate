@@ -1883,6 +1883,77 @@ function populateTypeSelects(){
   });
 }
 
+/* ============================================================================
+   قائمة منسدلة مخصَّصة بديلة عن <datalist> القياسية — 2026-09-18
+   ----------------------------------------------------------------------------
+   السبب: <datalist> دعمها ضعيف وغير متّسق بمتصفحات الجوال (خصوصاً Safari
+   بالآيفون — تأكدنا بالصورة الفعلية: الاقتراحات تطلع بشريط لوحة المفاتيح
+   بدل قائمة حقيقية بالصفحة، فما تفلتر بشكل مرئي للمستخدم أثناء الكتابة).
+   بالكمبيوتر تشتغل تمام، وهذا بالضبط سبب "توجد بنسخة الكمبيوتر" اللي
+   لاحظه المستخدم. الحل: قائمة مبنية بالكامل بجافاسكربت، سلوك موحَّد
+   بكل الأجهزة، تستبدل الاعتماد على ميزة المتصفح الأصلية القاصرة.
+   تنطبق على 6 حقول: أحياء (v/add/c) وأنواع عقار (v/add/c-unit).
+   ========================================================================== */
+function attachCustomFilterDropdown(input, getOptions){
+  let dropdown = null;
+
+  function closeDropdown(){
+    if (dropdown){ dropdown.remove(); dropdown = null; }
+  }
+
+  function renderDropdown(){
+    const query = input.value.trim();
+    const options = getOptions();
+    const matches = query ? options.filter(o => o.label.includes(query)) : options;
+    closeDropdown();
+    if (matches.length === 0) return;
+
+    dropdown = document.createElement('div');
+    dropdown.className = 'custom-filter-dropdown';
+    matches.slice(0, 50).forEach(opt => {
+      const item = document.createElement('div');
+      item.className = 'custom-filter-dropdown-item';
+      item.textContent = opt.label;
+      // mousedown (مو click) عشان يسجّل قبل ما حدث blur يشيل القائمة
+      item.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        input.value = opt.value;
+        closeDropdown();
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      dropdown.appendChild(item);
+    });
+    const wrap = input.parentElement;
+    if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
+    wrap.appendChild(dropdown);
+  }
+
+  input.removeAttribute('list'); // يلغي datalist الأصلية عشان ما تظهر قائمتين فوق بعض بالمتصفحات اللي تدعمها
+  input.addEventListener('input', renderDropdown);
+  input.addEventListener('focus', renderDropdown);
+  input.addEventListener('blur', () => setTimeout(closeDropdown, 150));
+}
+
+function initCustomFilterDropdowns(){
+  // حقول الأحياء الثلاثة — القائمة تعتمد على المدينة المختارة حالياً بكل مرة
+  [['v-district','v-city'], ['add-district','add-city'], ['c-district','c-city']].forEach(([districtId, cityId]) => {
+    const input = document.getElementById(districtId);
+    if (!input) return;
+    attachCustomFilterDropdown(input, () => {
+      const city = document.getElementById(cityId)?.value;
+      return (CITY_DISTRICTS[city] || []).map(d => ({ value: d, label: districtLabel(d) }));
+    });
+  });
+  // حقول نوع العقار الثلاثة
+  ['v-type', 'add-type', 'c-unit-type'].forEach(id => {
+    const input = document.getElementById(id);
+    if (!input) return;
+    attachCustomFilterDropdown(input, () =>
+      PROPERTY_TYPES.map(t => ({ value: t.v, label: t[currentLang] || t.ar }))
+    );
+  });
+}
+
 /* Add-city modal — shared by all three forms */
 document.querySelectorAll('.amenity-row').forEach(row=>{
   row.addEventListener('click', e=>{
@@ -3457,6 +3528,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   ]);
   populateCitySelects();
   populateTypeSelects();
+  initCustomFilterDropdowns();
   updateValuationFieldsForType();
   updateAddPropertyFieldsForType();
   populateFilterSelects();
