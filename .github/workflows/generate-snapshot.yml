@@ -1,0 +1,43 @@
+name: تحديث لقطة المحتوى للزواحف الآلية
+
+# يشتغل تلقائياً كل يوم الساعة 3 فجراً بتوقيت السعودية (00:00 UTC)، وأيضاً
+# يدوياً من تبويب Actions بلوحة GitHub لو احتجت تحديث فوري (اضغط
+# "Run workflow"). صفر أثر على أي زائر عادي بالموقع — بس يحدّث المحتوى
+# النصي المخصَّص للزواحف الآلية (scripts/generate-snapshot.js).
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch: {}
+
+# صلاحية الكتابة على المستودع لازمة عشان يقدر يحفظ index.html المحدَّث —
+# هذي صلاحية GITHUB_TOKEN المدمجة تلقائياً بكل مستودع (تنتهي فور انتهاء
+# التشغيل، بدون أي سرّ إضافي يُحفظ أو يُدار يدوياً).
+permissions:
+  contents: write
+
+jobs:
+  update-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: سحب المستودع
+        uses: actions/checkout@v4
+
+      - name: تجهيز Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: تشغيل سكربت توليد اللقطة
+        run: node scripts/generate-snapshot.js
+
+      - name: حفظ التحديث (لو فيه تغيير فعلي بس)
+        run: |
+          git config user.name "himmat-snapshot-bot"
+          git config user.email "actions@github.com"
+          if git diff --quiet index.html; then
+            echo "لا تغيير بالبيانات — تخطي الحفظ."
+          else
+            git add index.html
+            git commit -m "🤖 تحديث تلقائي: لقطة محتوى الزواحف الآلية"
+            git push
+          fi
