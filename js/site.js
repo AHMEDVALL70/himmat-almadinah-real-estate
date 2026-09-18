@@ -880,6 +880,11 @@ function offerCardHtml(o, matchScore){
   const matchBadge = (matchScore !== null && matchScore !== undefined)
     ? `<span class="match-badge" title="${t.match_badge_hint}">🎯 ${matchScore}% ${t.match_badge_label}</span>`
     : '';
+  // 2026-09-18: شارة ثقة مرئية لأي عرض عنده رقم رخصة عقارية موثَّق — تميّز
+  // حقيقي عن مجموعات العقار غير المرخَّصة المنتشرة بواتساب/تيليجرام محلياً.
+  const licenseBadge = o.real_estate_license
+    ? `<span class="license-badge" title="${currentLang==='ar' ? 'رخصة عقارية موثّقة رقم ' : 'Verified real estate license no. '}${escapeHtml(o.real_estate_license)}">✅ ${currentLang==='ar' ? 'رخصة موثّقة' : 'Licensed'}</span>`
+    : '';
   return `<div class="card offer-card fade-up" onclick="openDetailModal('${key}')">
     <button type="button" class="favorite-btn${isFavorite(key) ? ' active' : ''}" id="fav-${key}"
             onclick="event.stopPropagation(); toggleFavorite('${key}')"
@@ -895,6 +900,7 @@ function offerCardHtml(o, matchScore){
     <div class="offer-top"><b>${o.title}</b>${o.discount_pct > 0 ? `<span class="offer-discount">-${o.discount_pct}%</span>` : ''}</div>
     <div class="offer-body">
       ${matchBadge}
+      ${licenseBadge}
       <h4>${typeLabel(o.property_type)} · ${districtLabel(o.district)}</h4>
       <div class="loc">${o.city} — ${o.area_sqm} م² · ${o.rooms} ${t.rooms_suffix}</div>
       ${priceHtml}
