@@ -674,6 +674,25 @@ create policy district_prices_admin_write on district_prices
     with check (public.is_owner());
 
 -- ============================================================================
+-- 3.9) سجل تاريخي لأسعار الأحياء (district_price_history) — 2026-09-19
+-- ⚠️ كانت مطبَّقة فعلياً على القاعدة الحية من قبل (ملف migration منفصل)،
+-- بس نُسيت هنا بالتوثيق — تصحيح الآن ليطابق الواقع الحي فعلياً.
+-- append-only بس (صفر upsert)، تسمح لاحقاً بحساب اتجاه السعر (📈/📉).
+-- ============================================================================
+create table if not exists district_price_history (
+    id             uuid primary key default gen_random_uuid(),
+    district_id    uuid not null references districts(id) on delete cascade,
+    price_per_sqm  numeric(10,2) not null,
+    recorded_at    timestamptz not null default now()
+);
+create index if not exists idx_district_price_history_lookup
+    on district_price_history(district_id, recorded_at desc);
+alter table district_price_history enable row level security;
+drop policy if exists district_price_history_public_read on district_price_history;
+create policy district_price_history_public_read on district_price_history
+    for select using (true);
+
+-- ============================================================================
 -- 4) العقود
 -- ============================================================================
 create table if not exists contracts (
