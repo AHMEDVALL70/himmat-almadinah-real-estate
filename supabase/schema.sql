@@ -1091,6 +1091,11 @@ create policy cities_admin_insert on cities
 drop policy if exists districts_admin_insert on districts;
 create policy districts_admin_insert on districts
     for insert with check (public.is_owner());
+-- كانت مفقودة تماماً منذ إنشاء الجدول (2026-09-19) — اكتُشفت بفحص استباقي
+-- (نفس فجوة contracts بالضبط) قبل بناء زر "تعديل اسم الحي"، مو بعده.
+drop policy if exists districts_admin_update on districts;
+create policy districts_admin_update on districts
+    for update using (public.is_owner()) with check (public.is_owner());
 
 -- ============================================================================
 -- 10) جدولة فحص التنبيهات يومياً عبر pg_cron (بديل خادم Python الدائم)

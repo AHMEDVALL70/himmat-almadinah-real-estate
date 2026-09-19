@@ -286,6 +286,16 @@
       </div>
 
       <div class="card" style="padding:0;overflow-x:auto;margin-top:16px">
+        <div class="filter-row" style="padding:14px 14px 0">
+          <input id="districts-list-search" type="text" placeholder="ابحث باسم الحي أو المدينة...">
+        </div>
+        <table>
+          <thead><tr><th>المدينة</th><th>الحي</th><th>إجراءات</th></tr></thead>
+          <tbody id="districts-list-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="card" style="padding:0;overflow-x:auto;margin-top:16px">
         <table>
           <thead><tr><th>المدينة</th><th>عدد الأحياء المسجَّلة</th></tr></thead>
           <tbody id="cities-summary-tbody"></tbody>
@@ -386,6 +396,6 @@
 
 <div id="turnstile-container" style="display:none"></div>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="js/admin.js?v=20260919a"></script>
+<script src="js/admin.js?v=20260919b"></script>
 </body>
 </html>

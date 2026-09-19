@@ -139,6 +139,68 @@ function renderCitiesSummaryTable(){
     .join('') || '<tr><td colspan="2">لا يوجد</td></tr>';
 }
 
+/* 2026-09-19: قائمة الأحياء الفعلية بزر تعديل اسم — اكتُشفت الحاجة فعلياً
+   لما لقينا "حي العنابس" مخزَّناً بالبادئة "حي" خلاف بقية الأحياء (بادئة
+   زائدة كانت على الأغلب سبب فشل تحديث سعره التلقائي). صفر واجهة تعديل
+   كانت موجودة قبل اليوم — إضافة/عرض بس. */
+async function loadDistrictsListTable(){
+  const tbody = document.getElementById('districts-list-tbody');
+  if (!tbody) return;
+  const search = document.getElementById('districts-list-search')?.value.trim().toLowerCase() || '';
+  tbody.innerHTML = `<tr class="empty-row"><td colspan="3">جاري التحميل...</td></tr>`;
+  try {
+    const { data, error } = await supa.from('districts').select('id, name, cities(name)').order('name');
+    if (error) throw error;
+    let rows = data || [];
+    if (search){
+      rows = rows.filter(d =>
+        d.name.toLowerCase().includes(search) || (d.cities?.name || '').toLowerCase().includes(search)
+      );
+    }
+    if (!rows.length){
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="3">لا يوجد أحياء مطابقة.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(d => `
+      <tr id="district-row-${d.id}">
+        <td>${escapeAdmin(d.cities?.name || '—')}</td>
+        <td class="district-name-cell" data-name="${escapeAdmin(d.name)}">${escapeAdmin(d.name)}</td>
+        <td class="actions-cell"><button class="btn btn-ghost" data-owner-only onclick="startEditDistrictName('${d.id}')">✏️ تعديل</button></td>
+      </tr>`).join('');
+  } catch (e) {
+    console.error('loadDistrictsListTable failed', e);
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="3">⚠️ تعذّر تحميل قائمة الأحياء.</td></tr>`;
+  }
+}
+document.getElementById('districts-list-search')?.addEventListener('input', loadDistrictsListTable);
+
+function startEditDistrictName(id){
+  const row = document.getElementById(`district-row-${id}`);
+  const cell = row.querySelector('.district-name-cell');
+  const current = cell.dataset.name;
+  cell.innerHTML = `<input type="text" id="edit-district-input-${id}" value="${escapeAdmin(current)}" style="width:100%">`;
+  row.querySelector('.actions-cell').innerHTML = `
+    <button class="btn btn-ok" onclick="saveDistrictName('${id}')">💾 حفظ</button>
+    <button class="btn btn-ghost" onclick="loadDistrictsListTable()">إلغاء</button>`;
+  document.getElementById(`edit-district-input-${id}`).focus();
+}
+
+async function saveDistrictName(id){
+  const input = document.getElementById(`edit-district-input-${id}`);
+  const newName = input.value.trim();
+  if (!newName){ showToast('⚠️ اسم الحي ما يقدر يكون فاضياً'); return; }
+  try {
+    const { error } = await supa.from('districts').update({ name: newName }).eq('id', id);
+    if (error) throw error;
+    showToast('✅ تم تحديث اسم الحي');
+    await refreshCityDistrictData(); // يحدّث CITY_DISTRICTS بالذاكرة كمان (تستخدمها بقية النماذج)
+    loadDistrictsListTable();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر التحديث: ' + e.message);
+  }
+}
+
 // تُستدعى بعد تسجيل الدخول (نفس مكان loadDashboard) — تحدّث كل القوائم
 // المعتمدة على CITY_DISTRICTS دفعة وحدة بعد اكتمال الجلب من قاعدة البيانات
 async function refreshCityDistrictData(){
@@ -153,6 +215,7 @@ async function refreshCityDistrictData(){
 populateDistrictNewCitySelect();
 populatePriceManualCitySelect();
 renderCitiesSummaryTable();
+loadDistrictsListTable();
 
 document.getElementById('btn-add-city')?.addEventListener('click', async ()=>{
   const nameInput = document.getElementById('city-new-name');
@@ -781,6 +844,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     if (btn.dataset.tab === 'contracts') loadContracts();
     if (btn.dataset.tab === 'team') loadTeamMembers();
     if (btn.dataset.tab === 'trash') loadTrash();
+    if (btn.dataset.tab === 'cities') loadDistrictsListTable();
   });
 });
 
