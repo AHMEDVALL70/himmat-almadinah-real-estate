@@ -316,6 +316,12 @@ async function handleRequest(startedAt: number) {
 
   console.log(`[update-district-prices] بدء التحديث لـ ${targets.length} حي...`);
 
+  // 2026-09-18: نجمع صفوف السجل التاريخي هنا بالذاكرة (بدون أي استعلام)،
+  // ونكتبها دفعة وحدة بنهاية الحلقة — بدل استعلام كتابة منفصل لكل حي (كان
+  // يستهلك من حد CPU Time الصارم بالخطة المجانية، وتسبّب فعلياً بانهيار
+  // الدالة كاملة أول تشغيلة، تأكدنا منه بسجلات Supabase مباشرة).
+  const historyRows: { district_id: string; price_per_sqm: number }[] = [];
+
   await runBatched(targets, 5, async (d: DistrictTarget) => {
     const result = await fetchDistrictPrice(d.citySlug, d.name, d.cityName);
 
@@ -344,6 +350,7 @@ async function handleRequest(startedAt: number) {
       console.error(`[update-district-prices] فشل حفظ: ${d.cityName} / ${d.name} — ${upsertError.message}`);
     } else {
       summary.updated++;
+      historyRows.push({ district_id: d.id, price_per_sqm: result.price });
     }
   });
 
@@ -351,6 +358,19 @@ async function handleRequest(startedAt: number) {
   console.log(
     `[update-district-prices] انتهى تحديث الأحياء خلال ${seconds}ث — نجح: ${summary.updated} — فشل: ${summary.failed} — تجاوز (يدوي): ${summary.skippedManual} من أصل ${allTargets.length}`
   );
+
+  // ===== إضافة 2026-09-18: كتابة اللقطة التاريخية دفعة وحدة =====
+  // استعلام واحد لكل ٢٦٦ حي (بدل ٢٦٦ استعلام منفصل) — فشل هذا الاستعلام لا
+  // يؤثر على نجاح تحديث الأسعار نفسه أعلاه (بيانات الاتجاه إضافية)، نسجّل
+  // الخطأ بس ونكمل.
+  if (historyRows.length > 0) {
+    const { error: historyError } = await supabase.from("district_price_history").insert(historyRows);
+    if (historyError) {
+      console.error(`[update-district-prices] فشل تسجيل اللقطة التاريخية الدفعية (${historyRows.length} صف): ${historyError.message}`);
+    } else {
+      console.log(`[update-district-prices] تسجيل اللقطة التاريخية: ${historyRows.length} صف بنجاح`);
+    }
+  }
 
   // ===== تحديث 2026-09-14: تحديث متوسط كل مدينة من رقم رغدان الرسمي =====
   // خطوة منفصلة وخفيفة (عدد المدن صغير جداً مقارنة بعدد الأحياء)، تُنفَّذ
