@@ -1043,6 +1043,12 @@ create policy offers_admin_update on offers
 drop policy if exists contracts_admin_read on contracts;
 create policy contracts_admin_read on contracts
     for select using (auth.role() = 'authenticated');
+-- كانت مفقودة تماماً منذ إنشاء الجدول (2026-09-19) — اكتُشفت أول ما
+-- حاولنا فعلياً نعدّل عقداً (زر الإلغاء)، Postgres يرفض أي UPDATE بصمت
+-- بدون سياسة صريحة.
+drop policy if exists contracts_admin_update on contracts;
+create policy contracts_admin_update on contracts
+    for update using (public.is_staff()) with check (public.is_staff());
 drop policy if exists parties_admin_read on parties;
 create policy parties_admin_read on parties
     for select using (auth.role() = 'authenticated');
