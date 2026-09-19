@@ -1834,12 +1834,53 @@ function renderPriceDbFreshness(){
   el.style.display = '';
 }
 
+/* 2026-09-19: مؤشر اتجاه السعر (📈/📉) — يقارن السعر الحالي بأقدم لقطة
+   تاريخية متوفرة لنفس الحي بجدول district_price_history (يُملأ أسبوعياً
+   من update-district-prices، راجع تحديث 2026-09-18 بالدالة). يحتاج فعلياً
+   نقطتين زمنيتين متباعدتين — لو ما فيه إلا لقطة وحدة (وضعنا الحالي، أول
+   يوم بعد تفعيل الميزة)، أو الفرق ضئيل جداً ليعبّر عن اتجاه حقيقي، صفر
+   عرض إطلاقاً — بدون أي رقم مختلَق أو "٠٪" مضلِّل للزائر. */
+async function updatePriceTrend(districtId, currentPrice){
+  const el = document.getElementById('v-price-trend');
+  if (!el) return;
+  el.textContent = '';
+  el.style.display = 'none';
+  if (!districtId || !dbReady || !currentPrice) return;
+  try {
+    const { data, error } = await withTimeout(
+      supa.from('district_price_history')
+        .select('price_per_sqm, recorded_at')
+        .eq('district_id', districtId)
+        .order('recorded_at', { ascending: true })
+        .limit(1),
+      3000
+    );
+    if (error || !data || !data.length) return;
+    const oldest = data[0];
+    if (!oldest.price_per_sqm) return;
+    const daysAgo = Math.max(1, Math.round((Date.now() - new Date(oldest.recorded_at).getTime()) / 86400000));
+    const pct = ((currentPrice - oldest.price_per_sqm) / oldest.price_per_sqm) * 100;
+    if (Math.abs(pct) < 0.5) return; // فرق ضئيل جداً (أو صفر — لقطة وحدة بس) — ما يستاهل عرض اتجاه
+    const rounded = Math.abs(pct).toFixed(1);
+    const isUp = pct > 0;
+    const text = {
+      ar: `${isUp ? '📈' : '📉'} ${isUp ? '+' : '-'}${rounded}% خلال آخر ${daysAgo} يوم`,
+      en: `${isUp ? '📈' : '📉'} ${isUp ? '+' : '-'}${rounded}% over the last ${daysAgo} days`,
+    };
+    el.style.color = isUp ? 'var(--ok, #4fae76)' : 'var(--danger, #e5484d)';
+    el.textContent = text[currentLang] || text.ar;
+    el.style.display = '';
+  } catch (e) {
+    console.error('updatePriceTrend failed', e);
+  }
+}
+
 async function loadDistrictPricesFromDb(){
   if (!dbReady) return;
   try {
     const { data, error } = await withTimeout(
       supa.from('district_prices')
-        .select('price_per_sqm, transaction_count, period_note, updated_at, source, manual_price_low, manual_price_high, manual_source_note, districts(name, cities(name))'),
+        .select('district_id, price_per_sqm, transaction_count, period_note, updated_at, source, manual_price_low, manual_price_high, manual_source_note, districts(name, cities(name))'),
       3000
     );
     if (error || !data) return;
@@ -1852,6 +1893,7 @@ async function loadDistrictPricesFromDb(){
       DISTRICT_PRICES[cityName][districtName] = row.price_per_sqm;
       if (!DISTRICT_PRICE_META[cityName]) DISTRICT_PRICE_META[cityName] = {};
       DISTRICT_PRICE_META[cityName][districtName] = {
+        districtId: row.district_id,
         count: row.transaction_count,
         periodNote: row.period_note,
         updatedAt: row.updated_at,
@@ -2153,6 +2195,7 @@ function runValuation(){
   const priceSourceEl = document.getElementById('v-price-source');
   priceSourceEl.className = 'notice ' + ((usingRealPrice || isManual) ? 'notice-ok-source' : 'notice-warn');
   priceSourceEl.innerHTML = ((usingRealPrice || isManual) ? '✅ ' : '⚠️ ') + (sourceNote[currentLang] || sourceNote.ar);
+  updatePriceTrend(priceMeta?.districtId, pricePerSqm);
 
   const bd = {
     ar: `السعر الأساسي = ${money(pricePerSqm)} ر.س/م² × ${area} م² × معامل النوع ${typeMult} = ${money(base)} ر.س<br>
