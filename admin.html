@@ -186,6 +186,9 @@
         </select>
         <button class="btn btn-ghost" id="btn-refresh-inq">تحديث</button>
         <button class="btn btn-ghost" id="btn-export-inq">⬇️ تصدير Excel</button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap">
+          <input type="checkbox" id="inq-show-deleted"> إظهار المحذوفة
+        </label>
       </div>
       <div class="card" style="padding:0;overflow-x:auto">
         <table>
@@ -202,6 +205,9 @@
     <section class="tab-panel" id="panel-contracts">
       <div class="filter-row">
         <input id="contracts-search" type="text" placeholder="ابحث برقم العقد أو اسم طرف..." aria-label="البحث برقم العقد أو اسم طرف">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap">
+          <input type="checkbox" id="contracts-show-cancelled"> إظهار الملغاة
+        </label>
         <button class="btn btn-ghost" id="btn-refresh-contracts">تحديث</button>
       </div>
       <div class="card" style="padding:0;overflow-x:auto">

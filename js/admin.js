@@ -795,7 +795,7 @@ async function loadDashboard(){
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'pending').is('deleted_at', null),
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'approved').is('deleted_at', null),
       supa.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'rejected').is('deleted_at', null),
-      supa.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+      supa.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new').is('deleted_at', null),
       supa.from('contracts').select('id', { count: 'exact', head: true }),
       supa.from('properties').select('*').is('deleted_at', null).order('created_at', { ascending: false }).limit(8),
       supa.from('page_views').select('id', { count: 'exact', head: true }).gte('viewed_at', todayStart.toISOString()),
@@ -1395,11 +1395,16 @@ async function deleteOffer(id){
    ========================================================================== */
 async function loadInquiries(){
   const filter = document.getElementById('inq-filter').value;
+  const showDeleted = document.getElementById('inq-show-deleted').checked;
   const tbody = document.getElementById('inquiries-tbody');
   tbody.innerHTML = `<tr class="empty-row"><td colspan="7">جاري التحميل...</td></tr>`;
   try {
     let query = supa.from('inquiries').select('*').order('created_at', { ascending: false }).limit(100);
     if (filter !== 'all') query = query.eq('status', filter);
+    // 2026-09-19: حذف ناعم (deleted_at) — نفس نمط offers/properties بالأمس،
+    // بدل إعادة استخدام status لأن new/contacted/closed تخص سير العمل
+    // الفعلي (متابعة استفسار حقيقي)، مو حذف بيانات تجريبية.
+    if (!showDeleted) query = query.is('deleted_at', null);
     const { data, error } = await query;
     if (error) throw error;
     window.__INQUIRIES_CACHE = data;
@@ -1414,8 +1419,12 @@ async function loadInquiries(){
         <td><span class="badge badge-${i.status}">${statusLabel(i.status)}</span></td>
         <td>${new Date(i.created_at).toLocaleDateString('ar-SA')}</td>
         <td class="actions-cell">
+          ${i.deleted_at
+            ? `<button class="btn btn-ok" data-staff-only onclick="restoreInquiry('${i.id}')">↩️ استرجاع</button>`
+            : `
           ${i.status !== 'contacted' ? `<button class="btn btn-ghost" data-staff-only onclick="setInquiryStatus('${i.id}','contacted')">تم التواصل</button>` : ''}
           ${i.status !== 'closed' ? `<button class="btn btn-ghost" data-staff-only onclick="setInquiryStatus('${i.id}','closed')">إغلاق</button>` : ''}
+          <button class="btn btn-danger" data-staff-only onclick="deleteInquiry('${i.id}')">🗑️ حذف</button>`}
         </td>
       </tr>`).join('');
   } catch (e) {
@@ -1425,6 +1434,34 @@ async function loadInquiries(){
 }
 document.getElementById('inq-filter').addEventListener('change', loadInquiries);
 document.getElementById('btn-refresh-inq').addEventListener('click', loadInquiries);
+document.getElementById('inq-show-deleted').addEventListener('change', loadInquiries);
+
+async function deleteInquiry(id){
+  if (!confirm('نقل هذا الاستفسار لسلة المحذوفات؟ تقدر تسترجعه لاحقاً ("إظهار المحذوفة").')) return;
+  try {
+    const { error } = await supa.from('inquiries').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+    if (error) throw error;
+    showToast('🗑️ انتقل للمحذوفات — يمكن استرجاعه');
+    loadInquiries();
+    loadDashboard();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر الحذف: ' + e.message);
+  }
+}
+
+async function restoreInquiry(id){
+  try {
+    const { error } = await supa.from('inquiries').update({ deleted_at: null }).eq('id', id);
+    if (error) throw error;
+    showToast('✅ تم الاسترجاع');
+    loadInquiries();
+    loadDashboard();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر الاسترجاع: ' + e.message);
+  }
+}
 
 async function setInquiryStatus(id, status){
   try {
@@ -1458,16 +1495,23 @@ function idTypeLabel(t){
 async function loadContracts(){
   const tbody = document.getElementById('contracts-tbody');
   const search = document.getElementById('contracts-search').value.trim().toLowerCase();
+  const showCancelled = document.getElementById('contracts-show-cancelled').checked;
   tbody.innerHTML = `<tr class="empty-row"><td colspan="12">جاري التحميل...</td></tr>`;
 
 try {
-    const { data, error } = await supa.from('contracts')
+    let query = supa.from('contracts')
       .select(`*,
         lessor:parties!contracts_lessor_id_fkey(full_name, phone, national_id, id_type, nationality, date_of_birth),
         lessee:parties!contracts_lessee_id_fkey(full_name, phone, national_id, id_type, nationality, date_of_birth),
         contract_installments(id)`)
       .order('created_at', { ascending: false })
       .limit(100);
+    // 2026-09-19: افتراضياً نخفي العقود "الملغاة" (status='CANCELLED') من القائمة
+    // العادية — نفس فلسفة الحذف الناعم بالأمس، بس هنا نستخدم عمود status
+    // الموجود أصلاً بالجدول (CANCELLED كانت قيمة معرَّفة بالسكيما بدون أي
+    // واجهة تفعّلها فعلياً قبل اليوم)، بدل إضافة عمود deleted_at جديد.
+    if (!showCancelled) query = query.neq('status', 'CANCELLED');
+    const { data, error } = await query;
     if (error) throw error;
 
     let rows = data || [];
@@ -1500,6 +1544,9 @@ try {
         <td>${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
         <td class="actions-cell">
           <button class="btn btn-ghost" id="btn-toggle-${c.id}" onclick="toggleInstallments('${c.id}')">عرض التفاصيل</button>
+          ${c.status === 'CANCELLED'
+            ? `<button class="btn btn-ok" data-staff-only onclick="restoreContract('${c.id}')">↩️ استرجاع</button>`
+            : `<button class="btn btn-danger" data-staff-only onclick="cancelContract('${c.id}')">🚫 إلغاء</button>`}
         </td>
       </tr>
       <tr class="installments-row" id="installments-${c.id}" style="display:none">
@@ -1510,7 +1557,43 @@ try {
     tbody.innerHTML = `<tr class="empty-row"><td colspan="12">⚠️ تعذّر تحميل العقود.</td></tr>`;
   }
 }
+
+/* 2026-09-19: إلغاء/استرجاع العقود — reversible دايماً، صفر حذف فعلي.
+   نستخدم عمود status الموجود أصلاً (قيمة CANCELLED معرَّفة بالسكيما من
+   البداية) بدل عمود جديد، لأن الجدول جاهز لها أصلاً. حفظنا الحالة الأصلية
+   (ACTIVE أو EXPIRED) بذاكرة contractsCache قبل الإلغاء عشان الاسترجاع
+   يرجّعها لحالتها الحقيقية، مو دايماً ACTIVE. */
+async function cancelContract(id){
+  if (!confirm('إلغاء هذا العقد؟ يبقى محفوظاً بالكامل وتقدر تسترجعه لاحقاً (فعّل "إظهار الملغاة" لتشوفه).')) return;
+  const previousStatus = contractsCache[id]?.status || 'ACTIVE';
+  try {
+    const { error } = await supa.from('contracts')
+      .update({ status: 'CANCELLED', pre_cancel_status: previousStatus })
+      .eq('id', id);
+    if (error) throw error;
+    showToast('🚫 تم إلغاء العقد — يمكن استرجاعه');
+    loadContracts();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر الإلغاء: ' + e.message);
+  }
+}
+
+async function restoreContract(id){
+  const restoredStatus = contractsCache[id]?.pre_cancel_status || 'ACTIVE';
+  try {
+    const { error } = await supa.from('contracts').update({ status: restoredStatus }).eq('id', id);
+    if (error) throw error;
+    showToast('✅ تم الاسترجاع');
+    loadContracts();
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ تعذّر الاسترجاع: ' + e.message);
+  }
+}
+
 document.getElementById('btn-refresh-contracts').addEventListener('click', loadContracts);
+document.getElementById('contracts-show-cancelled').addEventListener('change', loadContracts);
 let contractsSearchDebounce;
 document.getElementById('contracts-search').addEventListener('input', ()=>{
   clearTimeout(contractsSearchDebounce);

@@ -289,6 +289,10 @@ create table if not exists inquiries (
 );
 create index if not exists idx_inquiries_status on inquiries(status);
 
+-- حذف ناعم للاستفسارات (2026-09-19) — نفس نمط offers/properties بالأمس.
+alter table inquiries add column if not exists deleted_at timestamptz;
+create index if not exists idx_inquiries_deleted_at on inquiries(deleted_at);
+
 -- ============================================================================
 -- 3.7) بيانات أولية (Seed) — عروض وعقارات واقعية حتى لا يبدو الموقع فارغاً
 --      عند الإطلاق. آمن التكرار (on conflict do nothing عبر تحقق مسبق) —
@@ -715,6 +719,11 @@ alter table contracts add column if not exists floor_number varchar(50);
 alter table contracts add column if not exists ejar_status varchar(20) not null default 'not_submitted';
 alter table contracts add column if not exists ejar_contract_number varchar(100);
 alter table contracts add column if not exists ejar_submitted_at timestamptz;
+
+-- إلغاء/استرجاع العقود (2026-09-19) — status='CANCELLED' كانت معرَّفة أصلاً
+-- بالسكيما بدون أي واجهة تفعّلها. هذا العمود يحفظ الحالة الأصلية (ACTIVE
+-- أو EXPIRED) قبل الإلغاء، عشان زر "استرجاع" يرجّعها صح، مو دايماً ACTIVE.
+alter table contracts add column if not exists pre_cancel_status varchar(50);
 
 create index if not exists idx_contracts_status on contracts(status);
 
